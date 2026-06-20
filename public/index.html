@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stellar Princesses — Sci-Fi RPG</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;font-family:'Courier New',monospace}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+#game-container{position:relative;width:960px;height:640px}
+canvas{position:absolute;top:0;left:0}
+canvas#ui-layer{z-index:10;pointer-events:none}
+#controller-status{position:absolute;bottom:4px;right:8px;color:#4af;font-size:10px;z-index:20}
+</style>
+</head>
+<body>
+<div id="game-container">
+<canvas id="game-layer" width="960" height="640"></canvas>
+<canvas id="ui-layer" width="960" height="640"></canvas>
+<div id="controller-status">🎮 Controller: Disconnected</div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
