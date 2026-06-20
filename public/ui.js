@@ -241,7 +241,7 @@ TitleSys.render=function(){
   ctx.fillStyle='#ffcc33';ctx.font='24px monospace';ctx.textAlign='center';ctx.fillText('STELLAR PRINCESSES',E.VIEW_W/2,80);
   ctx.fillStyle='#aa44ff';ctx.font='12px monospace';ctx.fillText('A Sci-Fi RPG',E.VIEW_W/2,100);
   drawChar(E.VIEW_W/2,160,0,Math.floor(this.timer/20)%3,'human','#ffdd44','#44ddff','#ffccaa','#aa44ff');
-  if(this.timer>30&&Math.floor(this.timer/40)%2){ctx.fillStyle='#fff';ctx.font='12px monospace';ctx.fillText('Press Z or SPACE to start',E.VIEW_W/2,220);}
+  if(this.timer>30&&Math.floor(this.timer/40)%2){ctx.fillStyle='#fff';ctx.font='12px monospace';ctx.fillText('Press A / Z / SPACE to start',E.VIEW_W/2,220);}
   ctx.fillStyle='#666';ctx.font='10px monospace';ctx.fillText('v2.0 — Modular Engine',E.VIEW_W/2,E.VIEW_H-12);
   ctx.textAlign='left';
 };
@@ -266,7 +266,7 @@ EvoSys.render=function(){
   if(t>60){
     uiCtx.fillStyle='#ffcc33';uiCtx.font='14px monospace';uiCtx.textAlign='center';uiCtx.fillText('EVOLUTION',E.VIEW_W/2,40);
     uiCtx.fillStyle='#fff';uiCtx.font='11px monospace';uiCtx.fillText('Lyra has become the '+Game.party[0].evolutionName+'!',E.VIEW_W/2,60);
-    uiCtx.fillStyle='#aaa';uiCtx.font='10px monospace';uiCtx.fillText('Press Z to continue',E.VIEW_W/2,E.VIEW_H-20);
+    uiCtx.fillStyle='#aaa';uiCtx.font='10px monospace';uiCtx.fillText('Press A / Z to continue',E.VIEW_W/2,E.VIEW_H-20);
     uiCtx.textAlign='left';
   }
 };

@@ -80,8 +80,20 @@ function pollGamepad(){
     g.buttons.forEach(function(btn,idx){if(btn.pressed&&!GpButtons[idx])GpButtonsJust[idx]=true;GpButtons[idx]=btn.pressed;});return g;
   }return null;
 }
-function dx(){var d=0,g=pollGamepad();if(Keys['KeyA']||Keys['ArrowLeft']||(g&&g.axes[0]<-0.5))d--;if(Keys['KeyD']||Keys['ArrowRight']||(g&&g.axes[0]>0.5))d++;return d;}
-function dy(){var d=0,g=pollGamepad();if(Keys['KeyW']||Keys['ArrowUp']||(g&&g.axes[1]<-0.5))d--;if(Keys['KeyS']||Keys['ArrowDown']||(g&&g.axes[1]>0.5))d++;return d;}
+function dx(){
+  var d=0,g=pollGamepad();
+  if(Keys['KeyA']||Keys['ArrowLeft']||(g&&g.axes[0]<-0.5))d--;
+  if(Keys['KeyD']||Keys['ArrowRight']||(g&&g.axes[0]>0.5))d++;
+  if(g){if(g.buttons[14]&&g.buttons[14].pressed)d--;if(g.buttons[15]&&g.buttons[15].pressed)d++;}
+  return d;
+}
+function dy(){
+  var d=0,g=pollGamepad();
+  if(Keys['KeyW']||Keys['ArrowUp']||(g&&g.axes[1]<-0.5))d--;
+  if(Keys['KeyS']||Keys['ArrowDown']||(g&&g.axes[1]>0.5))d++;
+  if(g){if(g.buttons[12]&&g.buttons[12].pressed)d--;if(g.buttons[13]&&g.buttons[13].pressed)d++;}
+  return d;
+}
 function inpInteract(){return KeysJust['KeyZ']||KeysJust['Space']||GpButtonsJust[0];}
 function inpCancel(){return KeysJust['KeyX']||KeysJust['Escape']||GpButtonsJust[1];}
 function inpMenu(){return KeysJust['Enter']||GpButtonsJust[9];}

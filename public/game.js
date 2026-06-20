@@ -94,7 +94,7 @@ function renderHUD(){
   uiCtx.fillStyle='#aaa';uiCtx.font='9px monospace';uiCtx.fillText(Game.state==='town'?'Nova Prime':'Void Frontier',E.VIEW_W-94,36);
   if(Game.party[0].evolution>0){uiCtx.fillStyle='#ffcc33';uiCtx.font='9px monospace';uiCtx.fillText('★ '+Game.party[0].evolutionName,E.VIEW_W-100,50);}
   uiCtx.fillStyle='rgba(10,10,30,0.6)';uiCtx.fillRect(6,E.VIEW_H-20,180,16);
-  uiCtx.fillStyle='#888';uiCtx.font='8px monospace';uiCtx.fillText('WASD:Move Z:Interact X:Menu',10,E.VIEW_H-7);
+  uiCtx.fillStyle='#888';uiCtx.font='8px monospace';uiCtx.fillText('D-Pad:Move A:Interact X:Menu',10,E.VIEW_H-7);
 }
 
 // ─── MAIN GAME LOOP ─────────────────────────────────────────
