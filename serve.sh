@@ -2,8 +2,8 @@
 # Auto-deploy: serve the game and watch for changes
 cd /home/jrhol/sci-fi-princesses/public
 
-# Kill any existing server on port 8080
-pkill -f "python3 -m http.server 8080" 2>/dev/null || true
+# Kill any existing server on port 8090
+pkill -f "python3 -m http.server 8090" 2>/dev/null || true
 pkill -f "http-server" 2>/dev/null || true
 
 # Start server in background
@@ -22,5 +22,5 @@ if command -v inotifywait &> /dev/null; then
   done
 else
   echo "Install inotify-tools for auto-refresh notifications"
-  echo "Game running at http://localhost:8080"
+  echo "Game running at http://localhost:8090"
 fi
