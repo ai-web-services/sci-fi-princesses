@@ -474,7 +474,21 @@ Player.interact=function(){
   var ddx=[0,-1,1,0][this.dir],ddy=[1,0,0,-1][this.dir];
   var tx=this.x+ddx,ty=this.y+ddy;
   var npc=map.getNPCAt?map.getNPCAt(tx,ty):null;
-  if(npc){SFX.talk();DialogueSys.start(npc);return;}
+  if(npc){
+    SFX.talk();
+    if(npc.shop&&!npc.recruitable){
+      // Shop NPC: dialogue then open shop
+      var shopType=npc.shop;
+      var npcName=npc.name;
+      var npcDialogue=npc.dialogue[Math.floor(Math.random()*npc.dialogue.length)];
+      DialogueSys.showText(npcName+': '+npcDialogue,function(){
+        ShopSys.start(shopType);
+      });
+    } else {
+      DialogueSys.start(npc);
+    }
+    return;
+  }
   var sign=map.getSignAt?map.getSignAt(tx,ty):null;
   if(sign){SFX.talk();DialogueSys.showText(sign.text);return;}
   var chest=map.getChestAt?map.getChestAt(tx,ty):null;
