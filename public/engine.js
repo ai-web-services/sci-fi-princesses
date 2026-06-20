@@ -101,7 +101,7 @@ function dy(){
 function inpInteract(){return KeysJust['KeyZ']||KeysJust['Space']||GpButtonsJust[0];}
 function inpCancel(){return KeysJust['KeyX']||KeysJust['Escape']||GpButtonsJust[1];}
 function inpMenu(){return KeysJust['Enter']||GpButtonsJust[9];}
-function clearJust(){KeysJust={};GpButtonsJust={};_gpCache=null;}
+function clearJust(){KeysJust={};GpButtonsJust={};GpButtons={};_gpCache=null;}
 
 // Game state
 var Game={state:'title',prevState:null,stateTime:0,gold:500,inventory:[],party:[],questFlags:{},time:0};

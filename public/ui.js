@@ -226,13 +226,16 @@ TitleSys.update=function(){
   this.timer++;
   if(inpInteract()&&this.timer>30){
     SFX.confirm();
+    if(gameHasSave()){
+      if(gameLoad()){Player.updateCamera();setState('town');autoSave();return;}
+    }
     Game.party=[createLyra()];
     var sword=Items.create('weapon','Common',1);if(sword)Game.party[0].equipment.weapon=sword;
     var tunic=Items.create('armor','Common',1);if(tunic)Game.party[0].equipment.armor=tunic;
     Game.inventory.push(Items.create('consumable','Common',1));
     Game.inventory.push(Items.create('consumable','Common',1));
     Game.inventory.push(Items.create('material','Common',1));
-    Game.gold=500;Player.init();setState('town');
+    Game.gold=500;Player.init();setState('town');autoSave();
   }
 };
 TitleSys.render=function(){

@@ -1,4 +1,54 @@
-// game.js — Main game loop, player, map rendering, recruitment
+// game.js — Main game loop, player, map rendering, recruitment, save/load
+
+// ─── SAVE / LOAD ────────────────────────────────────────────
+function gameSave(){
+  var data={
+    version:1,
+    gold:Game.gold,
+    inventory:Game.inventory,
+    party:Game.party.map(function(c){
+      return {name:c.name,species:c.species,role:c.role,level:c.level,xp:c.xp,xpToLevel:c.xpToLevel,
+        hp:c.hp,maxHp:c.maxHp,sp:c.sp,maxSp:c.maxSp,atk:c.atk,def:c.def,spd:c.spd,crit:c.crit,
+        lightAtk:c.lightAtk,darkAtk:c.darkAtk,fireAtk:c.fireAtk,iceAtk:c.iceAtk,lightningAtk:c.lightningAtk,
+        lightRes:c.lightRes,darkRes:c.darkRes,fireRes:c.fireRes,iceRes:c.iceRes,
+        equipment:c.equipment,skills:c.skills,evolution:c.evolution,evolutionName:c.evolutionName,
+        hairColor:c.hairColor,eyeColor:c.eyeColor,skinColor:c.skinColor,outfitColor:c.outfitColor};
+    }),
+    questFlags:Game.questFlags,
+    playerX:Player.x,playerY:Player.y,playerDir:Player.dir,
+    bossDefeated:OverworldMap.bosses.map(function(b){return b.defeated;})
+  };
+  try{localStorage.setItem('stellarPrincesses_save',JSON.stringify(data));}catch(e){}
+}
+function gameLoad(){
+  try{
+    var raw=localStorage.getItem('stellarPrincesses_save');
+    if(!raw)return false;
+    var data=JSON.parse(raw);
+    Game.gold=data.gold||500;
+    Game.inventory=data.inventory||[];
+    Game.questFlags=data.questFlags||{};
+    if(data.party&&data.party.length>0){
+      Game.party=data.party.map(function(c){
+        var ch={name:c.name,species:c.species,role:c.role,level:c.level||1,xp:c.xp||0,xpToLevel:c.xpToLevel||100,
+          hp:c.hp||80,maxHp:c.maxHp||80,sp:c.sp||20,maxSp:c.maxSp||20,
+          atk:c.atk||10,def:c.def||5,spd:c.spd||10,crit:c.crit||5,
+          lightAtk:c.lightAtk||0,darkAtk:c.darkAtk||0,fireAtk:c.fireAtk||0,iceAtk:c.iceAtk||0,lightningAtk:c.lightningAtk||0,
+          lightRes:c.lightRes||0,darkRes:c.darkRes||0,fireRes:c.fireRes||0,iceRes:c.iceRes||0,
+          equipment:c.equipment||{weapon:null,armor:null,accessory1:null,accessory2:null,implant:null},
+          skills:c.skills||[],evolution:c.evolution||0,evolutionName:c.evolutionName||'Princess',
+          hairColor:c.hairColor,eyeColor:c.eyeColor,skinColor:c.skinColor,outfitColor:c.outfitColor};
+        return ch;
+      });
+    }
+    if(data.playerX!==undefined){Player.x=data.playerX;Player.y=data.playerY;Player.dir=data.playerDir||0;}
+    if(data.bossDefeated&&OverworldMap.bosses){
+      data.bossDefeated.forEach(function(defeated,i){if(OverworldMap.bosses[i])OverworldMap.bosses[i].defeated=defeated;});
+    }
+    return true;
+  }catch(e){return false;}
+}
+function gameHasSave(){try{return !!localStorage.getItem('stellarPrincesses_save');}catch(e){return false;}}
 var Player={x:29,y:20,dir:0,frame:0,moving:false,moveTimer:0,moveDelay:6,stepCount:0,cameraX:0,cameraY:0};
 Player.init=function(){this.x=29;this.y=20;this.dir=0;this.updateCamera();};
 Player.updateCamera=function(){
@@ -138,9 +188,9 @@ DialogueSys.start=function(npc){
           else if(npc.type==='robot'){Game.party.push(createPip());}
           Game.questFlags['recruited_'+npc.name]=true;
           DialogueSys.showText(npc.name+' joined the party!');
-          // Remove NPC from map
           var map=Game.state==='town'?TownMap:OverworldMap;
           if(map.npcs){var idx=map.npcs.indexOf(npc);if(idx>=0){map.npcs.splice(idx,1);npc.x=-1;npc.y=-1;}}
+          autoSave();
         } else {setState(Game.prevState);}
       });
     };

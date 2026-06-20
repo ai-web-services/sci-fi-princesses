@@ -142,6 +142,7 @@ CombatSys.update=function(){
       if(this.inBoss&&this.boss.defeated===false){
         this.boss.defeated=true;
         Game.inventory.push({name:'Crown Shard',type:'material',rarity:'Legendary',level:1,id:'shard_'+this.boss.type});
+        autoSave();
         if(this.boss.type==='void_sentinel'&&Game.party[0].evolution<1){
           Game.party[0].evolution=1;Game.party[0].evolutionName='Crown Bearer';
           Game.party[0].skills.push({name:'Stellar Command',cost:12,type:'buff',stat:'all',power:1.3});
