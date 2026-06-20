@@ -77,18 +77,22 @@ function pollGamepad(){
   var gps=navigator.getGamepads?navigator.getGamepads():[];
   for(var i=0;i<gps.length;i++){var g=gps[i];if(!g)continue;
     GpConnected=true;controllerStatus.textContent='🎮 Controller: Connected';controllerStatus.style.color='#4f4';
-    g.buttons.forEach(function(btn,idx){if(btn.pressed&&!GpButtons[idx])GpButtonsJust[idx]=true;GpButtons[idx]=btn.pressed;});return g;
+    g.buttons.forEach(function(btn,idx){if(btn.pressed&&!GpButtons[idx])GpButtonsJust[idx]=true;GpButtons[idx]=btn.pressed;});
+    return g;
   }return null;
 }
+// Cached gamepad state — polled once per frame
+var _gpCache=null;
+function gpPoll(){if(!_gpCache)_gpCache=pollGamepad();return _gpCache;}
 function dx(){
-  var d=0,g=pollGamepad();
+  var d=0,g=gpPoll();
   if(Keys['KeyA']||Keys['ArrowLeft']||(g&&g.axes[0]<-0.5))d--;
   if(Keys['KeyD']||Keys['ArrowRight']||(g&&g.axes[0]>0.5))d++;
   if(g){if(g.buttons[14]&&g.buttons[14].pressed)d--;if(g.buttons[15]&&g.buttons[15].pressed)d++;}
   return d;
 }
 function dy(){
-  var d=0,g=pollGamepad();
+  var d=0,g=gpPoll();
   if(Keys['KeyW']||Keys['ArrowUp']||(g&&g.axes[1]<-0.5))d--;
   if(Keys['KeyS']||Keys['ArrowDown']||(g&&g.axes[1]>0.5))d++;
   if(g){if(g.buttons[12]&&g.buttons[12].pressed)d--;if(g.buttons[13]&&g.buttons[13].pressed)d++;}
@@ -97,7 +101,7 @@ function dy(){
 function inpInteract(){return KeysJust['KeyZ']||KeysJust['Space']||GpButtonsJust[0];}
 function inpCancel(){return KeysJust['KeyX']||KeysJust['Escape']||GpButtonsJust[1];}
 function inpMenu(){return KeysJust['Enter']||GpButtonsJust[9];}
-function clearJust(){KeysJust={};GpButtonsJust={};}
+function clearJust(){KeysJust={};GpButtonsJust={};_gpCache=null;}
 
 // Game state
 var Game={state:'title',prevState:null,stateTime:0,gold:500,inventory:[],party:[],questFlags:{},time:0};
