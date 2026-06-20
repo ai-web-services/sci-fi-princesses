@@ -289,7 +289,7 @@ TownMap.getSignAt=function(x,y){return this.signs.find(function(s){return s.x===
 TownMap.getChestAt=function(x,y){return this.chests.find(function(c){return c.x===x&&c.y===y&&!c.taken;});};
 
 // ─── OVERWORLD MAP ──────────────────────────────────────────
-var OverworldMap={w:80,h:60,data:[],bosses:[]};
+var OverworldMap={w:80,h:60,data:[],bosses:[],npcs:[]};
 (function initOverworld(){
   var x,y;
   OverworldMap.data=[];
@@ -307,6 +307,11 @@ var OverworldMap={w:80,h:60,data:[],bosses:[]};
   OverworldMap.data[24][55]=T.GATE;OverworldMap.data[24][56]=T.GATE;
   OverworldMap.data[25][55]=T.GATE;OverworldMap.data[25][56]=T.GATE;
   OverworldMap.bosses=[{x:60,y:24,type:'void_sentinel',defeated:false}];
+  // NPCs
+  OverworldMap.npcs=[
+    {x:25,y:46,type:'frog',name:'Brimble',dir:0,dialogue:["Ribbit... oh, hello traveler.","The waters here are tainted by the void. My people... they didn't make it.","You're heading into the Scar? I know those waters. Let me come with you.","...Friend. That's what I call everyone. Because everyone needs a friend."],recruitable:true},
+    {x:50,y:10,type:'townie1',name:'Scout Venn',dir:0,dialogue:["The Void Scar is ahead. Be careful out there.","I've seen the Sentinel. It's massive. Don't engage alone.","There's a frog person by the bridge. Seems friendly enough."]},
+  ];
 })();
 
 OverworldMap.isSolid=function(x,y){
@@ -315,6 +320,10 @@ OverworldMap.isSolid=function(x,y){
 };
 OverworldMap.checkEncounter=function(x,y){
   return this.data[y]&&this.data[y][x]===T.VOID&&Math.random()<0.03;
+};
+OverworldMap.getNPCAt=function(x,y){
+  if(!this.npcs)return null;
+  return this.npcs.find(function(n){return n.x===x&&n.y===y;});
 };
 
 // ─── ITEMS ──────────────────────────────────────────────────
@@ -1282,19 +1291,233 @@ function renderHUD(){
   uiCtx.fillText('WASD:Move Z:Interact X:Menu',8,VIEW_H-7);
 }
 
+// ─── INVENTORY / EQUIPMENT SCREEN ────────────────────────────
+var InvSys={active:false,mode:'list',cursor:0,scroll:0,charIndex:0,slotIndex:0,slotNames:['weapon','armor','accessory1','accessory2','implant'],slotLabels:['Weapon','Armor','Accessory 1','Accessory 2','Implant']};
+
+InvSys.open=function(){
+  this.active=true;this.mode='list';this.cursor=0;this.scroll=0;this.charIndex=0;this.slotIndex=0;
+  setState('inventory');
+};
+InvSys.close=function(){
+  this.active=false;setState(Game.prevState==='inventory'?Game.prevState:'town');
+};
+InvSys.update=function(){
+  if(!this.active)return;
+  var self=this;
+  if(this.mode==='list'){
+    if(inpCancel()){this.close();return;}
+    if(inpInteract()){
+      var item=Game.inventory[this.cursor];
+      if(item&&(item.type==='weapon'||item.type==='armor'||item.type==='accessory')){
+        // Show equip/use options
+        this.mode='itemAction';this._item=item;this._itemIdx=this.cursor;
+      } else if(item&&item.type==='consumable'){
+        // Use consumable
+        var target=Game.party.findIndex(function(c){return c.hp>0&&c.hp<c.maxHp;});
+        if(target>=0&&item.heal){
+          Game.party[target].hp=Math.min(Game.party[target].maxHp,Game.party[target].hp+item.heal);
+          SFX.heal();Game.inventory.splice(this.cursor,1);
+          this.cursor=Math.min(this.cursor,Math.max(0,Game.inventory.length-1));
+        } else if(item.revive){
+          var dead=Game.party.findIndex(function(c){return c.hp<=0;});
+          if(dead>=0){Game.party[dead].hp=Math.floor(Game.party[dead].maxHp*0.3);SFX.heal();Game.inventory.splice(this.cursor,1);}
+        }
+      }
+      return;
+    }
+    if(KeysJust['ArrowUp']||KeysJust['KeyW']){this.cursor=Math.max(0,this.cursor-1);SFX.select();}
+    if(KeysJust['ArrowDown']||KeysJust['KeyS']){this.cursor=Math.min(Math.max(0,Game.inventory.length-1),this.cursor+1);SFX.select();}
+    // Switch to equip tab
+    if(KeysJust['Tab']||GpButtonsJust[4]){this.mode='equip';this.charIndex=0;this.slotIndex=0;this.cursor=0;return;}
+  } else if(this.mode==='itemAction'){
+    var actions=['Equip','Drop','Cancel'];
+    if(inpCancel()){this.mode='list';return;}
+    if(inpInteract()){
+      var act=actions[this.cursor];
+      if(act==='Equip'){
+        var item=this._item;
+        // Pick party member to equip
+        this.mode='pickChar';this._equipItem=item;this.cursor=0;
+      } else if(act==='Drop'){
+        Game.inventory.splice(this._itemIdx,1);this.mode='list';this.cursor=Math.min(this.cursor,Math.max(0,Game.inventory.length-1));
+      } else {this.mode='list';}
+      return;
+    }
+    if(KeysJust['ArrowUp']||KeysJust['KeyW']){this.cursor=Math.max(0,this.cursor-1);SFX.select();}
+    if(KeysJust['ArrowDown']||KeysJust['KeyS']){this.cursor=Math.min(actions.length-1,this.cursor+1);SFX.select();}
+  } else if(this.mode==='pickChar'){
+    if(inpCancel()){this.mode='itemAction';this.cursor=0;return;}
+    if(inpInteract()){
+      var ch=Game.party[this.cursor];
+      if(ch){
+        var item=this._equipItem;
+        var slot=item.type==='weapon'?'weapon':item.type==='armor'?'armor':item.type==='accessory'?(ch.equipment.accessory1?'accessory2':'accessory1'):item.type==='implant'?'implant':null;
+        if(slot){
+          var old=ch.equipment[slot];
+          ch.equipment[slot]=item;
+          var idx=Game.inventory.indexOf(item);
+          if(idx>=0)Game.inventory.splice(idx,1);
+          if(old)Game.inventory.push(old);
+          SFX.confirm();
+        }
+      }
+      this.mode='list';return;
+    }
+    if(KeysJust['ArrowUp']||KeysJust['KeyW']){this.cursor=Math.max(0,this.cursor-1);SFX.select();}
+    if(KeysJust['ArrowDown']||KeysJust['KeyS']){this.cursor=Math.min(Game.party.length-1,this.cursor+1);SFX.select();}
+  } else if(this.mode==='equip'){
+    if(inpCancel()){this.mode='list';this.cursor=0;return;}
+    if(inpInteract()){
+      var ch=Game.party[this.charIndex];
+      var slot=this.slotNames[this.slotIndex];
+      var equipped=ch.equipment[slot];
+      if(equipped){
+        // Unequip
+        Game.inventory.push(equipped);ch.equipment[slot]=null;SFX.confirm();
+      } else {
+        // Show inventory items that fit this slot
+        var fitType=slot==='weapon'?'weapon':slot==='armor'?'armor':slot==='implant'?'implant':'accessory';
+        var fitItems=Game.inventory.filter(function(i){return i.type===fitType;});
+        if(fitItems.length>0){
+          var first=fitItems[0];
+          ch.equipment[slot]=first;
+          var idx=Game.inventory.indexOf(first);
+          if(idx>=0)Game.inventory.splice(idx,1);
+          SFX.confirm();
+        }
+      }
+      return;
+    }
+    if(KeysJust['ArrowUp']||KeysJust['KeyW']){this.slotIndex=Math.max(0,this.slotIndex-1);SFX.select();}
+    if(KeysJust['ArrowDown']||KeysJust['KeyS']){this.slotIndex=Math.min(this.slotNames.length-1,this.slotIndex+1);SFX.select();}
+    if(KeysJust['ArrowLeft']||KeysJust['KeyA']){this.charIndex=Math.max(0,this.charIndex-1);SFX.select();}
+    if(KeysJust['ArrowRight']||KeysJust['KeyD']){this.charIndex=Math.min(Game.party.length-1,this.charIndex+1);SFX.select();}
+    if(KeysJust['Tab']||GpButtonsJust[4]){this.mode='list';this.cursor=0;return;}
+  }
+};
+
+InvSys.render=function(){
+  if(!this.active)return;
+  var self=this;
+  // Background
+  uiCtx.fillStyle='rgba(5,5,20,0.95)';uiCtx.fillRect(10,8,VIEW_W-20,VIEW_H-16);
+  uiCtx.strokeStyle='#4488ff';uiCtx.lineWidth=2;uiCtx.strokeRect(10,8,VIEW_W-20,VIEW_H-16);
+
+  // Tabs
+  var tabs=['Inventory','Equipment'];
+  tabs.forEach(function(t,i){
+    var tx=20+i*80;
+    if((self.mode==='list'||self.mode==='itemAction'||self.mode==='pickChar')&&i===0){uiCtx.fillStyle='#4488ff';}
+    else if(self.mode==='equip'&&i===1){uiCtx.fillStyle='#4488ff';}
+    else uiCtx.fillStyle='#334';
+    uiCtx.fillRect(tx,14,70,16);
+    uiCtx.fillStyle='#fff';uiCtx.font='9px monospace';uiCtx.fillText(t,tx+10,26);
+  });
+
+  if(this.mode==='list'||this.mode==='itemAction'||this.mode==='pickChar'){
+    // Inventory list
+    uiCtx.fillStyle='#aaa';uiCtx.font='8px monospace';uiCtx.fillText('Gold: '+Game.gold+'g',VIEW_W-80,26);
+    var startY=36,maxVisible=12;
+    var startScroll=Math.max(0,this.cursor-Math.floor(maxVisible/2));
+    var visible=Game.inventory.slice(startScroll,startScroll+maxVisible);
+    visible.forEach(function(item,i){
+      var idx=startScroll+i,iy=startY+i*14;
+      if(idx===self.cursor){uiCtx.fillStyle='#4488ff44';uiCtx.fillRect(14,iy-2,VIEW_W-28,14);}
+      uiCtx.fillStyle=Items.rarityColor(item.rarity);
+      uiCtx.font='9px monospace';
+      var label=item.name+(item.level>1?' +'+item.level:'');
+      if(item.atk)label+=' ATK:'+item.atk;
+      if(item.def)label+=' DEF:'+item.def;
+      if(item.hp)label+=' HP:'+item.hp;
+      if(item.heal)label+=' Heal:'+item.heal;
+      uiCtx.fillText(label,20,iy+9);
+    });
+    if(Game.inventory.length===0){
+      uiCtx.fillStyle='#666';uiCtx.font='10px monospace';uiCtx.fillText('Inventory is empty',60,VIEW_H/2);
+    }
+
+    // Item action submenu
+    if(this.mode==='itemAction'){
+      var actions=['Equip','Drop','Cancel'];
+      var ax=VIEW_W-100,ay=60;
+      uiCtx.fillStyle='rgba(10,10,30,0.95)';uiCtx.fillRect(ax-4,ay-4,90,actions.length*16+8);
+      uiCtx.strokeStyle='#ffcc33';uiCtx.strokeRect(ax-4,ay-4,90,actions.length*16+8);
+      actions.forEach(function(a,i){
+        if(i===self.cursor){uiCtx.fillStyle='#ffcc3344';uiCtx.fillRect(ax-2,ay+i*16-2,86,16);uiCtx.fillStyle='#fff';}
+        else uiCtx.fillStyle='#aaa';
+        uiCtx.font='9px monospace';uiCtx.fillText(a,ax+4,ay+i*16+10);
+      });
+    }
+
+    // Pick character submenu
+    if(this.mode==='pickChar'){
+      var px=VIEW_W-120,py=60;
+      uiCtx.fillStyle='rgba(10,10,30,0.95)';uiCtx.fillRect(px-4,py-4,110,Game.party.length*16+8);
+      uiCtx.strokeStyle='#44ddff';uiCtx.strokeRect(px-4,py-4,110,Game.party.length*16+8);
+      Game.party.forEach(function(c,i){
+        if(i===self.cursor){uiCtx.fillStyle='#44ddff44';uiCtx.fillRect(px-2,py+i*16-2,106,16);uiCtx.fillStyle='#fff';}
+        else uiCtx.fillStyle='#aaa';
+        uiCtx.font='9px monospace';uiCtx.fillText(c.name+' Lv'+c.level,px+4,py+i*16+10);
+      });
+    }
+  } else if(this.mode==='equip'){
+    // Equipment view
+    var ch=Game.party[this.charIndex];
+    // Character selector at top
+    Game.party.forEach(function(c,i){
+      var cx=20+i*70;
+      if(i===self.charIndex){uiCtx.fillStyle='#4488ff';uiCtx.fillRect(cx,34,64,14);uiCtx.fillStyle='#fff';}
+      else uiCtx.fillStyle='#666';
+      uiCtx.font='8px monospace';uiCtx.fillText(c.name,cx+4,44);
+    });
+    // Character sprite
+    if(ch){
+      drawChar(50,80,0,0,ch.species,ch.hairColor,ch.eyeColor,ch.skinColor,ch.outfitColor);
+      // Stats
+      var stats=getStats(ch);
+      uiCtx.fillStyle='#44ddff';uiCtx.font='9px monospace';
+      uiCtx.fillText(ch.name+' Lv'+ch.level+' '+ch.evolutionName,20,110);
+      uiCtx.fillStyle='#aaa';uiCtx.font='8px monospace';
+      uiCtx.fillText('HP:'+ch.hp+'/'+stats.hp+'  SP:'+ch.sp+'/'+ch.maxSp,20,122);
+      uiCtx.fillText('ATK:'+stats.atk+'  DEF:'+stats.def+'  SPD:'+stats.spd+'  CRIT:'+stats.crit+'%',20,134);
+      // Equipment slots
+      var self2=this;
+      this.slotNames.forEach(function(slot,i){
+        var sy=148+i*16;
+        var label=self2.slotLabels[i]+': ';
+        var item=ch.equipment[slot];
+        if(i===self.slotIndex){uiCtx.fillStyle='#ffcc3344';uiCtx.fillRect(14,sy-2,VIEW_W-28,16);uiCtx.fillStyle='#fff';}
+        else uiCtx.fillStyle='#aaa';
+        uiCtx.font='9px monospace';
+        uiCtx.fillText(label+(item?item.name+(item.level>1?' +'+item.level:''):'[empty]'),20,sy+10);
+      });
+    }
+  }
+
+  // Controls hint
+  uiCtx.fillStyle='#666';uiCtx.font='7px monospace';
+  if(this.mode==='list')uiCtx.fillText('Z:Use/Equip X:Back Tab:Equip',20,VIEW_H-6);
+  else if(this.mode==='equip')uiCtx.fillText('Z:Unequip/Equip X:Back Tab:Inv \u2190\u2192:Chara',20,VIEW_H-6);
+  else uiCtx.fillText('Z:Select X:Back',20,VIEW_H-6);
+};
+
 // ─── MAIN GAME LOOP ─────────────────────────────────────────
 function gameLoop(){
   Game.time++;
   // Update
   if(Game.state==='title'){TitleSys.update();}
   else if(Game.state==='town'||Game.state==='overworld'){
-    Player.update();
-    if(inpInteract())Player.interact();
+    if(inpMenu()&&Game.state!=='dialogue'&&Game.state!=='shop'){InvSys.open();}
+    else {
+      Player.update();
+      if(inpInteract())Player.interact();
+    }
   }
   else if(Game.state==='dialogue'){DialogueSys.update();}
   else if(Game.state==='shop'){ShopSys.update();}
   else if(Game.state==='combat'||Game.state==='boss'){CombatSys.update();}
   else if(Game.state==='evolution'){EvoSys.update();}
+  else if(Game.state==='inventory'){InvSys.update();}
 
   // Render
   ctx.setTransform(1,0,0,1,0,0);
@@ -1303,22 +1526,20 @@ function gameLoop(){
 
   if(Game.state==='title'){TitleSys.render();}
   else if(Game.state==='town'||Game.state==='overworld'){
-    renderMap();
-    renderHUD();
-    DialogueSys.render();
-    ShopSys.render();
+    renderMap();renderHUD();DialogueSys.render();ShopSys.render();
   }
   else if(Game.state==='dialogue'){renderMap();renderHUD();DialogueSys.render();}
   else if(Game.state==='shop'){renderMap();ShopSys.render();}
   else if(Game.state==='combat'||Game.state==='boss'){CombatSys.render();}
   else if(Game.state==='evolution'){EvoSys.render();}
+  else if(Game.state==='inventory'){renderMap();InvSys.render();}
 
   clearJust();
   requestAnimationFrame(gameLoop);
 }
 
 // ─── INIT ───────────────────────────────────────────────────
-// Give recruitable NPC a shop property for Erynn
+// Give recruitable NPC a shop property for Eryrn
 TownMap.npcs.forEach(function(n){
   if(n.recruitable&&!n.shop)n.shop=null;
 });
@@ -1327,22 +1548,27 @@ var origDialogueStart=DialogueSys.start;
 DialogueSys.start=function(npc){
   var self=this;
   if(npc&&npc.recruitable&&!Game.questFlags['recruited_'+npc.name]){
-    // Show recruit choice
     this.npc=npc;
     this.lines=npc.dialogue.slice();
     this.curLine=0;this.curChar=0;this.charTimer=0;
     this.active=true;this.choiceMode=false;
     this.onComplete=function(){
-      // After dialogue, offer recruitment
       DialogueSys.showChoices([{text:'Invite '+npc.name+' to join your party'},{text:'Maybe later'}],function(choice){
         if(choice&&choice.text.indexOf('Invite')>=0){
           if(npc.type==='cat'){
             Game.party.push(createErynn());
             Game.questFlags['recruited_'+npc.name]=true;
             DialogueSys.showText(npc.name+' joined the party!');
-            // Remove NPC from map
             var idx=TownMap.npcs.indexOf(npc);
             if(idx>=0){TownMap.npcs.splice(idx,1);npc.x=-1;npc.y=-1;}
+          } else if(npc.type==='frog'){
+            Game.party.push(createBrimble());
+            Game.questFlags['recruited_'+npc.name]=true;
+            DialogueSys.showText(npc.name+' joined the party!');
+            if(OverworldMap.npcs){
+              var oidx=OverworldMap.npcs.indexOf(npc);
+              if(oidx>=0){OverworldMap.npcs.splice(oidx,1);npc.x=-1;npc.y=-1;}
+            }
           }
         } else {
           setState(Game.prevState);
