@@ -1422,14 +1422,14 @@ class InventoryScene extends Phaser.Scene {
     this.bg.setStrokeStyle(2, 0x4488ff);
     
     // Tabs
-    this.tabParty = this.add.text(20, 12, 'PARTY', { fontSize: '36px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
-    this.tabInv = this.add.text(80, 12, 'ITEMS', { fontSize: '36px', fontFamily: 'monospace', color: '#666688' }).setDepth(201);
+    this.tabParty = this.add.text(20, 14, 'PARTY', { fontSize: '16px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
+    this.tabInv = this.add.text(90, 14, 'ITEMS', { fontSize: '16px', fontFamily: 'monospace', color: '#666688' }).setDepth(201);
     
     // Gold display
-    this.add.text(GAME_W - 20, 12, GameData.gold + 'g', { fontSize: '36px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201).setOrigin(1, 0);
+    this.add.text(GAME_W - 20, 14, GameData.gold + 'g', { fontSize: '16px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201).setOrigin(1, 0);
     
     // Separator line
-    this.add.rectangle(GAME_W/2, 26, GAME_W - 36, 1, 0x4488ff, 0.5).setDepth(201);
+    this.add.rectangle(GAME_W/2, 30, GAME_W - 36, 1, 0x4488ff, 0.5).setDepth(201);
     
     this.updateContent();
   }
@@ -1464,36 +1464,37 @@ class InventoryScene extends Phaser.Scene {
     
     party.forEach((c, i) => {
       const isSel = i === this.charIndex;
-      const bg = this.add.rectangle(GAME_W/2, 40 + i * 44, GAME_W - 36, 40, isSel ? 0x1a1a3a : 0x0a0a1a, 0.9).setDepth(201);
+      const y = 50 + i * 56;
+      const bg = this.add.rectangle(GAME_W/2, y, GAME_W - 40, 50, isSel ? 0x1a1a3a : 0x0a0a1a, 0.9).setDepth(201);
       if (isSel) bg.setStrokeStyle(1, 0x44ddff);
       this.contentTexts.push(bg);
       
       // Character sprite
       const charKey = 'char_' + (c.species === 'human' ? 'lyra' : c.species === 'cat' ? 'eryx' : c.species === 'frog' ? 'brimble' : c.species === 'dragon' ? 'drakkor' : c.species === 'robot' ? 'pip' : 'townie1');
-      const spr = this.add.image(30, 40 + i * 44, charKey).setDepth(202).setScale(0.8);
+      const spr = this.add.image(30, y, charKey).setDepth(202).setScale(0.8);
       this.contentTexts.push(spr);
       
       // Name and level
-      this.contentTexts.push(this.add.text(48, 32 + i * 44, c.name + '  Lv.' + c.level, { fontSize: '36px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      this.contentTexts.push(this.add.text(48, y - 8, c.name + '  Lv.' + c.level, { fontSize: '14px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
       
       // HP bar
       const hpPct = c.maxHp > 0 ? c.hp / c.maxHp : 0;
-      this.contentTexts.push(this.add.rectangle(48, 44 + i * 44, 60, 5, 0x333333).setDepth(202));
-      this.contentTexts.push(this.add.rectangle(48, 44 + i * 44, 60 * hpPct, 5, hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344).setDepth(202));
-      this.contentTexts.push(this.add.text(110, 42 + i * 44, 'HP ' + c.hp + '/' + c.maxHp, { fontSize: '28px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
+      this.contentTexts.push(this.add.rectangle(48, y + 6, 80, 5, 0x333333).setDepth(202));
+      this.contentTexts.push(this.add.rectangle(48, y + 6, 80 * hpPct, 5, hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344).setDepth(202));
+      this.contentTexts.push(this.add.text(130, y + 4, 'HP ' + c.hp + '/' + c.maxHp, { fontSize: '10px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
       
       // Stats
-      this.contentTexts.push(this.add.text(170, 34 + i * 44, 'ATK:' + c.atk, { fontSize: '16px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(202));
-      this.contentTexts.push(this.add.text(220, 34 + i * 44, 'DEF:' + c.def, { fontSize: '16px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(202));
-      this.contentTexts.push(this.add.text(170, 44 + i * 44, 'SPD:' + c.spd, { fontSize: '16px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(202));
-      this.contentTexts.push(this.add.text(220, 44 + i * 44, 'CRIT:' + c.crit + '%', { fontSize: '16px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(202));
+      this.contentTexts.push(this.add.text(170, y - 6, 'ATK:' + c.atk, { fontSize: '11px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(202));
+      this.contentTexts.push(this.add.text(230, y - 6, 'DEF:' + c.def, { fontSize: '11px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(202));
+      this.contentTexts.push(this.add.text(170, y + 6, 'SPD:' + c.spd, { fontSize: '11px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(202));
+      this.contentTexts.push(this.add.text(230, y + 6, 'CRIT:' + c.crit + '%', { fontSize: '11px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(202));
       
       // Equipment summary
       const eq = c.equipment;
       const weaponName = eq.weapon ? eq.weapon.name : '-';
       const armorName = eq.armor ? eq.armor.name : '-';
-      this.contentTexts.push(this.add.text(280, 34 + i * 44, 'W:' + weaponName, { fontSize: '28px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
-      this.contentTexts.push(this.add.text(280, 44 + i * 44, 'A:' + armorName, { fontSize: '28px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(300, y - 6, 'W:' + weaponName, { fontSize: '10px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(300, y + 6, 'A:' + armorName, { fontSize: '10px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
       
       // Selection cursor
       if (isSel) {
@@ -1502,14 +1503,14 @@ class InventoryScene extends Phaser.Scene {
     });
     
     // Controls hint
-    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Details  X/Esc:Close  Tab:Items', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Details  X/Esc:Close  Q:Items', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
   }
   
   renderInventory() {
     const inv = GameData.inventory;
     if (inv.length === 0) {
       this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'Inventory is empty', { fontSize: '24px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
-      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2 + 16, 'Tab:Party  X/Esc:Close', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2 + 16, 'Q:Party  X/Esc:Close', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
       return;
     }
     
@@ -1544,7 +1545,7 @@ class InventoryScene extends Phaser.Scene {
       }
     });
     
-    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Use/Equip  X/Esc:Close  Tab:Party', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Use/Equip  X/Esc:Close  Q:Party', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
   }
   
   renderItemAction() {
@@ -1587,11 +1588,16 @@ class InventoryScene extends Phaser.Scene {
     const { dx, dy, interact, cancel } = getInput(this);
     const gp = this.input.gamepad ? this.input.gamepad.getPad(0) : null;
     
-    // Tab switching
-    if (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4])) {
-      this.mode = this.mode === 'party' || this.mode === 'inventory' ? (this.mode === 'party' ? 'inventory' : 'party') : this.mode;
-      this.cursor = 0;
-      this.updateContent();
+    // Tab switching — Q key or gamepad LB (button 4)
+    const kb = this.input.keyboard;
+    const tabPressed = (kb && kb.addKey(KeyQ).isDown && Phaser.Input.Keyboard.JustDown(kb.addKey(KeyQ))) ||
+                       (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4]));
+    if (tabPressed) {
+      if (this.mode === 'party' || this.mode === 'inventory') {
+        this.mode = this.mode === 'party' ? 'inventory' : 'party';
+        this.cursor = 0;
+        this.updateContent();
+      }
     }
     
     if (this.mode === 'party') {
@@ -2143,7 +2149,6 @@ const config = {
   width: GAME_W,
   height: GAME_H,
   parent: 'game-container',
-  pixelArt: true,
   backgroundColor: '#0a0a1a',
   scale: {
     mode: Phaser.Scale.FIT,

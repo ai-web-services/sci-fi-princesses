@@ -7,8 +7,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;font-family:monospace}
-canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-#game-container{position:relative}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;max-width:100vw;max-height:100vh}
+#game-container{position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center}
 #controller-status{position:absolute;bottom:8px;right:12px;color:#4af;font-size:14px;z-index:20;font-family:monospace;text-shadow:0 0 6px #000;pointer-events:none}
 #loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffcc33;font-size:14px;text-align:center;z-index:30}
 </style>
@@ -19,6 +19,14 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 <div id="controller-status">🎮 Controller: Disconnected</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@4.2.0/dist/phaser.min.js"></script>
+<script>
+// Prevent browser from stealing Tab, F-keys, etc.
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab' || (e.key.startsWith('F') && e.key.length <= 3) || (e.altKey && e.key === 'Tab')) {
+    e.preventDefault();
+  }
+});
+</script>
 <script src="game.js"></script>
 </body>
 </html>
