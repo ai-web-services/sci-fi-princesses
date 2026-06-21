@@ -74,6 +74,70 @@ const KeySpace = Phaser.Input.Keyboard.KeyCodes.SPACE;
 const KeyX = Phaser.Input.Keyboard.KeyCodes.X;
 const KeyEsc = Phaser.Input.Keyboard.KeyCodes.ESC;
 const KeyEnter = Phaser.Input.Keyboard.KeyCodes.ENTER;
+const KeyM = Phaser.Input.Keyboard.KeyCodes.M;
+
+// ─── SOUND SYSTEM (Web Audio API) ───────────────────────────
+const AudioSys = {
+  ctx: null,
+  init() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+  },
+  ensureCtx() {
+    if (!this.ctx) this.init();
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  playTone(freq, duration, type, vol) {
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type || 'square';
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    gain.gain.setValueAtTime((vol || 0.15), this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + (duration || 0.1));
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + (duration || 0.1));
+  },
+  playBGM() {
+    // Simple ambient background melody
+    this.ensureCtx();
+    if (!this.ctx || this.bgmPlaying) return;
+    this.bgmPlaying = true;
+    this.bgmStep = 0;
+    const notes = [262, 294, 330, 349, 392, 349, 330, 294];
+    const bass = [131, 165, 196, 175];
+    const playNext = () => {
+      if (!this.bgmPlaying) return;
+      const n = notes[this.bgmStep % notes.length];
+      const b = bass[this.bgmStep % bass.length];
+      this.playTone(n, 0.4, 'sine', 0.08);
+      this.playTone(b, 0.4, 'triangle', 0.06);
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(playNext, 500);
+    };
+    playNext();
+  },
+  stopBGM() {
+    this.bgmPlaying = false;
+    if (this.bgmTimer) clearTimeout(this.bgmTimer);
+  },
+  sfx: {
+    interact() { AudioSys.playTone(600, 0.08, 'square', 0.1); AudioSys.playTone(800, 0.06, 'square', 0.08); },
+    menu() { AudioSys.playTone(400, 0.05, 'square', 0.08); },
+    back() { AudioSys.playTone(300, 0.08, 'square', 0.08); },
+    equip() { AudioSys.playTone(500, 0.06, 'square', 0.1); AudioSys.playTone(700, 0.08, 'square', 0.08); AudioSys.playTone(900, 0.06, 'square', 0.06); },
+    buy() { AudioSys.playTone(800, 0.05, 'square', 0.1); AudioSys.playTone(1000, 0.08, 'sine', 0.08); },
+    heal() { AudioSys.playTone(400, 0.15, 'sine', 0.1); AudioSys.playTone(600, 0.15, 'sine', 0.08); AudioSys.playTone(800, 0.2, 'sine', 0.06); },
+    hurt() { AudioSys.playTone(200, 0.15, 'sawtooth', 0.1); AudioSys.playTone(150, 0.2, 'square', 0.08); },
+    victory() { AudioSys.playTone(523, 0.1, 'square', 0.1); AudioSys.playTone(659, 0.1, 'square', 0.1); AudioSys.playTone(784, 0.15, 'square', 0.1); },
+    recruit() { AudioSys.playTone(440, 0.1, 'square', 0.1); AudioSys.playTone(554, 0.1, 'square', 0.1); AudioSys.playTone(659, 0.1, 'square', 0.1); AudioSys.playTone(880, 0.15, 'sine', 0.1); },
+    chest() { AudioSys.playTone(600, 0.05, 'sine', 0.1); AudioSys.playTone(800, 0.05, 'sine', 0.1); AudioSys.playTone(1000, 0.05, 'sine', 0.1); },
+  }
+};
 
 function getInput(scene) {
   const kb = scene.input.keyboard;
@@ -684,6 +748,9 @@ class BootScene extends Phaser.Scene {
       generateCharacterTexture(this, key, species, hair, eye, skin, outfit);
     });
     
+    // Initialize audio on first user interaction
+    AudioSys.init();
+    
     this.scene.start('TitleScene');
   }
 }
@@ -712,6 +779,7 @@ class TitleScene extends Phaser.Scene {
   update() {
     const { interact } = getInput(this);
     if (interact) {
+      AudioSys.sfx.interact();
       if (gameHasSave() && gameLoad()) {
         this.scene.start('TownScene');
       } else {
@@ -753,6 +821,9 @@ class TownScene extends Phaser.Scene {
     this.buildPlayer();
     this.buildHUD();
     this.updateCamera();
+    
+    // Start background music
+    AudioSys.playBGM();
     
     this.time.addEvent({ delay: 100, callback: () => updateControllerStatus(this), loop: true });
   }
@@ -934,6 +1005,7 @@ class TownScene extends Phaser.Scene {
       
       const npc = this.npcSprites.find(n => n.npcData.x === tx && n.npcData.y === ty);
       if (npc) {
+        AudioSys.sfx.interact();
         if (npc.npcData.shop && !npc.npcData.recruitable) {
           this.scene.launch('ShopScene', { shopType: npc.npcData.shop, npcName: npc.npcData.name });
           this.scene.pause();
@@ -956,6 +1028,7 @@ class TownScene extends Phaser.Scene {
         chest.taken = true;
         GameData.inventory.push(chest.item);
         this.showMessage('Found ' + chest.item.name + '!');
+        AudioSys.sfx.chest();
         gameSave();
         return;
       }
@@ -963,6 +1036,7 @@ class TownScene extends Phaser.Scene {
     
     // Menu - Party/Inventory screen
     if (menu) {
+      AudioSys.sfx.menu();
       this.scene.launch('InventoryScene');
       this.scene.pause();
     }
@@ -1086,6 +1160,7 @@ class DialogueScene extends Phaser.Scene {
   recruit() {
     const npc = this.npcData;
     if (!npc) return;
+    AudioSys.sfx.recruit();
     const names = { cat: 'Erynn "Eryx" Vexx', frog: 'Brimble', dragon: 'Drakkor Ashveil', robot: 'Pip' };
     const species = { cat: 'cat', frog: 'frog', dragon: 'dragon', robot: 'robot' };
     const s = species[npc.type] || 'human';
@@ -1158,6 +1233,7 @@ class ShopScene extends Phaser.Scene {
             GameData.gold -= 50;
             GameData.party.forEach(c => { c.hp = c.maxHp; c.sp = c.maxSp; });
             this.message = 'Party healed!'; this.messageTimer = 120;
+            AudioSys.sfx.heal();
           } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
         } else if (opt === 'Buy') { this.mode = 'buy'; this.cursor = 0; this.updateMenu(); }
         else if (opt === 'Sell') { this.mode = 'sell'; this.cursor = 0; this.updateMenu(); }
@@ -1177,6 +1253,7 @@ class ShopScene extends Phaser.Scene {
             GameData.gold -= si.price;
             GameData.inventory.push({name:si.name,type:this.shopType==='weapons'?'weapon':this.shopType==='armor'?'armor':si.name==='Nano Patch'||si.name==='Stim Pack'?'consumable':'material',rarity:si.price>=500?'Rare':si.price>=200?'Uncommon':'Common',atk:si.name.includes('Blade')||si.name.includes('Saber')||si.name.includes('Katana')||si.name.includes('Rifle')||si.name.includes('Cannon')?Math.floor(si.price/40):0,def:si.name.includes('Tunic')||si.name.includes('Vest')||si.name.includes('Plate')?Math.floor(si.price/50):0,heal:si.name.includes('Patch')?30:si.name.includes('Stim')?80:0,level:1});
             this.message = 'Bought ' + si.name + '!'; this.messageTimer = 120;
+            AudioSys.sfx.buy();
           } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
         } else if (this.mode === 'sell' && GameData.inventory[this.cursor]) {
           const item = GameData.inventory[this.cursor];
