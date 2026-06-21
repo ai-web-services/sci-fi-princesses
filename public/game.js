@@ -234,33 +234,259 @@ const townChests = [
 
 let townMapData = createTownMap();
 
-// ─── SPRITE GENERATION ──────────────────────────────────────
+// ─── TILE TEXTURE GENERATION ─────────────────────────────────
 function generateTileTexture(scene, key, color, pattern) {
   const g = scene.make.graphics({ x: 0, y: 0, add: false });
+  const T = TILE;
+  
+  // Base fill
   g.fillStyle(color, 1);
-  g.fillRect(0, 0, TILE, TILE);
+  g.fillRect(0, 0, T, T);
+  
   if (pattern === 'wall') {
-    g.fillStyle(0x000000, 0.2);
-    g.fillRect(0, TILE - 3, TILE, 3);
+    // Brick pattern
+    g.fillStyle(0x000000, 0.15);
+    g.fillRect(0, T - 3, T, 3);
+    g.fillRect(0, T/2, T, 2);
+    g.fillStyle(0xffffff, 0.05);
+    g.fillRect(0, 0, T, 1);
+    g.fillRect(0, 0, 1, T);
+    // Brick lines
+    g.fillStyle(0x000000, 0.1);
+    g.fillRect(T/2, 0, 1, T/2);
+    g.fillRect(0, T/2, T/2, 1);
+    g.fillRect(T/2, T/2+2, T/2, 1);
   } else if (pattern === 'water') {
-    g.fillStyle(0xffffff, 0.15);
-    g.fillRect(2, 2, 4, 4);
+    // Animated water lines
+    g.fillStyle(0xffffff, 0.12);
+    g.fillRect(1, 3, 6, 1);
+    g.fillRect(8, 7, 6, 1);
+    g.fillRect(2, 11, 5, 1);
+    g.fillRect(9, 14, 5, 1);
+    g.fillStyle(0xffffff, 0.06);
+    g.fillRect(4, 5, 3, 1);
+    g.fillRect(11, 9, 3, 1);
+    g.fillRect(6, 13, 4, 1);
   } else if (pattern === 'chest') {
-    g.fillStyle(COLORS.wood, 1);
-    g.fillRect(2, 6, 12, 10);
-    g.fillStyle(COLORS.wood2, 1);
-    g.fillRect(2, 6, 12, 3);
-    g.fillStyle(COLORS.gold, 1);
-    g.fillRect(6, 9, 4, 3);
+    // Wooden chest
+    g.fillStyle(0x664422, 1);
+    g.fillRect(2, 5, 12, 11);
+    g.fillStyle(0x553311, 1);
+    g.fillRect(2, 5, 12, 3); // lid
+    g.fillStyle(0x775533, 1);
+    g.fillRect(2, 8, 12, 8); // body
+    // Metal bands
+    g.fillStyle(0xccaa00, 1);
+    g.fillRect(1, 5, 1, 11);
+    g.fillRect(14, 5, 1, 11);
+    g.fillRect(6, 5, 4, 11); // center band
+    // Lock
+    g.fillStyle(0xffcc00, 1);
+    g.fillRect(7, 9, 2, 3);
+    g.fillStyle(0xaa8800, 1);
+    g.fillRect(7, 9, 2, 1);
   } else if (pattern === 'door') {
-    g.fillStyle(COLORS.wood, 1);
-    g.fillRect(0, 0, TILE, TILE);
-    g.fillStyle(COLORS.wood2, 1);
-    g.fillRect(2, 2, TILE-4, TILE-4);
-    g.fillStyle(COLORS.gold, 1);
-    g.fillRect(TILE-6, TILE/2-2, 4, 4);
+    // Wooden door
+    g.fillStyle(0x664422, 1);
+    g.fillRect(1, 0, 14, 16);
+    g.fillStyle(0x553311, 1);
+    g.fillRect(2, 1, 12, 14);
+    // Door panels
+    g.fillStyle(0x775533, 1);
+    g.fillRect(3, 2, 5, 5);
+    g.fillRect(8, 2, 5, 5);
+    g.fillRect(3, 9, 5, 5);
+    g.fillRect(8, 9, 5, 5);
+    // Handle
+    g.fillStyle(0xccaa00, 1);
+    g.fillRect(11, 7, 2, 2);
+    g.fillStyle(0xffdd44, 1);
+    g.fillRect(11, 7, 1, 1);
+  } else if (pattern === 'grass') {
+    // Grass detail
+    g.fillStyle(0x1a4428, 1);
+    g.fillRect(0, 0, T, T);
+    g.fillStyle(0x225533, 1);
+    g.fillRect(2, 2, 3, 3);
+    g.fillRect(8, 5, 4, 3);
+    g.fillRect(3, 10, 3, 3);
+    g.fillRect(10, 12, 3, 3);
+    g.fillStyle(0x336644, 1);
+    g.fillRect(5, 3, 2, 2);
+    g.fillRect(11, 8, 2, 2);
+    g.fillRect(1, 7, 2, 2);
+    g.fillRect(7, 13, 2, 2);
+    // Grass blades
+    g.fillStyle(0x44aa66, 0.6);
+    g.fillRect(3, 1, 1, 3);
+    g.fillRect(9, 4, 1, 3);
+    g.fillRect(5, 9, 1, 3);
+    g.fillRect(12, 11, 1, 3);
+  } else if (pattern === 'path') {
+    // Cobblestone path
+    g.fillStyle(0x4a3a2a, 1);
+    g.fillRect(0, 0, T, T);
+    g.fillStyle(0x554433, 1);
+    g.fillRect(1, 1, 6, 6);
+    g.fillRect(8, 1, 7, 6);
+    g.fillRect(1, 8, 7, 7);
+    g.fillRect(9, 8, 6, 7);
+    g.fillStyle(0x3a2a1a, 1);
+    g.fillRect(0, 7, T, 1);
+    g.fillRect(7, 0, 1, 8);
+  } else if (pattern === 'floor') {
+    // Floor tile with subtle pattern
+    g.fillStyle(0x000000, 0.08);
+    g.fillRect(0, 0, T, 1);
+    g.fillRect(0, 0, 1, T);
+    g.fillStyle(0xffffff, 0.04);
+    g.fillRect(1, 1, T-1, T-1);
+    g.fillStyle(0x000000, 0.06);
+    g.fillRect(T-1, 0, 1, T);
+    g.fillRect(0, T-1, T, 1);
+  } else if (pattern === 'bridge') {
+    g.fillStyle(0x553311, 1);
+    g.fillRect(0, 4, T, 8);
+    g.fillStyle(0x664422, 1);
+    g.fillRect(1, 5, T-2, 6);
+    g.fillStyle(0x442200, 0.3);
+    g.fillRect(0, 7, T, 2);
+  } else if (pattern === 'counter') {
+    g.fillStyle(0x775533, 1);
+    g.fillRect(0, 6, T, 10);
+    g.fillStyle(0x886644, 1);
+    g.fillRect(1, 4, T-2, 4);
+    g.fillStyle(0x664422, 1);
+    g.fillRect(0, 14, T, 2);
+  } else if (pattern === 'shelf') {
+    g.fillStyle(0x553311, 1);
+    g.fillRect(1, 1, 14, 14);
+    g.fillStyle(0x664422, 1);
+    g.fillRect(0, 2, 16, 12);
+    g.fillStyle(0x442200, 1);
+    g.fillRect(0, 2, 1, 12);
+    g.fillRect(15, 2, 1, 12);
+    // Items on shelf
+    g.fillStyle(0xffcc33, 0.6);
+    g.fillRect(3, 4, 2, 3);
+    g.fillStyle(0x4488ff, 0.6);
+    g.fillRect(7, 3, 3, 3);
+    g.fillStyle(0x44ff44, 0.6);
+    g.fillRect(11, 5, 2, 2);
+  } else if (pattern === 'plant') {
+    g.fillStyle(0x225533, 1);
+    g.fillRect(4, 10, 8, 6);
+    g.fillStyle(0x336644, 1);
+    g.fillRect(5, 11, 6, 4);
+    g.fillStyle(0x44aa66, 1);
+    g.fillRect(6, 3, 4, 10);
+    g.fillStyle(0x44cc77, 1);
+    g.fillRect(7, 1, 2, 4);
+    g.fillStyle(0xff66aa, 0.8);
+    g.fillRect(5, 5, 2, 2);
+  } else if (pattern === 'sign') {
+    g.fillStyle(0x664422, 1);
+    g.fillRect(5, 2, 6, 12);
+    g.fillStyle(0x775533, 1);
+    g.fillRect(6, 1, 4, 13);
+    g.fillStyle(0xccaa00, 1);
+    g.fillRect(7, 3, 2, 8);
+  } else if (pattern === 'gate') {
+    g.fillStyle(0x667788, 1);
+    g.fillRect(2, 2, 12, 12);
+    g.fillStyle(0x8899aa, 1);
+    g.fillRect(4, 0, 8, 16);
+    g.fillStyle(0x556677, 1);
+    g.fillRect(0, 4, 16, 8);
+    // Lock
+    g.fillStyle(0xffcc00, 1);
+    g.fillRect(6, 6, 4, 4);
+  } else if (pattern === 'portal') {
+    g.fillStyle(0x220044, 1);
+    g.fillRect(2, 2, 12, 12);
+    g.fillStyle(0xaa44ff, 0.6);
+    g.fillRect(3, 3, 10, 10);
+    g.fillStyle(0xcc66ff, 0.4);
+    g.fillRect(5, 5, 6, 6);
+    g.fillStyle(0xffffff, 0.3);
+    g.fillRect(7, 7, 2, 2);
+  } else if (pattern === 'bed') {
+    g.fillStyle(0x664422, 1);
+    g.fillRect(1, 8, 14, 8);
+    g.fillStyle(0x886644, 1);
+    g.fillRect(0, 6, 16, 4);
+    g.fillStyle(0x4488ff, 1);
+    g.fillRect(2, 10, 12, 5);
+    g.fillStyle(0x6699ff, 1);
+    g.fillRect(3, 11, 10, 3);
+    // Pillow
+    g.fillStyle(0xffffff, 0.8);
+    g.fillRect(2, 7, 5, 3);
+  } else if (pattern === 'table') {
+    g.fillStyle(0x775533, 1);
+    g.fillRect(1, 4, 14, 3);
+    g.fillStyle(0x664422, 1);
+    g.fillRect(2, 7, 2, 8);
+    g.fillRect(12, 7, 2, 8);
+    g.fillStyle(0x886644, 1);
+    g.fillRect(0, 3, 16, 2);
+  } else if (pattern === 'bar') {
+    g.fillStyle(0x553322, 1);
+    g.fillRect(0, 4, T, 12);
+    g.fillStyle(0x664433, 1);
+    g.fillRect(1, 2, T-2, 4);
+    g.fillStyle(0x442211, 1);
+    g.fillRect(0, 14, T, 2);
+    // Bottles
+    g.fillStyle(0x44ff44, 0.5);
+    g.fillRect(3, 0, 2, 3);
+    g.fillStyle(0xff4444, 0.5);
+    g.fillRect(7, 0, 2, 3);
+    g.fillStyle(0x4488ff, 0.5);
+    g.fillRect(11, 0, 2, 3);
+  } else if (pattern === 'stairs') {
+    g.fillStyle(0x667788, 1);
+    for (let i = 0; i < 4; i++) {
+      g.fillRect(0, i * 4, T - i * 2, 4);
+    }
+    g.fillStyle(0x8899aa, 1);
+    for (let i = 0; i < 4; i++) {
+      g.fillRect(1, i * 4 + 1, T - i * 2 - 2, 2);
+    }
+  } else if (pattern === 'void') {
+    g.fillStyle(0x0a0a1a, 1);
+    g.fillRect(0, 0, T, T);
+    g.fillStyle(0x1a0a2a, 0.5);
+    g.fillRect(2, 2, 12, 12);
+    g.fillStyle(0x000000, 0.3);
+    g.fillRect(5, 5, 6, 6);
+  } else if (pattern === 'ice') {
+    g.fillStyle(0x88aadd, 1);
+    g.fillRect(0, 0, T, T);
+    g.fillStyle(0xaaccff, 0.4);
+    g.fillRect(1, 1, 6, 6);
+    g.fillRect(8, 7, 6, 6);
+    g.fillStyle(0xffffff, 0.2);
+    g.fillRect(3, 3, 3, 3);
+    g.fillRect(10, 9, 3, 3);
+    // Crack lines
+    g.fillStyle(0x6688bb, 0.5);
+    g.fillRect(7, 0, 1, T);
+    g.fillRect(0, 8, T, 1);
+  } else if (pattern === 'lava') {
+    g.fillStyle(0xcc2200, 1);
+    g.fillRect(0, 0, T, T);
+    g.fillStyle(0xff4400, 0.6);
+    g.fillRect(1, 1, 5, 5);
+    g.fillRect(8, 6, 6, 5);
+    g.fillRect(3, 10, 5, 5);
+    g.fillStyle(0xffaa00, 0.4);
+    g.fillRect(2, 2, 3, 3);
+    g.fillRect(9, 7, 3, 3);
+    g.fillRect(4, 11, 3, 3);
   }
-  g.generateTexture(key, TILE, TILE);
+  
+  g.generateTexture(key, T, T);
   g.destroy();
 }
 
@@ -270,23 +496,23 @@ function generateAllTextures(scene) {
     ['tile_wall', COLORS.wall1, 'wall'],
     ['tile_door', COLORS.wood, 'door'],
     ['tile_water', COLORS.water1, 'water'],
-    ['tile_bridge', COLORS.wood, ''],
-    ['tile_grass', COLORS.grass1, ''],
-    ['tile_path', COLORS.path1, ''],
-    ['tile_counter', COLORS.wood, ''],
-    ['tile_shelf', COLORS.wood2, ''],
-    ['tile_plant', COLORS.green, ''],
-    ['tile_sign', COLORS.wood, ''],
+    ['tile_bridge', COLORS.wood, 'bridge'],
+    ['tile_grass', COLORS.grass1, 'grass'],
+    ['tile_path', COLORS.path1, 'path'],
+    ['tile_counter', COLORS.wood, 'counter'],
+    ['tile_shelf', COLORS.wood2, 'shelf'],
+    ['tile_plant', COLORS.green, 'plant'],
+    ['tile_sign', COLORS.wood, 'sign'],
     ['tile_chest', COLORS.brown, 'chest'],
-    ['tile_gate', COLORS.metal, ''],
-    ['tile_portal', COLORS.purple, ''],
-    ['tile_bed', COLORS.wood, ''],
-    ['tile_table', COLORS.wood, ''],
-    ['tile_bar', COLORS.darkBrown, ''],
-    ['tile_stairs', COLORS.metal, ''],
-    ['tile_void', COLORS.void1, ''],
-    ['tile_ice', COLORS.ice1, ''],
-    ['tile_lava', COLORS.lava1, ''],
+    ['tile_gate', COLORS.metal, 'gate'],
+    ['tile_portal', COLORS.purple, 'portal'],
+    ['tile_bed', COLORS.wood, 'bed'],
+    ['tile_table', COLORS.wood, 'table'],
+    ['tile_bar', COLORS.darkBrown, 'bar'],
+    ['tile_stairs', COLORS.metal, 'stairs'],
+    ['tile_void', COLORS.void1, 'void'],
+    ['tile_ice', COLORS.ice1, 'ice'],
+    ['tile_lava', COLORS.lava1, 'lava'],
   ];
   tiles.forEach(([key, color, pattern]) => generateTileTexture(scene, key, color, pattern));
 }
@@ -297,85 +523,138 @@ function getTileKey(type) {
 }
 
 // ─── PIXEL ART SPRITE GENERATION ────────────────────────────
+// Characters drawn in a 32×40 texture (scale 2), centered properly
+// Content area: y=0 to y=32 (head to feet), with 4px padding top and bottom
 function generateCharacterTexture(scene, key, species, hairColor, eyeColor, skinColor, outfitColor) {
   const g = scene.make.graphics({ x: 0, y: 0, add: false });
   const s = 2; // pixel scale
+  const W = 16 * s; // 32
+  const H = 20 * s; // 40
+  
+  // Offset to center character vertically in texture
+  // Character content: head top at ~4px, feet at ~34px
+  const CY = 4; // vertical offset to center content
   
   // Shadow
   g.fillStyle(0x000000, 0.3);
-  g.fillRect(5, 8, 12, 4);
+  g.fillRect(10, CY + 28, 12, 4);
   
   // Legs
   g.fillStyle(outfitColor, 1);
-  g.fillRect(4, 2, 3, 5);
-  g.fillRect(9, 2, 3, 5);
+  g.fillRect(8, CY + 18, 4, 8);
+  g.fillRect(20, CY + 18, 4, 8);
   
   // Shoes
   g.fillStyle(0x222222, 1);
-  g.fillRect(3, 6, 4, 2);
-  g.fillRect(10, 6, 4, 2);
+  g.fillRect(7, CY + 24, 6, 4);
+  g.fillRect(19, CY + 24, 6, 4);
   
-  // Body
+  // Body / torso
   g.fillStyle(outfitColor, 1);
-  g.fillRect(3, -6, 8, 8);
+  g.fillRect(6, CY + 8, 20, 12);
+  
+  // Belt / detail
+  g.fillStyle(0x000000, 0.2);
+  g.fillRect(6, CY + 18, 20, 2);
   
   // Arms
   g.fillStyle(skinColor, 1);
-  g.fillRect(-1, -5, 2, 5);
-  g.fillRect(13, -5, 2, 5);
+  g.fillRect(2, CY + 10, 4, 10);
+  g.fillRect(26, CY + 10, 4, 10);
+  
+  // Hands
+  g.fillStyle(skinColor, 1);
+  g.fillRect(2, CY + 18, 4, 3);
+  g.fillRect(26, CY + 18, 4, 3);
   
   // Head
   g.fillStyle(skinColor, 1);
-  g.fillRect(3, -13, 8, 8);
+  g.fillRect(8, CY + 1, 16, 14);
   
   // Eyes
-  g.fillStyle(eyeColor, 1);
-  g.fillRect(4, -10, 2, 2);
-  g.fillRect(9, -10, 2, 2);
+  g.fillStyle(eyeColor || 0xffffff, 1);
+  g.fillRect(11, CY + 6, 3, 3);
+  g.fillRect(18, CY + 6, 3, 3);
+  
+  // Pupil
+  g.fillStyle(0x000000, 1);
+  g.fillRect(12, CY + 7, 1, 1);
+  g.fillRect(19, CY + 7, 1, 1);
+  
+  // Mouth
+  g.fillStyle(0x000000, 0.4);
+  g.fillRect(14, CY + 11, 4, 1);
   
   // Hair
-  g.fillStyle(hairColor, 1);
-  g.fillRect(2, -14, 10, 3);
-  g.fillRect(2, -13, 2, 5);
-  g.fillRect(10, -13, 2, 5);
+  if (hairColor) {
+    g.fillStyle(hairColor, 1);
+    g.fillRect(7, CY, 18, 5);      // top
+    g.fillRect(7, CY + 1, 3, 10);   // left side
+    g.fillRect(22, CY + 1, 3, 10);  // right side
+    g.fillRect(10, CY + 3, 12, 2);  // bangs
+  }
   
   // Species features
   if (species === 'cat') {
-    g.fillStyle(hairColor, 1);
-    g.fillRect(2, -18, 3, 5);
-    g.fillRect(10, -18, 3, 5);
-    g.fillStyle(COLORS.catEar, 1);
-    g.fillRect(3, -17, 1, 3);
-    g.fillRect(11, -17, 1, 3);
+    // Ears
+    g.fillStyle(hairColor || 0xff8866, 1);
+    g.fillRect(6, CY - 4, 5, 6);
+    g.fillRect(21, CY - 4, 5, 6);
+    g.fillStyle(0xff8866, 1);
+    g.fillRect(7, CY - 2, 3, 3);
+    g.fillRect(22, CY - 2, 3, 3);
+    // Tail
+    g.fillStyle(hairColor || 0xff8866, 1);
+    g.fillRect(26, CY + 14, 6, 3);
+    g.fillRect(30, CY + 10, 3, 6);
   } else if (species === 'frog') {
-    g.fillStyle(COLORS.frog, 1);
-    g.fillRect(1, -16, 4, 5);
-    g.fillRect(10, -16, 4, 5);
-    g.fillStyle(COLORS.eye3, 1);
-    g.fillRect(2, -15, 2, 2);
-    g.fillRect(11, -15, 2, 2);
+    // Bulging eyes
+    g.fillStyle(0x44aa66, 1);
+    g.fillRect(5, CY - 2, 7, 7);
+    g.fillRect(20, CY - 2, 7, 7);
+    g.fillStyle(0x44ff44, 1);
+    g.fillRect(7, CY, 4, 4);
+    g.fillRect(21, CY, 4, 4);
+    g.fillStyle(0x000000, 1);
+    g.fillRect(8, CY + 1, 2, 2);
+    g.fillRect(22, CY + 1, 2, 2);
+    // Belly
     g.fillStyle(0x55bb77, 1);
-    g.fillRect(5, -6, 4, 2);
+    g.fillRect(10, CY + 14, 12, 6);
   } else if (species === 'dragon') {
-    g.fillStyle(COLORS.dragon, 1);
-    g.fillRect(2, -18, 2, 5);
-    g.fillRect(11, -18, 2, 5);
+    // Horns
+    g.fillStyle(0xcc3333, 1);
+    g.fillRect(6, CY - 4, 3, 6);
+    g.fillRect(23, CY - 4, 3, 6);
+    // Snout
     g.fillStyle(0xbb3333, 1);
-    g.fillRect(4, -7, 4, 2);
+    g.fillRect(12, CY + 10, 8, 4);
+    // Tail
     g.fillStyle(0xaa2222, 1);
-    g.fillRect(13, 2, 5, 2);
-    g.fillRect(17, -1, 2, 4);
+    g.fillRect(28, CY + 16, 6, 3);
+    g.fillRect(32, CY + 12, 3, 6);
+    // Wings (small)
+    g.fillStyle(0x882222, 0.7);
+    g.fillRect(0, CY + 6, 6, 10);
+    g.fillRect(26, CY + 6, 6, 10);
   } else if (species === 'robot') {
-    g.fillStyle(COLORS.robotEye, 1);
-    g.fillRect(5, -11, 4, 4);
-    g.fillStyle(COLORS.robot, 1);
-    g.fillRect(2, -14, 10, 3);
-    g.fillRect(6, -18, 1, 5);
-    g.fillStyle(COLORS.robotEye, 1);
-    g.fillRect(6, -17, 1, 1);
+    // Antenna
+    g.fillStyle(0x8899aa, 1);
+    g.fillRect(14, CY - 4, 2, 6);
+    g.fillStyle(0x44ffff, 1);
+    g.fillRect(14, CY - 5, 2, 2);
+    // Visor
+    g.fillStyle(0x44ffff, 0.8);
+    g.fillRect(9, CY + 5, 14, 5);
+    g.fillStyle(0x000000, 0.3);
+    g.fillRect(9, CY + 5, 14, 5);
+    // Panel lines
+    g.fillStyle(0x667788, 1);
+    g.fillRect(6, CY + 12, 20, 1);
+    g.fillRect(6, CY + 16, 20, 1);
   }
   
-  g.generateTexture(key, 16 * s, 20 * s);
+  g.generateTexture(key, W, H);
   g.destroy();
 }
 
@@ -455,19 +734,22 @@ class TownScene extends Phaser.Scene {
   constructor() { super({ key: 'TownScene' }); }
   
   create() {
-    this.player = { x: GameData.playerX, y: GameData.playerY, dir: GameData.playerDir };
+    this.player = { x: GameData.playerX, y: GameData.playerY, dir: GameData.playerDir, moving: false, frame: 0 };
     this.cameraX = 0;
     this.cameraY = 0;
-    this.frame = 0;
     this.moveTimer = 0;
     this.npcSprites = [];
     this.chestSprites = [];
     this.signSprites = [];
     this.playerSprite = null;
-    this.hudTexts = [];
+    this.hudContainer = null;
+    this.messageBox = null;
+    this.messageTimer = 0;
     
     this.buildMap();
     this.buildNPCs();
+    this.buildChests();
+    this.buildSigns();
     this.buildPlayer();
     this.buildHUD();
     this.updateCamera();
@@ -490,40 +772,101 @@ class TownScene extends Phaser.Scene {
   buildNPCs() {
     townNPCs.forEach(npc => {
       const key = 'char_' + npc[2];
-      const img = this.add.image(npc[0] * TILE + TILE/2, npc[1] * TILE + TILE/2, key).setScale(1);
+      const img = this.add.image(npc[0] * TILE + TILE/2, npc[1] * TILE + TILE/2, key);
+      img.setOrigin(0.5, 0.8); // feet-centered
       img.npcData = { x: npc[0], y: npc[1], type: npc[2], name: npc[3], dialogue: npc[4], shop: npc[5], recruitable: npc[6] };
+      // Name label above head
+      img.nameLabel = this.add.text(npc[0] * TILE + TILE/2, npc[1] * TILE - 12, npc[3], {
+        fontSize: '7px', fontFamily: 'monospace', color: '#aaaacc', backgroundColor: '#0a0a1a88', padding: { x: 2, y: 1 }
+      }).setOrigin(0.5).setVisible(false);
       this.npcSprites.push(img);
     });
   }
   
+  buildChests() {
+    townChests.forEach(c => {
+      const img = this.add.image(c.x * TILE + TILE/2, c.y * TILE + TILE/2, 'tile_chest');
+      img.setOrigin(0.5, 0.8);
+      img.chestData = c;
+      this.chestSprites.push(img);
+    });
+  }
+  
+  buildSigns() {
+    townSigns.forEach(s => {
+      const img = this.add.image(s[0] * TILE + TILE/2, s[1] * TILE + TILE/2, 'tile_sign');
+      img.setOrigin(0.5, 0.8);
+      img.signData = { x: s[0], y: s[1], text: s[2] };
+      this.signSprites.push(img);
+    });
+  }
+  
   buildPlayer() {
-    this.playerSprite = this.add.image(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'char_lyra').setScale(1);
+    this.playerSprite = this.add.image(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'char_lyra');
+    this.playerSprite.setOrigin(0.5, 0.8); // feet-centered
   }
   
   buildHUD() {
     this.hudContainer = this.add.container(0, 0);
     this.hudContainer.setDepth(100);
     
-    GameData.party.forEach((c, i) => {
-      const bg = this.add.rectangle(50, 10 + i*32, 90, 28, 0x0a0a1a, 0.8).setOrigin(0);
-      const name = this.add.text(6, 4 + i*32, c.name, { fontSize: '10px', fontFamily: 'monospace', color: '#44ddff' });
-      const hpBar = this.add.rectangle(6, 16 + i*32, 56, 4, 0x333333).setOrigin(0);
-      const hpFill = this.add.rectangle(6, 16 + i*32, 56, 4, 0x33cc66).setOrigin(0);
-      this.hudContainer.add([bg, name, hpBar, hpFill]);
-    });
+    const party = GameData.party;
+    if (party.length > 0) {
+      const leader = party[0];
+      // Party panel background
+      this.hudContainer.add(this.add.rectangle(55, 22, 100, 40, 0x0a0a1a, 0.85).setOrigin(0).setStrokeStyle(1, 0x4488ff));
+      // Name
+      this.hudContainer.add(this.add.text(6, 6, leader.name, { fontSize: '9px', fontFamily: 'monospace', color: '#44ddff' }));
+      // Level
+      this.hudContainer.add(this.add.text(6, 16, 'Lv.' + leader.level, { fontSize: '8px', fontFamily: 'monospace', color: '#aaaacc' }));
+      // HP bar
+      this.hudContainer.add(this.add.rectangle(40, 8, 66, 6, 0x333333).setOrigin(0));
+      this.hudContainer.add(this.hpFill = this.add.rectangle(40, 8, 66, 6, 0x33cc66).setOrigin(0));
+      this.hudContainer.add(this.add.text(42, 7, 'HP', { fontSize: '6px', fontFamily: 'monospace', color: '#ffffff' }));
+      // HP text
+      this.hudContainer.add(this.hpText = this.add.text(104, 6, leader.hp + '/' + leader.maxHp, { fontSize: '7px', fontFamily: 'monospace', color: '#33cc66' }).setOrigin(1, 0));
+      // SP bar
+      this.hudContainer.add(this.add.rectangle(40, 18, 66, 4, 0x333333).setOrigin(0));
+      this.hudContainer.add(this.spFill = this.add.rectangle(40, 18, 66, 4, 0x4488ff).setOrigin(0));
+      this.hudContainer.add(this.add.text(42, 17, 'SP', { fontSize: '5px', fontFamily: 'monospace', color: '#ffffff' }));
+      // Gold
+      this.hudContainer.add(this.add.text(6, 28, GameData.gold + 'g', { fontSize: '8px', fontFamily: 'monospace', color: '#ffcc33' }));
+    }
     
-    const goldText = this.add.text(GAME_W - 74, 6, GameData.gold + 'g', { fontSize: '10px', fontFamily: 'monospace', color: '#ffcc33' });
-    this.hudContainer.add(goldText);
-    
-    const controlsText = this.add.text(10, GAME_H - 18, 'D-Pad:Move A:Interact X:Menu', { fontSize: '8px', fontFamily: 'monospace', color: '#888888' });
-    this.hudContainer.add(controlsText);
+    // Controls hint
+    this.hudContainer.add(this.add.text(GAME_W/2, GAME_H - 10, 'WASD/Arrows:Move  Z/Space:Interact  X:Esc:Back  M/Enter:Party', {
+      fontSize: '7px', fontFamily: 'monospace', color: '#666688'
+    }).setOrigin(0.5));
+  }
+  
+  updateHUD() {
+    const party = GameData.party;
+    if (party.length === 0) return;
+    const leader = party[0];
+    if (this.hpFill) {
+      const hpPct = Math.max(0, leader.hp / leader.maxHp);
+      this.hpFill.width = 66 * hpPct;
+      this.hpFill.fillColor = hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344;
+    }
+    if (this.spFill) {
+      this.spFill.width = 66 * Math.max(0, leader.sp / leader.maxSp);
+    }
+    if (this.hpText) {
+      this.hpText.setText(leader.hp + '/' + leader.maxHp);
+    }
   }
   
   updateCamera() {
     this.cameraX = Phaser.Math.Clamp(this.player.x * TILE - GAME_W/2 + TILE/2, 0, MAP_W * TILE - GAME_W);
     this.cameraY = Phaser.Math.Clamp(this.player.y * TILE - GAME_H/2 + TILE/2, 0, MAP_H * TILE - GAME_H);
     this.mapContainer.setPosition(-this.cameraX, -this.cameraY);
-    this.npcSprites.forEach(img => img.setPosition(img.npcData.x * TILE + TILE/2 - this.cameraX, img.npcData.y * TILE + TILE/2 - this.cameraY));
+    this.npcSprites.forEach(img => {
+      img.setPosition(img.npcData.x * TILE + TILE/2 - this.cameraX, img.npcData.y * TILE + TILE/2 - this.cameraY);
+      if (img.nameLabel) {
+        img.nameLabel.setPosition(img.npcData.x * TILE + TILE/2 - this.cameraX, img.npcData.y * TILE - 8 - this.cameraY);
+        img.nameLabel.setVisible(img.nameLabel.x > 0 && img.nameLabel.x < GAME_W && img.nameLabel.y > 0 && img.nameLabel.y < GAME_H);
+      }
+    });
     this.chestSprites.forEach(img => img.setPosition(img.chestData.x * TILE + TILE/2 - this.cameraX, img.chestData.y * TILE + TILE/2 - this.cameraY));
     this.signSprites.forEach(img => img.setPosition(img.signData.x * TILE + TILE/2 - this.cameraX, img.signData.y * TILE + TILE/2 - this.cameraY));
     if (this.playerSprite) {
@@ -531,8 +874,26 @@ class TownScene extends Phaser.Scene {
     }
   }
   
+  showMessage(text) {
+    if (this.messageBox) this.messageBox.destroy();
+    this.messageBox = this.add.text(GAME_W/2, 40, text, {
+      fontSize: '10px', fontFamily: 'monospace', color: '#ffffff',
+      backgroundColor: '#0a0a1aee', padding: { x: 8, y: 4 }, wordWrap: { width: GAME_W - 40 }
+    }).setOrigin(0.5).setDepth(150);
+    this.messageTimer = 180;
+  }
+  
   update() {
     const { dx, dy, interact, cancel, menu, gp } = getInput(this);
+    
+    // Message timer
+    if (this.messageTimer > 0) {
+      this.messageTimer--;
+      if (this.messageTimer <= 0 && this.messageBox) {
+        this.messageBox.destroy();
+        this.messageBox = null;
+      }
+    }
     
     // Movement
     if (dx !== 0 || dy !== 0) {
@@ -542,7 +903,6 @@ class TownScene extends Phaser.Scene {
         const nx = this.player.x + dx;
         const ny = this.player.y + dy;
         if (!isTownSolid(nx, ny)) {
-          // Check NPC collision
           const npc = this.npcSprites.find(n => n.npcData.x === nx && n.npcData.y === ny);
           if (!npc) {
             this.player.x = nx;
@@ -552,8 +912,17 @@ class TownScene extends Phaser.Scene {
           }
         }
       }
+      // Bob animation
+      this.player.frame++;
+      if (this.playerSprite) {
+        const bob = Math.sin(this.player.frame * 0.3) * 1.5;
+        this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY + bob;
+      }
     } else {
       this.moveTimer = 0;
+      if (this.playerSprite) {
+        this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY;
+      }
     }
     
     // Interact
@@ -563,7 +932,6 @@ class TownScene extends Phaser.Scene {
       const tx = this.player.x + ddx;
       const ty = this.player.y + ddy;
       
-      // Check NPC
       const npc = this.npcSprites.find(n => n.npcData.x === tx && n.npcData.y === ty);
       if (npc) {
         if (npc.npcData.shop && !npc.npcData.recruitable) {
@@ -576,7 +944,6 @@ class TownScene extends Phaser.Scene {
         return;
       }
       
-      // Check sign
       const sign = townSigns.find(s => s[0] === tx && s[1] === ty);
       if (sign) {
         this.scene.launch('DialogueScene', { text: sign[2], scene: this });
@@ -584,27 +951,33 @@ class TownScene extends Phaser.Scene {
         return;
       }
       
-      // Check chest
       const chest = townChests.find(c => c.x === tx && c.y === ty && !c.taken);
       if (chest) {
         chest.taken = true;
         GameData.inventory.push(chest.item);
-        this.scene.launch('DialogueScene', { text: 'Found ' + chest.item.name + '!', scene: this });
-        this.scene.pause();
+        this.showMessage('Found ' + chest.item.name + '!');
+        gameSave();
         return;
       }
     }
     
-    // Menu
+    // Menu - Party/Inventory screen
     if (menu) {
       this.scene.launch('InventoryScene');
       this.scene.pause();
+    }
+    
+    // Cancel - also opens party screen as a back shortcut
+    if (cancel) {
+      // Could be used for other things later
     }
     
     // Save position
     GameData.playerX = this.player.x;
     GameData.playerY = this.player.y;
     GameData.playerDir = this.player.dir;
+    
+    this.updateHUD();
   }
 }
 
@@ -851,32 +1224,203 @@ class ShopScene extends Phaser.Scene {
   }
 }
 
-// ─── INVENTORY SCENE (overlay) ──────────────────────────────
+// ─── INVENTORY / PARTY SCENE (overlay) ──────────────────────
 class InventoryScene extends Phaser.Scene {
   constructor() { super({ key: 'InventoryScene' }); }
   
   create() {
-    this.mode = 'list';
+    this.mode = 'party'; // party, inventory, equip, itemAction, pickChar
     this.cursor = 0;
     this.charIndex = 0;
     this.slotIndex = 0;
-    
-    this.box = this.add.rectangle(GAME_W/2, GAME_H/2, GAME_W - 30, GAME_H - 20, 0x050514, 0.95).setDepth(200);
-    this.box.setStrokeStyle(2, 0x4488ff);
-    
-    this.add.text(25, 16, 'Inventory', { fontSize: '11px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(201);
-    this.add.text(125, 16, 'Equipment', { fontSize: '11px', fontFamily: 'monospace', color: '#666666' }).setDepth(201);
-    this.add.text(GAME_W - 100, 16, 'Gold: ' + GameData.gold + 'g', { fontSize: '10px', fontFamily: 'monospace', color: '#aaaaaa' }).setDepth(201);
-    
+    this._itemIdx = 0;
     this.contentTexts = [];
+    this.tabTexts = [];
+    
+    // Background
+    this.bg = this.add.rectangle(GAME_W/2, GAME_H/2, GAME_W - 16, GAME_H - 16, 0x050514, 0.96).setDepth(200);
+    this.bg.setStrokeStyle(2, 0x4488ff);
+    
+    // Tabs
+    this.tabParty = this.add.text(20, 12, 'PARTY', { fontSize: '10px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
+    this.tabInv = this.add.text(80, 12, 'ITEMS', { fontSize: '10px', fontFamily: 'monospace', color: '#666688' }).setDepth(201);
+    
+    // Gold display
+    this.add.text(GAME_W - 20, 12, GameData.gold + 'g', { fontSize: '10px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201).setOrigin(1, 0);
+    
+    // Separator line
+    this.add.rectangle(GAME_W/2, 26, GAME_W - 36, 1, 0x4488ff, 0.5).setDepth(201);
+    
     this.updateContent();
+  }
+  
+  updateContent() {
+    this.contentTexts.forEach(t => t.destroy());
+    this.contentTexts = [];
+    
+    // Update tab colors
+    this.tabParty.setColor(this.mode === 'party' ? '#44ddff' : '#666688');
+    this.tabInv.setColor(this.mode === 'inventory' || this.mode === 'itemAction' || this.mode === 'pickChar' ? '#44ddff' : '#666688');
+    
+    if (this.mode === 'party') {
+      this.renderParty();
+    } else if (this.mode === 'inventory') {
+      this.renderInventory();
+    } else if (this.mode === 'itemAction') {
+      this.renderItemAction();
+    } else if (this.mode === 'pickChar') {
+      this.renderPickChar();
+    } else if (this.mode === 'equip') {
+      this.renderEquip();
+    }
+  }
+  
+  renderParty() {
+    const party = GameData.party;
+    if (party.length === 0) {
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'No party members', { fontSize: '12px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      return;
+    }
+    
+    party.forEach((c, i) => {
+      const isSel = i === this.charIndex;
+      const bg = this.add.rectangle(GAME_W/2, 40 + i * 44, GAME_W - 36, 40, isSel ? 0x1a1a3a : 0x0a0a1a, 0.9).setDepth(201);
+      if (isSel) bg.setStrokeStyle(1, 0x44ddff);
+      this.contentTexts.push(bg);
+      
+      // Character sprite
+      const charKey = 'char_' + (c.species === 'human' ? 'lyra' : c.species === 'cat' ? 'eryx' : c.species === 'frog' ? 'brimble' : c.species === 'dragon' ? 'drakkor' : c.species === 'robot' ? 'pip' : 'townie1');
+      const spr = this.add.image(30, 40 + i * 44, charKey).setDepth(202).setScale(0.8);
+      this.contentTexts.push(spr);
+      
+      // Name and level
+      this.contentTexts.push(this.add.text(48, 32 + i * 44, c.name + '  Lv.' + c.level, { fontSize: '10px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      
+      // HP bar
+      const hpPct = c.maxHp > 0 ? c.hp / c.maxHp : 0;
+      this.contentTexts.push(this.add.rectangle(48, 44 + i * 44, 60, 5, 0x333333).setDepth(202));
+      this.contentTexts.push(this.add.rectangle(48, 44 + i * 44, 60 * hpPct, 5, hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344).setDepth(202));
+      this.contentTexts.push(this.add.text(110, 42 + i * 44, 'HP ' + c.hp + '/' + c.maxHp, { fontSize: '7px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
+      
+      // Stats
+      this.contentTexts.push(this.add.text(170, 34 + i * 44, 'ATK:' + c.atk, { fontSize: '8px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(202));
+      this.contentTexts.push(this.add.text(220, 34 + i * 44, 'DEF:' + c.def, { fontSize: '8px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(202));
+      this.contentTexts.push(this.add.text(170, 44 + i * 44, 'SPD:' + c.spd, { fontSize: '8px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(202));
+      this.contentTexts.push(this.add.text(220, 44 + i * 44, 'CRIT:' + c.crit + '%', { fontSize: '8px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(202));
+      
+      // Equipment summary
+      const eq = c.equipment;
+      const weaponName = eq.weapon ? eq.weapon.name : '-';
+      const armorName = eq.armor ? eq.armor.name : '-';
+      this.contentTexts.push(this.add.text(280, 34 + i * 44, 'W:' + weaponName, { fontSize: '7px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(280, 44 + i * 44, 'A:' + armorName, { fontSize: '7px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      
+      // Selection cursor
+      if (isSel) {
+        this.contentTexts.push(this.add.text(18, 40 + i * 44, '>', { fontSize: '10px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(202));
+      }
+    });
+    
+    // Controls hint
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Details  X/Esc:Close  Tab:Items', { fontSize: '7px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+  }
+  
+  renderInventory() {
+    const inv = GameData.inventory;
+    if (inv.length === 0) {
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'Inventory is empty', { fontSize: '12px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2 + 16, 'Tab:Party  X/Esc:Close', { fontSize: '7px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      return;
+    }
+    
+    inv.forEach((item, i) => {
+      const isSel = i === this.cursor;
+      const y = 36 + i * 18;
+      if (y > GAME_H - 24) return;
+      
+      const bg = this.add.rectangle(GAME_W/2, y, GAME_W - 36, 16, isSel ? 0x1a1a3a : 0x000000, 0).setDepth(201);
+      if (isSel) bg.setStrokeStyle(1, 0x44ddff);
+      this.contentTexts.push(bg);
+      
+      // Type icon
+      const typeColors = {weapon: '#ff8833', armor: '#4488ff', consumable: '#44ff44', material: '#aaaacc', accessory: '#ff66aa', implant: '#44ffff'};
+      this.contentTexts.push(this.add.text(20, y - 1, item.type.toUpperCase(), { fontSize: '6px', fontFamily: 'monospace', color: typeColors[item.type] || '#aaaacc' }).setDepth(202));
+      
+      this.contentTexts.push(this.add.text(70, y - 1, (isSel ? '> ' : '  ') + item.name + (item.level > 1 ? ' +' + item.level : ''), { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      
+      // Item stats
+      let stats = '';
+      if (item.atk) stats += 'ATK+' + item.atk + ' ';
+      if (item.def) stats += 'DEF+' + item.def + ' ';
+      if (item.heal) stats += 'HEAL+' + item.heal + ' ';
+      if (stats) {
+        this.contentTexts.push(this.add.text(200, y - 1, stats, { fontSize: '7px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
+      }
+      
+      // Rarity
+      const rarityColors = {Common: '#aaaacc', Uncommon: '#44ff44', Rare: '#4488ff', Epic: '#aa44ff', Legendary: '#ffcc33'};
+      if (item.rarity) {
+        this.contentTexts.push(this.add.text(280, y - 1, item.rarity, { fontSize: '7px', fontFamily: 'monospace', color: rarityColors[item.rarity] || '#aaaacc' }).setDepth(202));
+      }
+    });
+    
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Use/Equip  X/Esc:Close  Tab:Party', { fontSize: '7px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+  }
+  
+  renderItemAction() {
+    const item = GameData.inventory[this._itemIdx];
+    if (!item) { this.mode = 'inventory'; this.updateContent(); return; }
+    
+    // Item info
+    this.contentTexts.push(this.add.text(GAME_W/2, 40, item.name, { fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, 56, item.type.toUpperCase() + (item.rarity ? ' — ' + item.rarity : ''), { fontSize: '9px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(201).setOrigin(0.5));
+    
+    let statsY = 72;
+    if (item.atk) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Attack: +' + item.atk, { fontSize: '9px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    if (item.def) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Defense: +' + item.def, { fontSize: '9px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    if (item.heal) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Heal: +' + item.heal + ' HP', { fontSize: '9px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    
+    statsY += 10;
+    const actions = ['Equip', 'Drop', 'Cancel'];
+    actions.forEach((a, i) => {
+      const isSel = i === this.cursor;
+      const bg = this.add.rectangle(GAME_W/2, statsY + i * 20, 80, 16, isSel ? 0x1a1a3a : 0x000000, 0).setDepth(201);
+      if (isSel) bg.setStrokeStyle(1, 0x44ddff);
+      this.contentTexts.push(bg);
+      this.contentTexts.push(this.add.text(GAME_W/2, statsY + i * 20 - 1, (isSel ? '> ' : '  ') + a, { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202).setOrigin(0.5));
+    });
+  }
+  
+  renderPickChar() {
+    this.contentTexts.push(this.add.text(GAME_W/2, 36, 'Equip to who?', { fontSize: '10px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
+    
+    GameData.party.forEach((c, i) => {
+      const isSel = i === this.cursor;
+      const bg = this.add.rectangle(GAME_W/2, 56 + i * 24, GAME_W - 50, 20, isSel ? 0x1a1a3a : 0x0a0a1a, 0.8).setDepth(201);
+      if (isSel) bg.setStrokeStyle(1, 0x44ddff);
+      this.contentTexts.push(bg);
+      this.contentTexts.push(this.add.text(30, 50 + i * 24, (isSel ? '> ' : '  ') + c.name + ' Lv.' + c.level, { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+    });
   }
   
   update() {
     const { dx, dy, interact, cancel } = getInput(this);
     const gp = this.input.gamepad ? this.input.gamepad.getPad(0) : null;
-
-    if (this.mode === 'list') {
+    
+    // Tab switching
+    if (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4])) {
+      this.mode = this.mode === 'party' || this.mode === 'inventory' ? (this.mode === 'party' ? 'inventory' : 'party') : this.mode;
+      this.cursor = 0;
+      this.updateContent();
+    }
+    
+    if (this.mode === 'party') {
+      if (dy < 0 && this.charIndex > 0) this.charIndex--;
+      if (dy > 0 && this.charIndex < GameData.party.length - 1) this.charIndex++;
+      if (cancel) { this.scene.stop(); this.scene.get('TownScene').scene.resume(); }
+      if (interact) { this.mode = 'equip'; this.cursor = 0; }
+      this.updateContent();
+    } else if (this.mode === 'inventory') {
       if (dy < 0 && this.cursor > 0) this.cursor--;
       if (dy > 0 && this.cursor < GameData.inventory.length - 1) this.cursor++;
       if (cancel) { this.scene.stop(); this.scene.get('TownScene').scene.resume(); }
@@ -885,21 +1429,35 @@ class InventoryScene extends Phaser.Scene {
         this._itemIdx = this.cursor;
         this.cursor = 0;
       }
-      // Tab to equip
-      if (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4])) {
-        this.mode = 'equip'; this.charIndex = 0; this.slotIndex = 0;
-      }
       this.updateContent();
     } else if (this.mode === 'itemAction') {
-      const actions = ['Equip','Drop','Cancel'];
+      const actions = ['Equip', 'Drop', 'Cancel'];
       if (dy < 0 && this.cursor > 0) this.cursor--;
       if (dy > 0 && this.cursor < actions.length - 1) this.cursor++;
-      if (cancel) { this.mode = 'list'; this.cursor = this._itemIdx; }
+      if (cancel) { this.mode = 'inventory'; this.cursor = this._itemIdx; }
       if (interact) {
         const act = actions[this.cursor];
-        if (act === 'Equip') { this.mode = 'pickChar'; this.cursor = 0; }
-        else if (act === 'Drop') { GameData.inventory.splice(this._itemIdx, 1); this.mode = 'list'; this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1)); }
-        else { this.mode = 'list'; this.cursor = this._itemIdx; }
+        const item = GameData.inventory[this._itemIdx];
+        if (act === 'Equip') {
+          if (item && (item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory' || item.type === 'implant')) {
+            this.mode = 'pickChar'; this.cursor = 0;
+          } else {
+            // Consumable — use immediately on self
+            if (item && item.type === 'consumable' && item.heal) {
+              const leader = GameData.party[0];
+              if (leader) {
+                leader.hp = Math.min(leader.maxHp, leader.hp + item.heal);
+              }
+              GameData.inventory.splice(this._itemIdx, 1);
+              this.mode = 'inventory'; this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1));
+            }
+          }
+        } else if (act === 'Drop') {
+          GameData.inventory.splice(this._itemIdx, 1);
+          this.mode = 'list'; this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1));
+        } else {
+          this.mode = 'inventory'; this.cursor = this._itemIdx;
+        }
       }
       this.updateContent();
     } else if (this.mode === 'pickChar') {
@@ -918,7 +1476,7 @@ class InventoryScene extends Phaser.Scene {
             if (old) GameData.inventory.push(old);
           }
         }
-        this.mode = 'list'; this.cursor = 0;
+        this.mode = 'inventory'; this.cursor = 0;
       }
       this.updateContent();
     } else if (this.mode === 'equip') {
@@ -926,58 +1484,26 @@ class InventoryScene extends Phaser.Scene {
       if (dy > 0 && this.slotIndex < 4) this.slotIndex++;
       if (dx < 0 && this.charIndex > 0) this.charIndex--;
       if (dx > 0 && this.charIndex < GameData.party.length - 1) this.charIndex++;
-      if (cancel) { this.mode = 'list'; this.cursor = 0; }
+      if (cancel) { this.mode = 'party'; }
       if (interact) {
         const ch = GameData.party[this.charIndex];
-        const slots = ['weapon','armor','accessory1','accessory2','implant'];
+        const slots = ['weapon', 'armor', 'accessory1', 'accessory2', 'implant'];
         const slot = slots[this.slotIndex];
         if (ch.equipment[slot]) {
           GameData.inventory.push(ch.equipment[slot]);
           ch.equipment[slot] = null;
         }
       }
-      this.updateContent();
-    }
-  }
-  
-  updateContent() {
-    this.contentTexts.forEach(t => t.destroy());
-    this.contentTexts = [];
-    
-    if (this.mode === 'list') {
-      GameData.inventory.forEach((item, i) => {
-        const color = i === this.cursor ? '#ffffff' : '#aaaaaa';
-        const prefix = i === this.cursor ? '> ' : '  ';
-        this.contentTexts.push(this.add.text(28, 40 + i * 16, prefix + item.name + (item.level > 1 ? ' +' + item.level : ''), { fontSize: '10px', fontFamily: 'monospace', color: color }).setDepth(201));
-      });
-      if (GameData.inventory.length === 0) {
-        this.contentTexts.push(this.add.text(80, GAME_H/2, 'Inventory is empty', { fontSize: '11px', fontFamily: 'monospace', color: '#666666' }).setDepth(201));
-      }
-    } else if (this.mode === 'itemAction') {
-      ['Equip','Drop','Cancel'].forEach((a, i) => {
-        const color = i === this.cursor ? '#ffffff' : '#aaaaaa';
-        const prefix = i === this.cursor ? '> ' : '  ';
-        this.contentTexts.push(this.add.text(GAME_W - 110, 60 + i * 18, prefix + a, { fontSize: '10px', fontFamily: 'monospace', color: color }).setDepth(201));
-      });
-    } else if (this.mode === 'pickChar') {
-      GameData.party.forEach((c, i) => {
-        const color = i === this.cursor ? '#ffffff' : '#aaaaaa';
-        const prefix = i === this.cursor ? '> ' : '  ';
-        this.contentTexts.push(this.add.text(GAME_W - 130, 60 + i * 18, prefix + c.name + ' Lv' + c.level, { fontSize: '10px', fontFamily: 'monospace', color: color }).setDepth(201));
-      });
-    } else if (this.mode === 'equip') {
+      this.renderParty();
+      // Show equip slots for selected character
       const ch = GameData.party[this.charIndex];
       if (ch) {
-        GameData.party.forEach((c, i) => {
-          const color = i === this.charIndex ? '#ffffff' : '#666666';
-          this.contentTexts.push(this.add.text(25 + i * 80, 42, c.name, { fontSize: '10px', fontFamily: 'monospace', color: color }).setDepth(201));
-        });
-        const slots = ['Weapon','Armor','Acc 1','Acc 2','Implant'];
+        const slots = ['Weapon', 'Armor', 'Acc 1', 'Acc 2', 'Implant'];
         slots.forEach((s, i) => {
-          const color = i === this.slotIndex ? '#ffffff' : '#aaaaaa';
-          const prefix = i === this.slotIndex ? '> ' : '  ';
-          const item = ch.equipment[['weapon','armor','accessory1','accessory2','implant'][i]];
-          this.contentTexts.push(this.add.text(28, 58 + i * 18, prefix + s + ': ' + (item ? item.name : '[empty]'), { fontSize: '10px', fontFamily: 'monospace', color: color }).setDepth(201));
+          const isSel = i === this.slotIndex;
+          const slotKey = ['weapon', 'armor', 'accessory1', 'accessory2', 'implant'][i];
+          const item = ch.equipment[slotKey];
+          this.contentTexts.push(this.add.text(300, 50 + i * 16, (isSel ? '> ' : '  ') + s + ': ' + (item ? item.name : '-'), { fontSize: '7px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202));
         });
       }
     }
