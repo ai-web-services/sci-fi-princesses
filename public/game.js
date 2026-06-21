@@ -7,8 +7,8 @@
 const TILE = 16;
 const MAP_W = 60;
 const MAP_H = 40;
-const GAME_W = 960;
-const GAME_H = 540;
+const GAME_W = 480;
+const GAME_H = 270;
 
 const COLORS = {
   floor1: 0x2a2a4a, floor2: 0x252545, wall1: 0x444466, wall2: 0x3a3a5a,
@@ -769,8 +769,8 @@ class TitleScene extends Phaser.Scene {
     this.cursor = 0;
     
     // Title
-    this.titleText = this.add.text(GAME_W/2, 80, 'STELLAR PRINCESSES', { fontSize: '36px', fontFamily: 'monospace', color: '#ffcc33' }).setOrigin(0.5);
-    this.add.text(GAME_W/2, 120, '— A Sci-Fi RPG —', { fontSize: '20px', fontFamily: 'monospace', color: '#aa44ff' }).setOrigin(0.5);
+    this.titleText = this.add.text(GAME_W/2, 80, 'STELLAR PRINCESSES', { fontSize: '18px', fontFamily: 'monospace', color: '#ffcc33' }).setOrigin(0.5);
+    this.add.text(GAME_W/2, 120, '— A Sci-Fi RPG —', { fontSize: '10px', fontFamily: 'monospace', color: '#aa44ff' }).setOrigin(0.5);
     
     // Character sprites parade
     this.spriteY = 240;
@@ -783,11 +783,11 @@ class TitleScene extends Phaser.Scene {
     });
     
     // Prompt
-    this.promptText = this.add.text(GAME_W/2, 380, 'Press Z / SPACE / ENTER', { fontSize: '20px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5);
+    this.promptText = this.add.text(GAME_W/2, 380, 'Press Z / SPACE / ENTER', { fontSize: '10px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5);
     this.tweens.add({ targets: this.promptText, alpha: 0.2, duration: 800, yoyo: true, repeat: -1 });
     
     // Version
-    this.add.text(GAME_W/2, GAME_H - 20, 'v3.5 — Phaser 4.2', { fontSize: '14px', fontFamily: 'monospace', color: '#444466' }).setOrigin(0.5);
+    this.add.text(GAME_W/2, GAME_H - 20, 'v3.5 — Phaser 4.2', { fontSize: '7px', fontFamily: 'monospace', color: '#444466' }).setOrigin(0.5);
     
     // Controller status
     this.time.addEvent({ delay: 100, callback: () => updateControllerStatus(this), loop: true });
@@ -802,7 +802,7 @@ class TitleScene extends Phaser.Scene {
     this.menuTexts = [];
     opts.forEach((o, i) => {
       const isSel = i === this.cursor;
-      const txt = this.add.text(GAME_W/2, 220 + i * 44, (isSel ? '▸ ' : '  ') + o, { fontSize: '24px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setOrigin(0.5).setDepth(50);
+      const txt = this.add.text(GAME_W/2, 220 + i * 44, (isSel ? '▸ ' : '  ') + o, { fontSize: '12px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setOrigin(0.5).setDepth(50);
       this.menuTexts.push(txt);
     });
     
@@ -943,7 +943,7 @@ class TownScene extends Phaser.Scene {
       img.npcData = { x: npc[0], y: npc[1], type: npc[2], name: npc[3], dialogue: npc[4], shop: npc[5], recruitable: npc[6] };
       // Name label above head
       img.nameLabel = this.add.text(npc[0] * TILE + TILE/2, npc[1] * TILE - 12, npc[3], {
-        fontSize: '28px', fontFamily: 'monospace', color: '#aaaacc', backgroundColor: '#0a0a1a88', padding: { x: 2, y: 1 }
+        fontSize: '14px', fontFamily: 'monospace', color: '#aaaacc', backgroundColor: '#0a0a1a88', padding: { x: 2, y: 1 }
       }).setOrigin(0.5).setVisible(false);
       this.npcSprites.push(img);
     });
@@ -982,21 +982,21 @@ class TownScene extends Phaser.Scene {
       // Party panel background
       this.hudContainer.add(this.add.rectangle(70, 30, 140, 56, 0x0a0a1a, 0.85).setOrigin(0).setStrokeStyle(1, 0x4488ff));
       // Name
-      this.hudContainer.add(this.add.text(8, 8, leader.name, { fontSize: '14px', fontFamily: 'monospace', color: '#44ddff' }));
+      this.hudContainer.add(this.add.text(8, 8, leader.name, { fontSize: '7px', fontFamily: 'monospace', color: '#44ddff' }));
       // Level
-      this.hudContainer.add(this.add.text(8, 24, 'Lv.' + leader.level, { fontSize: '12px', fontFamily: 'monospace', color: '#aaaacc' }));
+      this.hudContainer.add(this.add.text(8, 24, 'Lv.' + leader.level, { fontSize: '6px', fontFamily: 'monospace', color: '#aaaacc' }));
       // HP bar
       this.hudContainer.add(this.add.rectangle(56, 12, 100, 8, 0x333333).setOrigin(0));
       this.hudContainer.add(this.hpFill = this.add.rectangle(56, 12, 100, 8, 0x33cc66).setOrigin(0));
       this.hudContainer.add(this.add.text(58, 10, 'HP', { fontSize: '8px', fontFamily: 'monospace', color: '#ffffff' }));
       // HP text
-      this.hudContainer.add(this.hpText = this.add.text(154, 8, leader.hp + '/' + leader.maxHp, { fontSize: '10px', fontFamily: 'monospace', color: '#33cc66' }).setOrigin(1, 0));
+      this.hudContainer.add(this.hpText = this.add.text(154, 8, leader.hp + '/' + leader.maxHp, { fontSize: '5px', fontFamily: 'monospace', color: '#33cc66' }).setOrigin(1, 0));
       // SP bar
       this.hudContainer.add(this.add.rectangle(56, 26, 100, 6, 0x333333).setOrigin(0));
       this.hudContainer.add(this.spFill = this.add.rectangle(56, 26, 100, 6, 0x4488ff).setOrigin(0));
       this.hudContainer.add(this.add.text(58, 24, 'SP', { fontSize: '7px', fontFamily: 'monospace', color: '#ffffff' }));
       // Gold
-      this.hudContainer.add(this.add.text(8, 40, GameData.gold + 'g', { fontSize: '12px', fontFamily: 'monospace', color: '#ffcc33' }));
+      this.hudContainer.add(this.add.text(8, 40, GameData.gold + 'g', { fontSize: '6px', fontFamily: 'monospace', color: '#ffcc33' }));
     }
     
     // Controls hint
@@ -1043,7 +1043,7 @@ class TownScene extends Phaser.Scene {
   showMessage(text) {
     if (this.messageBox) this.messageBox.destroy();
     this.messageBox = this.add.text(GAME_W/2, 60, text, {
-      fontSize: '16px', fontFamily: 'monospace', color: '#ffffff',
+      fontSize: '8px', fontFamily: 'monospace', color: '#ffffff',
       backgroundColor: '#0a0a1aee', padding: { x: 12, y: 6 }, wordWrap: { width: GAME_W - 80 }
     }).setOrigin(0.5).setDepth(150);
     this.messageTimer = 180;
@@ -1181,10 +1181,10 @@ class DialogueScene extends Phaser.Scene {
     this.box.setStrokeStyle(1, 0x4488ff);
     
     if (data.npc) {
-      this.nameText = this.add.text(12, this.box.y - 28, data.npc.name, { fontSize: '22px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
+      this.nameText = this.add.text(12, this.box.y - 28, data.npc.name, { fontSize: '11px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
     }
     
-    this.textText = this.add.text(12, this.box.y - 14, '', { fontSize: '22px', fontFamily: 'monospace', color: '#dddddd', wordWrap: { width: GAME_W - 28 } }).setDepth(201);
+    this.textText = this.add.text(12, this.box.y - 14, '', { fontSize: '11px', fontFamily: 'monospace', color: '#dddddd', wordWrap: { width: GAME_W - 28 } }).setDepth(201);
   }
   
   update() {
@@ -1244,7 +1244,7 @@ class DialogueScene extends Phaser.Scene {
               this.choices.forEach((c, i) => {
                 const color = i === this.choiceIndex ? '#ffffff' : '#aaaaaa';
                 const prefix = i === this.choiceIndex ? '> ' : '  ';
-                this.choiceTexts.push(this.add.text(14, this.box.y - 14 + i * 16, prefix + c, { fontSize: '22px', fontFamily: 'monospace', color: color }).setDepth(201));
+                this.choiceTexts.push(this.add.text(14, this.box.y - 14 + i * 16, prefix + c, { fontSize: '11px', fontFamily: 'monospace', color: color }).setDepth(201));
               });
             } else {
               this.done = true;
@@ -1312,8 +1312,8 @@ class ShopScene extends Phaser.Scene {
     this.box.setStrokeStyle(2, 0x4488ff);
     
     const titles = {weapons:'⚔ Edge of Tomorrow',armor:'🛡 Aegis Outfitters',materials:'✨ Void & Spark',healer:'💚 Healer\'s Hall'};
-    this.add.text(42, 24, titles[this.shopType] || 'Shop', { fontSize: '28px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201);
-    this.add.text(GAME_W - 120, 24, 'Gold: ' + GameData.gold + 'g', { fontSize: '22px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201);
+    this.add.text(42, 24, titles[this.shopType] || 'Shop', { fontSize: '14px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201);
+    this.add.text(GAME_W - 120, 24, 'Gold: ' + GameData.gold + 'g', { fontSize: '11px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201);
     
     this.menuTexts = [];
     this.updateMenu();
@@ -1380,7 +1380,7 @@ class ShopScene extends Phaser.Scene {
       opts.forEach((o, i) => {
         const color = i === this.cursor ? '#ffffff' : '#aaaaaa';
         const prefix = i === this.cursor ? '> ' : '  ';
-        this.menuTexts.push(this.add.text(52, 55 + i * 24, prefix + o, { fontSize: '22px', fontFamily: 'monospace', color: color }).setDepth(201));
+        this.menuTexts.push(this.add.text(52, 55 + i * 24, prefix + o, { fontSize: '11px', fontFamily: 'monospace', color: color }).setDepth(201));
       });
     } else {
       const items = this.mode === 'buy' ? this.catalog : GameData.inventory;
@@ -1388,12 +1388,12 @@ class ShopScene extends Phaser.Scene {
         const color = i === this.cursor ? '#ffffff' : '#aaaaaa';
         const prefix = i === this.cursor ? '> ' : '  ';
         const label = item.name + (this.mode === 'buy' ? ' - ' + item.price + 'g' : '');
-        this.menuTexts.push(this.add.text(52, 55 + i * 20, prefix + label, { fontSize: '22px', fontFamily: 'monospace', color: color }).setDepth(201));
+        this.menuTexts.push(this.add.text(52, 55 + i * 20, prefix + label, { fontSize: '11px', fontFamily: 'monospace', color: color }).setDepth(201));
       });
     }
     
     if (this.message && this.messageTimer > 0) {
-      this.menuTexts.push(this.add.text(42, GAME_H - 50, this.message, { fontSize: '22px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201));
+      this.menuTexts.push(this.add.text(42, GAME_H - 50, this.message, { fontSize: '11px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201));
     }
   }
   
@@ -1422,11 +1422,11 @@ class InventoryScene extends Phaser.Scene {
     this.bg.setStrokeStyle(2, 0x4488ff);
     
     // Tabs
-    this.tabParty = this.add.text(20, 14, 'PARTY', { fontSize: '16px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
-    this.tabInv = this.add.text(90, 14, 'ITEMS', { fontSize: '16px', fontFamily: 'monospace', color: '#666688' }).setDepth(201);
+    this.tabParty = this.add.text(20, 14, 'PARTY', { fontSize: '8px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(201);
+    this.tabInv = this.add.text(90, 14, 'ITEMS', { fontSize: '8px', fontFamily: 'monospace', color: '#666688' }).setDepth(201);
     
     // Gold display
-    this.add.text(GAME_W - 20, 14, GameData.gold + 'g', { fontSize: '16px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201).setOrigin(1, 0);
+    this.add.text(GAME_W - 20, 14, GameData.gold + 'g', { fontSize: '8px', fontFamily: 'monospace', color: '#ffcc33' }).setDepth(201).setOrigin(1, 0);
     
     // Separator line
     this.add.rectangle(GAME_W/2, 30, GAME_W - 36, 1, 0x4488ff, 0.5).setDepth(201);
@@ -1458,7 +1458,7 @@ class InventoryScene extends Phaser.Scene {
   renderParty() {
     const party = GameData.party;
     if (party.length === 0) {
-      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'No party members', { fontSize: '24px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'No party members', { fontSize: '12px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
       return;
     }
     
@@ -1475,13 +1475,13 @@ class InventoryScene extends Phaser.Scene {
       this.contentTexts.push(spr);
       
       // Name and level
-      this.contentTexts.push(this.add.text(48, y - 8, c.name + '  Lv.' + c.level, { fontSize: '14px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      this.contentTexts.push(this.add.text(48, y - 8, c.name + '  Lv.' + c.level, { fontSize: '7px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
       
       // HP bar
       const hpPct = c.maxHp > 0 ? c.hp / c.maxHp : 0;
       this.contentTexts.push(this.add.rectangle(48, y + 6, 80, 5, 0x333333).setDepth(202));
       this.contentTexts.push(this.add.rectangle(48, y + 6, 80 * hpPct, 5, hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344).setDepth(202));
-      this.contentTexts.push(this.add.text(130, y + 4, 'HP ' + c.hp + '/' + c.maxHp, { fontSize: '10px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(130, y + 4, 'HP ' + c.hp + '/' + c.maxHp, { fontSize: '5px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
       
       // Stats
       this.contentTexts.push(this.add.text(170, y - 6, 'ATK:' + c.atk, { fontSize: '11px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(202));
@@ -1493,24 +1493,24 @@ class InventoryScene extends Phaser.Scene {
       const eq = c.equipment;
       const weaponName = eq.weapon ? eq.weapon.name : '-';
       const armorName = eq.armor ? eq.armor.name : '-';
-      this.contentTexts.push(this.add.text(300, y - 6, 'W:' + weaponName, { fontSize: '10px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
-      this.contentTexts.push(this.add.text(300, y + 6, 'A:' + armorName, { fontSize: '10px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(300, y - 6, 'W:' + weaponName, { fontSize: '5px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(300, y + 6, 'A:' + armorName, { fontSize: '5px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(202));
       
       // Selection cursor
       if (isSel) {
-        this.contentTexts.push(this.add.text(18, 40 + i * 44, '>', { fontSize: '36px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(202));
+        this.contentTexts.push(this.add.text(18, 40 + i * 44, '>', { fontSize: '18px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(202));
       }
     });
     
     // Controls hint
-    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Details  X/Esc:Close  Q:Items', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Details  X/Esc:Close  Q:Items', { fontSize: '14px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
   }
   
   renderInventory() {
     const inv = GameData.inventory;
     if (inv.length === 0) {
-      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'Inventory is empty', { fontSize: '24px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
-      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2 + 16, 'Q:Party  X/Esc:Close', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2, 'Inventory is empty', { fontSize: '12px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, GAME_H/2 + 16, 'Q:Party  X/Esc:Close', { fontSize: '14px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
       return;
     }
     
@@ -1525,9 +1525,9 @@ class InventoryScene extends Phaser.Scene {
       
       // Type icon
       const typeColors = {weapon: '#ff8833', armor: '#4488ff', consumable: '#44ff44', material: '#aaaacc', accessory: '#ff66aa', implant: '#44ffff'};
-      this.contentTexts.push(this.add.text(20, y - 1, item.type.toUpperCase(), { fontSize: '24px', fontFamily: 'monospace', color: typeColors[item.type] || '#aaaacc' }).setDepth(202));
+      this.contentTexts.push(this.add.text(20, y - 1, item.type.toUpperCase(), { fontSize: '12px', fontFamily: 'monospace', color: typeColors[item.type] || '#aaaacc' }).setDepth(202));
       
-      this.contentTexts.push(this.add.text(70, y - 1, (isSel ? '> ' : '  ') + item.name + (item.level > 1 ? ' +' + item.level : ''), { fontSize: '18px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      this.contentTexts.push(this.add.text(70, y - 1, (isSel ? '> ' : '  ') + item.name + (item.level > 1 ? ' +' + item.level : ''), { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
       
       // Item stats
       let stats = '';
@@ -1535,17 +1535,17 @@ class InventoryScene extends Phaser.Scene {
       if (item.def) stats += 'DEF+' + item.def + ' ';
       if (item.heal) stats += 'HEAL+' + item.heal + ' ';
       if (stats) {
-        this.contentTexts.push(this.add.text(200, y - 1, stats, { fontSize: '28px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
+        this.contentTexts.push(this.add.text(200, y - 1, stats, { fontSize: '14px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(202));
       }
       
       // Rarity
       const rarityColors = {Common: '#aaaacc', Uncommon: '#44ff44', Rare: '#4488ff', Epic: '#aa44ff', Legendary: '#ffcc33'};
       if (item.rarity) {
-        this.contentTexts.push(this.add.text(280, y - 1, item.rarity, { fontSize: '28px', fontFamily: 'monospace', color: rarityColors[item.rarity] || '#aaaacc' }).setDepth(202));
+        this.contentTexts.push(this.add.text(280, y - 1, item.rarity, { fontSize: '14px', fontFamily: 'monospace', color: rarityColors[item.rarity] || '#aaaacc' }).setDepth(202));
       }
     });
     
-    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Use/Equip  X/Esc:Close  Q:Party', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, GAME_H - 20, '↑↓:Select  Z/Enter:Use/Equip  X/Esc:Close  Q:Party', { fontSize: '14px', fontFamily: 'monospace', color: '#666688' }).setDepth(201).setOrigin(0.5));
   }
   
   renderItemAction() {
@@ -1553,13 +1553,13 @@ class InventoryScene extends Phaser.Scene {
     if (!item) { this.mode = 'inventory'; this.updateContent(); return; }
     
     // Item info
-    this.contentTexts.push(this.add.text(GAME_W/2, 40, item.name, { fontSize: '24px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
-    this.contentTexts.push(this.add.text(GAME_W/2, 56, item.type.toUpperCase() + (item.rarity ? ' — ' + item.rarity : ''), { fontSize: '18px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, 40, item.name, { fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, 56, item.type.toUpperCase() + (item.rarity ? ' — ' + item.rarity : ''), { fontSize: '9px', fontFamily: 'monospace', color: '#aaaacc' }).setDepth(201).setOrigin(0.5));
     
     let statsY = 72;
-    if (item.atk) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Attack: +' + item.atk, { fontSize: '18px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
-    if (item.def) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Defense: +' + item.def, { fontSize: '18px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
-    if (item.heal) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Heal: +' + item.heal + ' HP', { fontSize: '18px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    if (item.atk) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Attack: +' + item.atk, { fontSize: '9px', fontFamily: 'monospace', color: '#ff8833' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    if (item.def) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Defense: +' + item.def, { fontSize: '9px', fontFamily: 'monospace', color: '#4488ff' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
+    if (item.heal) { this.contentTexts.push(this.add.text(GAME_W/2, statsY, 'Heal: +' + item.heal + ' HP', { fontSize: '9px', fontFamily: 'monospace', color: '#44ff44' }).setDepth(201).setOrigin(0.5)); statsY += 14; }
     
     statsY += 10;
     const actions = ['Equip', 'Drop', 'Cancel'];
@@ -1568,19 +1568,19 @@ class InventoryScene extends Phaser.Scene {
       const bg = this.add.rectangle(GAME_W/2, statsY + i * 20, 80, 16, isSel ? 0x1a1a3a : 0x000000, 0).setDepth(201);
       if (isSel) bg.setStrokeStyle(1, 0x44ddff);
       this.contentTexts.push(bg);
-      this.contentTexts.push(this.add.text(GAME_W/2, statsY + i * 20 - 1, (isSel ? '> ' : '  ') + a, { fontSize: '18px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202).setOrigin(0.5));
+      this.contentTexts.push(this.add.text(GAME_W/2, statsY + i * 20 - 1, (isSel ? '> ' : '  ') + a, { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202).setOrigin(0.5));
     });
   }
   
   renderPickChar() {
-    this.contentTexts.push(this.add.text(GAME_W/2, 36, 'Equip to who?', { fontSize: '36px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
+    this.contentTexts.push(this.add.text(GAME_W/2, 36, 'Equip to who?', { fontSize: '18px', fontFamily: 'monospace', color: '#ffffff' }).setDepth(201).setOrigin(0.5));
     
     GameData.party.forEach((c, i) => {
       const isSel = i === this.cursor;
       const bg = this.add.rectangle(GAME_W/2, 56 + i * 24, GAME_W - 50, 20, isSel ? 0x1a1a3a : 0x0a0a1a, 0.8).setDepth(201);
       if (isSel) bg.setStrokeStyle(1, 0x44ddff);
       this.contentTexts.push(bg);
-      this.contentTexts.push(this.add.text(30, 50 + i * 24, (isSel ? '> ' : '  ') + c.name + ' Lv.' + c.level, { fontSize: '18px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
+      this.contentTexts.push(this.add.text(30, 50 + i * 24, (isSel ? '> ' : '  ') + c.name + ' Lv.' + c.level, { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#dddddd' }).setDepth(202));
     });
   }
   
@@ -1689,7 +1689,7 @@ class InventoryScene extends Phaser.Scene {
           const isSel = i === this.slotIndex;
           const slotKey = ['weapon', 'armor', 'accessory1', 'accessory2', 'implant'][i];
           const item = ch.equipment[slotKey];
-          this.contentTexts.push(this.add.text(300, 50 + i * 16, (isSel ? '> ' : '  ') + s + ': ' + (item ? item.name : '-'), { fontSize: '28px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202));
+          this.contentTexts.push(this.add.text(300, 50 + i * 16, (isSel ? '> ' : '  ') + s + ': ' + (item ? item.name : '-'), { fontSize: '14px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(202));
         });
       }
     }
@@ -1744,7 +1744,7 @@ class CombatScene extends Phaser.Scene {
     
     const startLogY = 8;
     this.combatLog.forEach((msg, i) => {
-      this.combatTexts.push(this.add.text(10, startLogY + i * 10, msg, { fontSize: '28px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(302));
+      this.combatTexts.push(this.add.text(10, startLogY + i * 10, msg, { fontSize: '14px', fontFamily: 'monospace', color: '#cccccc' }).setDepth(302));
     });
     
     // Render enemies
@@ -1768,7 +1768,7 @@ class CombatScene extends Phaser.Scene {
       const hpPct = e.hp / e.maxHp;
       this.combatTexts.push(this.add.rectangle(x, y + 12, 20, 3, 0x333333).setDepth(302));
       this.combatTexts.push(this.add.rectangle(x, y + 12, 20 * hpPct, 3, hpPct > 0.5 ? 0x33cc66 : 0xff3344).setDepth(302));
-      this.combatTexts.push(this.add.text(x, y + 18, e.name, { fontSize: '24px', fontFamily: 'monospace', color: '#ff8888' }).setDepth(302).setOrigin(0.5));
+      this.combatTexts.push(this.add.text(x, y + 18, e.name, { fontSize: '12px', fontFamily: 'monospace', color: '#ff8888' }).setDepth(302).setOrigin(0.5));
     });
     
     // Render party
@@ -1782,7 +1782,7 @@ class CombatScene extends Phaser.Scene {
       const hpPct = c.maxHp > 0 ? c.hp / c.maxHp : 0;
       this.combatTexts.push(this.add.rectangle(x, y + 18, 24, 3, 0x333333).setDepth(302));
       this.combatTexts.push(this.add.rectangle(x, y + 18, 24 * hpPct, 3, hpPct > 0.5 ? 0x33cc66 : hpPct > 0.25 ? 0xffcc33 : 0xff3344).setDepth(302));
-      this.combatTexts.push(this.add.text(x, y + 24, c.name, { fontSize: '24px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(302).setOrigin(0.5));
+      this.combatTexts.push(this.add.text(x, y + 24, c.name, { fontSize: '12px', fontFamily: 'monospace', color: '#44ddff' }).setDepth(302).setOrigin(0.5));
     });
     
     // Menu area
@@ -1790,16 +1790,16 @@ class CombatScene extends Phaser.Scene {
       const opts = ['Attack', 'Skill', 'Item', 'Flee'];
       opts.forEach((o, i) => {
         const isSel = i === this.cursor;
-        this.combatTexts.push(this.add.text(10 + (i % 2) * 80, GAME_H - 30 + Math.floor(i / 2) * 14, (isSel ? '> ' : '  ') + o, { fontSize: '18px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(302));
+        this.combatTexts.push(this.add.text(10 + (i % 2) * 80, GAME_H - 30 + Math.floor(i / 2) * 14, (isSel ? '> ' : '  ') + o, { fontSize: '9px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(302));
       });
     } else if (this.mode === 'attack' || this.mode === 'skill' || this.mode === 'item') {
       // Target selection
       const alive = this.enemies.filter(e => e.hp > 0);
       alive.forEach((e, i) => {
         const isSel = i === this.selectedTarget;
-        this.combatTexts.push(this.add.text(10, GAME_H - 30 + i * 14, (isSel ? '> ' : '  ') + e.name + ' HP:' + e.hp + '/' + e.maxHp, { fontSize: '16px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(302));
+        this.combatTexts.push(this.add.text(10, GAME_H - 30 + i * 14, (isSel ? '> ' : '  ') + e.name + ' HP:' + e.hp + '/' + e.maxHp, { fontSize: '8px', fontFamily: 'monospace', color: isSel ? '#ffffff' : '#aaaaaa' }).setDepth(302));
       });
-      this.combatTexts.push(this.add.text(10, GAME_H - 10, 'X/Esc: Back', { fontSize: '28px', fontFamily: 'monospace', color: '#666688' }).setDepth(302));
+      this.combatTexts.push(this.add.text(10, GAME_H - 10, 'X/Esc: Back', { fontSize: '14px', fontFamily: 'monospace', color: '#666688' }).setDepth(302));
     }
   }
   
@@ -2150,11 +2150,10 @@ const config = {
   height: GAME_H,
   parent: 'game-container',
   backgroundColor: '#0a0a1a',
+  zoom: 2,
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: GAME_W,
-    height: GAME_H
+    mode: Phaser.Scale.NONE,
+    autoCenter: Phaser.Scale.NO_CENTER
   },
   input: {
     gamepads: true,
