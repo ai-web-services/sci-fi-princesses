@@ -60,21 +60,36 @@ function gameLoad() {
 function gameHasSave() { try { return !!localStorage.getItem('stellar_save'); } catch(e) { return false; } }
 
 // ─── INPUT HELPERS ──────────────────────────────────────────
+// Key objects created once for performance
+const KeyW = Phaser.Input.Keyboard.KeyCodes.W;
+const KeyA = Phaser.Input.Keyboard.KeyCodes.A;
+const KeyS = Phaser.Input.Keyboard.KeyCodes.S;
+const KeyD = Phaser.Input.Keyboard.KeyCodes.D;
+const KeyUp = Phaser.Input.Keyboard.KeyCodes.UP;
+const KeyDown = Phaser.Input.Keyboard.KeyCodes.DOWN;
+const KeyLeft = Phaser.Input.Keyboard.KeyCodes.LEFT;
+const KeyRight = Phaser.Input.Keyboard.KeyCodes.RIGHT;
+const KeyZ = Phaser.Input.Keyboard.KeyCodes.Z;
+const KeySpace = Phaser.Input.Keyboard.KeyCodes.SPACE;
+const KeyX = Phaser.Input.Keyboard.KeyCodes.X;
+const KeyEsc = Phaser.Input.Keyboard.KeyCodes.ESC;
+const KeyEnter = Phaser.Input.Keyboard.KeyCodes.ENTER;
+
 function getInput(scene) {
   const kb = scene.input.keyboard;
   const gp = scene.input.gamepad ? scene.input.gamepad.getPad(0) : null;
   
   let dx = 0, dy = 0;
-  if (kb.isDown(Phaser.Input.Keyboard.KeyCodes.A) || kb.isDown(Phaser.Input.Keyboard.KeyCodes.LEFT)) dx = -1;
-  if (kb.isDown(Phaser.Input.Keyboard.KeyCodes.D) || kb.isDown(Phaser.Input.Keyboard.KeyCodes.RIGHT)) dx = 1;
-  if (kb.isDown(Phaser.Input.Keyboard.KeyCodes.W) || kb.isDown(Phaser.Input.Keyboard.KeyCodes.UP)) dy = -1;
-  if (kb.isDown(Phaser.Input.Keyboard.KeyCodes.S) || kb.isDown(Phaser.Input.Keyboard.KeyCodes.DOWN)) dy = 1;
+  if (kb.addKey(KeyA).isDown || kb.addKey(KeyLeft).isDown) dx = -1;
+  if (kb.addKey(KeyD).isDown || kb.addKey(KeyRight).isDown) dx = 1;
+  if (kb.addKey(KeyW).isDown || kb.addKey(KeyUp).isDown) dy = -1;
+  if (kb.addKey(KeyS).isDown || kb.addKey(KeyDown).isDown) dy = 1;
   
   if (gp) {
     if (gp.left || gp.axes[0] < -0.5) dx = -1;
     if (gp.right || gp.axes[0] > 0.5) dx = 1;
     if (gp.up || gp.axes[1] < -0.5) dy = -1;
-    if (gp.down || gp.axes[1] > 0.5) dy = -1;
+    if (gp.down || gp.axes[1] > 0.5) dy = 1;
     // D-pad buttons
     if (gp.buttons[14] && gp.buttons[14].pressed) dx = -1;
     if (gp.buttons[15] && gp.buttons[15].pressed) dx = 1;
@@ -82,14 +97,14 @@ function getInput(scene) {
     if (gp.buttons[13] && gp.buttons[13].pressed) dy = 1;
   }
   
-  const interact = Phaser.Input.Keyboard.JustDown(kb.addKey(Phaser.Input.Keyboard.KeyCodes.Z)) ||
-                    Phaser.Input.Keyboard.JustDown(kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)) ||
-                    (gp && gp.buttons[0] && Phaser.Input.Gamepad.JustDown(gp.buttons[0]));
-  const cancel = Phaser.Input.Keyboard.JustDown(kb.addKey(Phaser.Input.Keyboard.KeyCodes.X)) ||
-                  Phaser.Input.Keyboard.JustDown(kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)) ||
-                  (gp && gp.buttons[1] && Phaser.Input.Gamepad.JustDown(gp.buttons[1]));
-  const menu = Phaser.Input.Keyboard.JustDown(kb.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)) ||
-               (gp && gp.buttons[9] && Phaser.Input.Gamepad.JustDown(gp.buttons[9]));
+  const interact = Phaser.Input.Keyboard.JustDown(kb.addKey(KeyZ)) ||
+                    Phaser.Input.Keyboard.JustDown(kb.addKey(KeySpace)) ||
+                    !!(gp && gp.buttons[0] && Phaser.Input.Gamepad.JustDown(gp.buttons[0]));
+  const cancel = Phaser.Input.Keyboard.JustDown(kb.addKey(KeyX)) ||
+                  Phaser.Input.Keyboard.JustDown(kb.addKey(KeyEsc)) ||
+                  !!(gp && gp.buttons[1] && Phaser.Input.Gamepad.JustDown(gp.buttons[1]));
+  const menu = Phaser.Input.Keyboard.JustDown(kb.addKey(KeyEnter)) ||
+               !!(gp && gp.buttons[9] && Phaser.Input.Gamepad.JustDown(gp.buttons[9]));
   
   return { dx, dy, interact, cancel, menu, gp };
 }
@@ -402,32 +417,36 @@ class TitleScene extends Phaser.Scene {
     this.add.text(GAME_W/2, 60, 'STELLAR PRINCESSES', { fontSize: '24px', fontFamily: 'monospace', color: '#ffcc33' }).setOrigin(0.5);
     this.add.text(GAME_W/2, 90, 'A Sci-Fi RPG', { fontSize: '12px', fontFamily: 'monospace', color: '#aa44ff' }).setOrigin(0.5);
     
-    // Character sprite
-    this.add.image(GAME_W/2, 150, 'char_lyra').setScale(2);
+    // Character sprite — centered and fully visible
+    const charSprite = this.add.image(GAME_W/2, 145, 'char_lyra').setScale(2);
+    this.tweens.add({ targets: charSprite, y: charSprite.y - 4, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     
-    this.add.text(GAME_W/2, 210, 'Press A / Z / SPACE', { fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5);
+    this.promptText = this.add.text(GAME_W/2, 210, 'Press A / Z / SPACE', { fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5);
+    this.tweens.add({ targets: this.promptText, alpha: 0.3, duration: 600, yoyo: true, repeat: -1 });
+    
     this.add.text(GAME_W/2, GAME_H - 12, 'v3.0 — Phaser 4', { fontSize: '10px', fontFamily: 'monospace', color: '#666666' }).setOrigin(0.5);
     
-    this.time.addEvent({ delay: 500, callback: () => {
-      const { interact } = getInput(this);
-      if (interact) {
-        if (gameHasSave() && gameLoad()) {
-          this.scene.start('TownScene');
-        } else {
-          GameData.party = [{name:'Lyra',species:'human',level:1,xp:0,xpToLevel:100,hp:80,maxHp:80,sp:20,maxSp:20,atk:12,def:8,spd:10,crit:5,equipment:{weapon:null,armor:null,accessory1:null,accessory2:null,implant:null},skills:[{name:'Stellar Slash',cost:5,type:'damage',element:'light',power:1.5}],evolution:0,evolutionName:'Princess'}];
-          GameData.inventory = [
-            {name:'Plasma Blade',type:'weapon',rarity:'Common',atk:5,level:1},
-            {name:'Nano Patch',type:'consumable',rarity:'Common',heal:30,level:1},
-            {name:'Scrap Metal',type:'material',rarity:'Common',level:1},
-          ];
-          GameData.gold = 500;
-          gameSave();
-          this.scene.start('TownScene');
-        }
-      }
-    }, loop: true });
-    
+    // Input polled in update() — not in timers
     this.time.addEvent({ delay: 100, callback: () => updateControllerStatus(this), loop: true });
+  }
+  
+  update() {
+    const { interact } = getInput(this);
+    if (interact) {
+      if (gameHasSave() && gameLoad()) {
+        this.scene.start('TownScene');
+      } else {
+        GameData.party = [{name:'Lyra',species:'human',level:1,xp:0,xpToLevel:100,hp:80,maxHp:80,sp:20,maxSp:20,atk:12,def:8,spd:10,crit:5,equipment:{weapon:null,armor:null,accessory1:null,accessory2:null,implant:null},skills:[{name:'Stellar Slash',cost:5,type:'damage',element:'light',power:1.5}],evolution:0,evolutionName:'Princess'}];
+        GameData.inventory = [
+          {name:'Plasma Blade',type:'weapon',rarity:'Common',atk:5,level:1},
+          {name:'Nano Patch',type:'consumable',rarity:'Common',heal:30,level:1},
+          {name:'Scrap Metal',type:'material',rarity:'Common',level:1},
+        ];
+        GameData.gold = 500;
+        gameSave();
+        this.scene.start('TownScene');
+      }
+    }
   }
 }
 
@@ -595,6 +614,7 @@ class DialogueScene extends Phaser.Scene {
   
   create(data) {
     this.mainScene = data.scene;
+    this.npcData = data.npc || null;
     this.lines = data.npc ? data.npc.dialogue : [data.text];
     this.isNPC = !!data.npc;
     this.curLine = 0;
@@ -603,6 +623,9 @@ class DialogueScene extends Phaser.Scene {
     this.done = false;
     this.choices = null;
     this.choiceIndex = 0;
+    this.choiceTexts = [];
+    this.interactPressed = false;
+    this.dyPressed = 0;
     
     this.box = this.add.rectangle(GAME_W/2, GAME_H - 40, GAME_W - 8, 64, 0x0a0a1a, 0.92).setDepth(200);
     this.box.setStrokeStyle(1, 0x4488ff);
@@ -612,37 +635,66 @@ class DialogueScene extends Phaser.Scene {
     }
     
     this.textText = this.add.text(12, this.box.y - 14, '', { fontSize: '11px', fontFamily: 'monospace', color: '#dddddd', wordWrap: { width: GAME_W - 28 } }).setDepth(201);
+  }
+  
+  update() {
+    if (this.done) return;
     
-    this.time.addEvent({ delay: 30, callback: () => {
-      if (this.done) return;
-      if (this.choices) return;
-      
-      this.charTimer++;
-      if (this.charTimer >= 2) {
-        this.charTimer = 0;
-        if (this.curChar < this.lines[this.curLine].length) {
-          this.curChar++;
-          this.textText.setText(this.lines[this.curLine].substring(0, this.curChar));
-        }
+    // Poll input every frame
+    const { dy, interact } = getInput(this);
+    
+    // Text animation — always advance character timer
+    this.charTimer++;
+    if (this.charTimer >= 2) {
+      this.charTimer = 0;
+      if (!this.choices && this.curChar < this.lines[this.curLine].length) {
+        this.curChar++;
+        this.textText.setText(this.lines[this.curLine].substring(0, this.curChar));
       }
+    }
+    
+    if (this.choices) {
+      // Choice selection mode
+      if (dy < 0 && this.choiceIndex > 0) this.choiceIndex--;
+      if (dy > 0 && this.choiceIndex < this.choices.length - 1) this.choiceIndex++;
       
-      const { interact } = getInput(this);
+      // Update choice colors
+      this.choiceTexts.forEach((t, i) => {
+        const isSel = i === this.choiceIndex;
+        t.setColor(isSel ? '#ffffff' : '#aaaaaa');
+        t.setText((isSel ? '> ' : '  ') + this.choices[i]);
+      });
+      
+      if (interact) {
+        if (this.choiceIndex === 0 && this.npcData && this.npcData.recruitable) {
+          this.recruit();
+        }
+        this.done = true;
+        this.scene.stop();
+        if (this.mainScene) this.mainScene.scene.resume();
+      }
+    } else {
+      // Text advancement mode
       if (interact) {
         if (this.curChar < this.lines[this.curLine].length) {
+          // Skip to end of current line
           this.curChar = this.lines[this.curLine].length;
           this.textText.setText(this.lines[this.curLine]);
         } else {
+          // Advance to next line
           this.curLine++;
           if (this.curLine >= this.lines.length) {
             if (this.isNPC && this.mainScene) {
               // Show recruit choice
-              this.choices = ['Invite ' + data.npc.name + ' to join', 'Maybe later'];
+              this.choices = ['Invite ' + this.npcData.name + ' to join', 'Maybe later'];
               this.choiceIndex = 0;
               this.textText.setText('');
+              this.choiceTexts.forEach(t => t.destroy());
+              this.choiceTexts = [];
               this.choices.forEach((c, i) => {
                 const color = i === this.choiceIndex ? '#ffffff' : '#aaaaaa';
                 const prefix = i === this.choiceIndex ? '> ' : '  ';
-                this.add.text(14, this.box.y - 14 + i * 16, prefix + c, { fontSize: '11px', fontFamily: 'monospace', color: color }).setDepth(201);
+                this.choiceTexts.push(this.add.text(14, this.box.y - 14 + i * 16, prefix + c, { fontSize: '11px', fontFamily: 'monospace', color: color }).setDepth(201));
               });
             } else {
               this.done = true;
@@ -655,40 +707,27 @@ class DialogueScene extends Phaser.Scene {
           }
         }
       }
-    }, loop: true });
-    
-    // Handle choice selection
-    this.time.addEvent({ delay: 100, callback: () => {
-      if (!this.choices) return;
-      const { dy, interact } = getInput(this);
-      if (dy < 0 && this.choiceIndex > 0) this.choiceIndex--;
-      if (dy > 0 && this.choiceIndex < this.choices.length - 1) this.choiceIndex++;
-      if (interact) {
-        if (this.choiceIndex === 0 && data.npc && data.npc.recruitable) {
-          // Recruit
-          const recruits = { cat: 'Erynn', frog: 'Brimble', dragon: 'Drakkor', robot: 'Pip' };
-          const names = { cat: 'Erynn "Eryx" Vexx', frog: 'Brimble', dragon: 'Drakkor Ashveil', robot: 'Pip' };
-          const species = { cat: 'cat', frog: 'frog', dragon: 'dragon', robot: 'robot' };
-          const s = species[data.npc.type];
-          GameData.party.push({
-            name: names[data.npc.type], species: s, level: 1, xp: 0, xpToLevel: 100,
-            hp: s==='frog'?120:s==='dragon'?100:s==='robot'?50:60,
-            maxHp: s==='frog'?120:s==='dragon'?100:s==='robot'?50:60,
-            sp: 25, maxSp: 25, atk: s==='dragon'?18:15, def: s==='frog'?15:5, spd: s==='frog'?6:18, crit: s==='cat'?20:5,
-            equipment: {weapon:null,armor:null,accessory1:null,accessory2:null,implant:null},
-            skills: [], evolution: 0, evolutionName: s.charAt(0).toUpperCase()+s.slice(1)
-          });
-          GameData.questFlags['recruited_' + data.npc.name] = true;
-          // Remove NPC from map
-          const npcImg = this.mainScene.npcSprites.find(n => n.npcData.name === data.npc.name);
-          if (npcImg) npcImg.setVisible(false);
-          gameSave();
-        }
-        this.done = true;
-        this.scene.stop();
-        if (this.mainScene) this.mainScene.scene.resume();
-      }
-    }, loop: true });
+    }
+  }
+  
+  recruit() {
+    const npc = this.npcData;
+    if (!npc) return;
+    const names = { cat: 'Erynn "Eryx" Vexx', frog: 'Brimble', dragon: 'Drakkor Ashveil', robot: 'Pip' };
+    const species = { cat: 'cat', frog: 'frog', dragon: 'dragon', robot: 'robot' };
+    const s = species[npc.type] || 'human';
+    GameData.party.push({
+      name: names[npc.type] || 'Recruit', species: s, level: 1, xp: 0, xpToLevel: 100,
+      hp: s==='frog'?120:s==='dragon'?100:s==='robot'?50:60,
+      maxHp: s==='frog'?120:s==='dragon'?100:s==='robot'?50:60,
+      sp: 25, maxSp: 25, atk: s==='dragon'?18:15, def: s==='frog'?15:5, spd: s==='frog'?6:18, crit: s==='cat'?20:5,
+      equipment: {weapon:null,armor:null,accessory1:null,accessory2:null,implant:null},
+      skills: [], evolution: 0, evolutionName: s.charAt(0).toUpperCase()+s.slice(1)
+    });
+    GameData.questFlags['recruited_' + npc.name] = true;
+    const npcImg = this.mainScene.npcSprites.find(n => n.npcData.name === npc.name);
+    if (npcImg) npcImg.setVisible(false);
+    gameSave();
   }
 }
 
@@ -728,54 +767,55 @@ class ShopScene extends Phaser.Scene {
     this.menuTexts = [];
     this.updateMenu();
     
-    this.time.addEvent({ delay: 100, callback: () => {
-      if (this.messageTimer > 0) this.messageTimer--;
-      const { dy, interact, cancel } = getInput(this);
-      
-      if (this.mode === 'main') {
-        const opts = this.shopType === 'healer' ? ['Heal Party (50g)','Leave'] : ['Buy','Sell','Upgrade','Leave'];
-        if (dy < 0 && this.cursor > 0) this.cursor--;
-        if (dy > 0 && this.cursor < opts.length - 1) this.cursor++;
-        if (interact) {
-          const opt = opts[this.cursor];
-          if (opt === 'Leave') { this.endShop(); return; }
-          if (opt === 'Heal Party (50g)') {
-            if (GameData.gold >= 50) {
-              GameData.gold -= 50;
-              GameData.party.forEach(c => { c.hp = c.maxHp; c.sp = c.maxSp; });
-              this.message = 'Party healed!'; this.messageTimer = 120;
-            } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
-          } else if (opt === 'Buy') { this.mode = 'buy'; this.cursor = 0; this.updateMenu(); }
-          else if (opt === 'Sell') { this.mode = 'sell'; this.cursor = 0; this.updateMenu(); }
-          else if (opt === 'Upgrade') { this.mode = 'upgrade'; this.cursor = 0; this.updateMenu(); }
-        }
-        if (cancel) this.endShop();
-        this.updateMenu();
-      } else {
-        const items = this.mode === 'buy' ? this.catalog : GameData.inventory;
-        if (dy < 0 && this.cursor > 0) this.cursor--;
-        if (dy > 0 && this.cursor < items.length - 1) this.cursor++;
-        if (cancel) { this.mode = 'main'; this.cursor = 0; this.updateMenu(); }
-        if (interact) {
-          if (this.mode === 'buy' && this.catalog[this.cursor]) {
-            const si = this.catalog[this.cursor];
-            if (GameData.gold >= si.price) {
-              GameData.gold -= si.price;
-              GameData.inventory.push({name:si.name,type:this.shopType==='weapons'?'weapon':this.shopType==='armor'?'armor':si.name==='Nano Patch'||si.name==='Stim Pack'?'consumable':'material',rarity:si.price>=500?'Rare':si.price>=200?'Uncommon':'Common',atk:si.name.includes('Blade')||si.name.includes('Saber')||si.name.includes('Katana')||si.name.includes('Rifle')||si.name.includes('Cannon')?Math.floor(si.price/40):0,def:si.name.includes('Tunic')||si.name.includes('Vest')||si.name.includes('Plate')?Math.floor(si.price/50):0,heal:si.name.includes('Patch')?30:si.name.includes('Stim')?80:0,level:1});
-              this.message = 'Bought ' + si.name + '!'; this.messageTimer = 120;
-            } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
-          } else if (this.mode === 'sell' && GameData.inventory[this.cursor]) {
-            const item = GameData.inventory[this.cursor];
-            const price = Math.floor((item.atk || item.def || item.hp || 10) * 2);
-            GameData.gold += price;
-            GameData.inventory.splice(this.cursor, 1);
-            this.message = 'Sold ' + item.name + ' for ' + price + 'g!'; this.messageTimer = 120;
-            this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1));
-          }
-        }
-        this.updateMenu();
+  }
+  
+  update() {
+    if (this.messageTimer > 0) this.messageTimer--;
+    const { dy, interact, cancel } = getInput(this);
+
+    if (this.mode === 'main') {
+      const opts = this.shopType === 'healer' ? ['Heal Party (50g)','Leave'] : ['Buy','Sell','Upgrade','Leave'];
+      if (dy < 0 && this.cursor > 0) this.cursor--;
+      if (dy > 0 && this.cursor < opts.length - 1) this.cursor++;
+      if (interact) {
+        const opt = opts[this.cursor];
+        if (opt === 'Leave') { this.endShop(); return; }
+        if (opt === 'Heal Party (50g)') {
+          if (GameData.gold >= 50) {
+            GameData.gold -= 50;
+            GameData.party.forEach(c => { c.hp = c.maxHp; c.sp = c.maxSp; });
+            this.message = 'Party healed!'; this.messageTimer = 120;
+          } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
+        } else if (opt === 'Buy') { this.mode = 'buy'; this.cursor = 0; this.updateMenu(); }
+        else if (opt === 'Sell') { this.mode = 'sell'; this.cursor = 0; this.updateMenu(); }
+        else if (opt === 'Upgrade') { this.mode = 'upgrade'; this.cursor = 0; this.updateMenu(); }
       }
-    }, loop: true });
+      if (cancel) this.endShop();
+      this.updateMenu();
+    } else {
+      const items = this.mode === 'buy' ? this.catalog : GameData.inventory;
+      if (dy < 0 && this.cursor > 0) this.cursor--;
+      if (dy > 0 && this.cursor < items.length - 1) this.cursor++;
+      if (cancel) { this.mode = 'main'; this.cursor = 0; this.updateMenu(); }
+      if (interact) {
+        if (this.mode === 'buy' && this.catalog[this.cursor]) {
+          const si = this.catalog[this.cursor];
+          if (GameData.gold >= si.price) {
+            GameData.gold -= si.price;
+            GameData.inventory.push({name:si.name,type:this.shopType==='weapons'?'weapon':this.shopType==='armor'?'armor':si.name==='Nano Patch'||si.name==='Stim Pack'?'consumable':'material',rarity:si.price>=500?'Rare':si.price>=200?'Uncommon':'Common',atk:si.name.includes('Blade')||si.name.includes('Saber')||si.name.includes('Katana')||si.name.includes('Rifle')||si.name.includes('Cannon')?Math.floor(si.price/40):0,def:si.name.includes('Tunic')||si.name.includes('Vest')||si.name.includes('Plate')?Math.floor(si.price/50):0,heal:si.name.includes('Patch')?30:si.name.includes('Stim')?80:0,level:1});
+            this.message = 'Bought ' + si.name + '!'; this.messageTimer = 120;
+          } else { this.message = 'Not enough gold!'; this.messageTimer = 120; }
+        } else if (this.mode === 'sell' && GameData.inventory[this.cursor]) {
+          const item = GameData.inventory[this.cursor];
+          const price = Math.floor((item.atk || item.def || item.hp || 10) * 2);
+          GameData.gold += price;
+          GameData.inventory.splice(this.cursor, 1);
+          this.message = 'Sold ' + item.name + ' for ' + price + 'g!'; this.messageTimer = 120;
+          this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1));
+        }
+      }
+      this.updateMenu();
+    }
   }
   
   updateMenu() {
@@ -830,75 +870,74 @@ class InventoryScene extends Phaser.Scene {
     
     this.contentTexts = [];
     this.updateContent();
-    
-    this.time.addEvent({ delay: 100, callback: () => {
-      const { dy, interact, cancel } = getInput(this);
-      
-      if (this.mode === 'list') {
-        if (dy < 0 && this.cursor > 0) this.cursor--;
-        if (dy > 0 && this.cursor < GameData.inventory.length - 1) this.cursor++;
-        if (cancel) { this.scene.stop(); this.scene.get('TownScene').scene.resume(); }
-        if (interact && GameData.inventory[this.cursor]) {
-          this.mode = 'itemAction';
-          this._itemIdx = this.cursor;
-          this.cursor = 0;
-        }
-        // Tab to equip
-        const gp = this.input.gamepad ? this.input.gamepad.getPad(0) : null;
-        if (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4])) {
-          this.mode = 'equip'; this.charIndex = 0; this.slotIndex = 0;
-        }
-        this.updateContent();
-      } else if (this.mode === 'itemAction') {
-        const actions = ['Equip','Drop','Cancel'];
-        if (dy < 0 && this.cursor > 0) this.cursor--;
-        if (dy > 0 && this.cursor < actions.length - 1) this.cursor++;
-        if (cancel) { this.mode = 'list'; this.cursor = this._itemIdx; }
-        if (interact) {
-          const act = actions[this.cursor];
-          if (act === 'Equip') { this.mode = 'pickChar'; this.cursor = 0; }
-          else if (act === 'Drop') { GameData.inventory.splice(this._itemIdx, 1); this.mode = 'list'; this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1)); }
-          else { this.mode = 'list'; this.cursor = this._itemIdx; }
-        }
-        this.updateContent();
-      } else if (this.mode === 'pickChar') {
-        if (dy < 0 && this.cursor > 0) this.cursor--;
-        if (dy > 0 && this.cursor < GameData.party.length - 1) this.cursor++;
-        if (cancel) { this.mode = 'itemAction'; this.cursor = 0; }
-        if (interact) {
-          const ch = GameData.party[this.cursor];
-          const item = GameData.inventory[this._itemIdx];
-          if (ch && item) {
-            const slot = item.type === 'weapon' ? 'weapon' : item.type === 'armor' ? 'armor' : item.type === 'accessory' ? (ch.equipment.accessory1 ? 'accessory2' : 'accessory1') : item.type === 'implant' ? 'implant' : null;
-            if (slot) {
-              const old = ch.equipment[slot];
-              ch.equipment[slot] = item;
-              GameData.inventory.splice(this._itemIdx, 1);
-              if (old) GameData.inventory.push(old);
-            }
-          }
-          this.mode = 'list'; this.cursor = 0;
-        }
-        this.updateContent();
-      } else if (this.mode === 'equip') {
-        if (dy < 0 && this.slotIndex > 0) this.slotIndex--;
-        if (dy > 0 && this.slotIndex < 4) this.slotIndex++;
-        const dx = getInput(this);
-        if (dx.dx < 0 && this.charIndex > 0) this.charIndex--;
-        if (dx.dx > 0 && this.charIndex < GameData.party.length - 1) this.charIndex++;
-        if (cancel) { this.mode = 'list'; this.cursor = 0; }
-        if (interact) {
-          const ch = GameData.party[this.charIndex];
-          const slots = ['weapon','armor','accessory1','accessory2','implant'];
-          const slot = slots[this.slotIndex];
-          if (ch.equipment[slot]) {
-            GameData.inventory.push(ch.equipment[slot]);
-            ch.equipment[slot] = null;
-          }
-        }
-        this.updateContent();
+  }
+  
+  update() {
+    const { dx, dy, interact, cancel } = getInput(this);
+    const gp = this.input.gamepad ? this.input.gamepad.getPad(0) : null;
+
+    if (this.mode === 'list') {
+      if (dy < 0 && this.cursor > 0) this.cursor--;
+      if (dy > 0 && this.cursor < GameData.inventory.length - 1) this.cursor++;
+      if (cancel) { this.scene.stop(); this.scene.get('TownScene').scene.resume(); }
+      if (interact && GameData.inventory[this.cursor]) {
+        this.mode = 'itemAction';
+        this._itemIdx = this.cursor;
+        this.cursor = 0;
       }
-    }, loop: true });
+      // Tab to equip
+      if (gp && gp.buttons[4] && Phaser.Input.Gamepad.JustDown(gp.buttons[4])) {
+        this.mode = 'equip'; this.charIndex = 0; this.slotIndex = 0;
+      }
+      this.updateContent();
+    } else if (this.mode === 'itemAction') {
+      const actions = ['Equip','Drop','Cancel'];
+      if (dy < 0 && this.cursor > 0) this.cursor--;
+      if (dy > 0 && this.cursor < actions.length - 1) this.cursor++;
+      if (cancel) { this.mode = 'list'; this.cursor = this._itemIdx; }
+      if (interact) {
+        const act = actions[this.cursor];
+        if (act === 'Equip') { this.mode = 'pickChar'; this.cursor = 0; }
+        else if (act === 'Drop') { GameData.inventory.splice(this._itemIdx, 1); this.mode = 'list'; this.cursor = Math.min(this.cursor, Math.max(0, GameData.inventory.length - 1)); }
+        else { this.mode = 'list'; this.cursor = this._itemIdx; }
+      }
+      this.updateContent();
+    } else if (this.mode === 'pickChar') {
+      if (dy < 0 && this.cursor > 0) this.cursor--;
+      if (dy > 0 && this.cursor < GameData.party.length - 1) this.cursor++;
+      if (cancel) { this.mode = 'itemAction'; this.cursor = 0; }
+      if (interact) {
+        const ch = GameData.party[this.cursor];
+        const item = GameData.inventory[this._itemIdx];
+        if (ch && item) {
+          const slot = item.type === 'weapon' ? 'weapon' : item.type === 'armor' ? 'armor' : item.type === 'accessory' ? (ch.equipment.accessory1 ? 'accessory2' : 'accessory1') : item.type === 'implant' ? 'implant' : null;
+          if (slot) {
+            const old = ch.equipment[slot];
+            ch.equipment[slot] = item;
+            GameData.inventory.splice(this._itemIdx, 1);
+            if (old) GameData.inventory.push(old);
+          }
+        }
+        this.mode = 'list'; this.cursor = 0;
+      }
+      this.updateContent();
+    } else if (this.mode === 'equip') {
+      if (dy < 0 && this.slotIndex > 0) this.slotIndex--;
+      if (dy > 0 && this.slotIndex < 4) this.slotIndex++;
+      if (dx < 0 && this.charIndex > 0) this.charIndex--;
+      if (dx > 0 && this.charIndex < GameData.party.length - 1) this.charIndex++;
+      if (cancel) { this.mode = 'list'; this.cursor = 0; }
+      if (interact) {
+        const ch = GameData.party[this.charIndex];
+        const slots = ['weapon','armor','accessory1','accessory2','implant'];
+        const slot = slots[this.slotIndex];
+        if (ch.equipment[slot]) {
+          GameData.inventory.push(ch.equipment[slot]);
+          ch.equipment[slot] = null;
+        }
+      }
+      this.updateContent();
+    }
   }
   
   updateContent() {
