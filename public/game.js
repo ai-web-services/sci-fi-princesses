@@ -2150,7 +2150,6 @@ const config = {
   height: GAME_H,
   parent: 'game-container',
   backgroundColor: '#0a0a1a',
-  zoom: 2,
   scale: {
     mode: Phaser.Scale.NONE,
     autoCenter: Phaser.Scale.NO_CENTER

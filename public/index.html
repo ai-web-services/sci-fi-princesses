@@ -6,9 +6,9 @@
 <title>Stellar Princesses — Sci-Fi RPG</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;font-family:monospace}
-canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;margin:auto}
-#game-container{position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden}
+body{background:#000;margin:0;padding:0;overflow:hidden;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+#game-container{position:relative}
 #controller-status{position:absolute;bottom:8px;right:12px;color:#4af;font-size:14px;z-index:20;font-family:monospace;text-shadow:0 0 6px #000;pointer-events:none}
 #loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffcc33;font-size:14px;text-align:center;z-index:30}
 </style>
@@ -25,6 +25,20 @@ document.addEventListener('keydown', function(e) {
     e.preventDefault();
   }
 });
+// Integer scale the canvas to prevent blurry rendering
+function scaleCanvas() {
+  const canvas = document.querySelector('canvas');
+  if (!canvas) return;
+  const container = document.getElementById('game-container');
+  const maxW = window.innerWidth;
+  const maxH = window.innerHeight;
+  const scale = Math.max(1, Math.floor(Math.min(maxW / 480, maxH / 270)));
+  canvas.style.width = (480 * scale) + 'px';
+  canvas.style.height = (270 * scale) + 'px';
+}
+window.addEventListener('resize', scaleCanvas);
+// Run after Phaser creates the canvas
+setTimeout(scaleCanvas, 100);
 </script>
 <script src="game.js"></script>
 </body>
