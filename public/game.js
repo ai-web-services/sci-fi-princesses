@@ -751,6 +751,10 @@ class BootScene extends Phaser.Scene {
     // Initialize audio on first user interaction
     AudioSys.init();
     
+    // Hide loading screen
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
+    
     this.scene.start('TitleScene');
   }
 }
@@ -770,7 +774,7 @@ class TitleScene extends Phaser.Scene {
     this.promptText = this.add.text(GAME_W/2, 210, 'Press A / Z / SPACE', { fontSize: '12px', fontFamily: 'monospace', color: '#ffffff' }).setOrigin(0.5);
     this.tweens.add({ targets: this.promptText, alpha: 0.3, duration: 600, yoyo: true, repeat: -1 });
     
-    this.add.text(GAME_W/2, GAME_H - 12, 'v3.0 — Phaser 4', { fontSize: '10px', fontFamily: 'monospace', color: '#666666' }).setOrigin(0.5);
+    this.add.text(GAME_W/2, GAME_H - 12, 'v3.4 — Phaser 4', { fontSize: '10px', fontFamily: 'monospace', color: '#666666' }).setOrigin(0.5);
     
     // Input polled in update() — not in timers
     this.time.addEvent({ delay: 100, callback: () => updateControllerStatus(this), loop: true });
