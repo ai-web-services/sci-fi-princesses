@@ -12,24 +12,22 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 #controller-status{position:absolute;bottom:8px;right:12px;color:#4af;font-size:14px;z-index:20;font-family:monospace;text-shadow:0 0 6px #000;pointer-events:none}
 #loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffcc33;font-size:14px;text-align:center;z-index:30}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/phaser@4.2.0/dist/phaser.min.js"></script>
 </head>
 <body>
 <div id="game-container">
 <div id="loading">Loading...</div>
 <div id="controller-status">🎮 Controller: Disconnected</div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/phaser@4.2.0/dist/phaser.min.js"></script>
 <script>
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Tab' || (e.key.startsWith('F') && e.key.length <= 3) || (e.altKey && e.key === 'Tab')) {
     e.preventDefault();
   }
 });
-// Integer scale the canvas to prevent blurry rendering
 function scaleCanvas() {
   const canvas = document.querySelector('canvas');
   if (!canvas) return;
-  const container = document.getElementById('game-container');
   const maxW = window.innerWidth;
   const maxH = window.innerHeight;
   const scale = Math.max(1, Math.floor(Math.min(maxW / 480, maxH / 270)));
@@ -37,9 +35,9 @@ function scaleCanvas() {
   canvas.style.height = (270 * scale) + 'px';
 }
 window.addEventListener('resize', scaleCanvas);
-// Run after Phaser creates the canvas
 setTimeout(scaleCanvas, 100);
 </script>
-<script src="game.js"></script>
+<!-- Vite will process the line below during dev; during build we handle it separately -->
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>

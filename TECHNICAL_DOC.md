@@ -1,5 +1,5 @@
 # STELLAR PRINCESSES — Technical Documentation
-## v3.0 — Phaser 4.2.0 Rewrite
+## v4.0 — Modular ES Modules + Vite
 
 ---
 
@@ -7,24 +7,63 @@
 
 ```
 sci-fi-princesses/
-├── GAME_DESIGN_DOC.md      # Full GDD (narrative, characters, systems)
-├── TECHNICAL_DOC.md        # This file — architecture & implementation
-├── serve.sh                # Dev server + file watcher
-├── public/
-│   ├── index.html          # Entry point, loads Phaser 4 CDN + game.js
-│   └── game.js             # ALL game code (969 lines, single file)
-├── src/                    # Old modular source (pre-Phaser, archived)
-│   ├── engine/             # Canvas 2D engine (superseded)
-│   ├── entities/           # Entity definitions (superseded)
-│   ├── combat/             # Combat system (superseded)
-│   ├── world/              # Map data (superseded)
-│   ├── items/              # Item definitions (superseded)
-│   ├── ui/                 # UI system (superseded)
-│   └── game/               # Game state (superseded)
-└── assets/                 # Empty — all art is procedural
+├── AGENTS.md                  # Coding agent instructions (read first)
+├── GAME_DESIGN_DOC.md         # Full GDD (narrative, characters, systems)
+├── TECHNICAL_DOC.md           # This file — architecture & implementation
+├── package.json               # npm run dev|build|preview
+├── vite.config.js             # Vite config (root: public/, base: ./)
+├── server.js                  # Legacy Node server (deprecated, use Vite)
+├── serve.sh                   # Legacy dev server script (deprecated)
+├── public/                    # Game source (Vite root)
+│   ├── index.html             # Entry point, loads Phaser 4 CDN + import main.js
+│   └── src/
+│       ├── main.js            # Phaser bootstrap, scene list, game config
+│       ├── config.js          # Constants: TILE, MAP_W/H, GAME_W/H, COLORS, T (tile types)
+│       ├── gameData.js        # GameData state, save/load
+│       ├── input.js           # getInput(), updateControllerStatus() — keyboard + gamepad
+│       ├── audio.js           # AudioSys — Web Audio API BGM + SFX
+│       ├── sprites.js         # generateCharacterTexture() — procedural pixel art
+│       ├── textures.js        # generateTileTexture(), generateAllTextures(), getTileKey()
+│       ├── townMap.js         # createTownMap(), townNPCs, townSigns, townChests, isTownSolid()
+│       └── scenes/
+│           ├── BootScene.js      # Texture/sprite generation, init audio
+│           ├── TitleScene.js     # Title screen, new game/continue/settings
+│           ├── TownScene.js      # Overworld: movement, NPCs, shops, dungeon entry
+│           ├── DialogueScene.js  # Overlay: typewriter text, recruit choices
+│           ├── ShopScene.js      # Overlay: buy/sell/upgrade/heal
+│           ├── InventoryScene.js # Overlay: party management, equip, items
+│           ├── CombatScene.js    # Turn-based battle system
+│           └── DungeonScene.js   # 8-room dungeon with enemies and combat
+├── .agents/skills/            # Preloaded Hermes skills for this project
+│   ├── phaser-gamedev/        # Phaser patterns + 5 reference files
+│   ├── playwright-testing/    # Testing patterns + scripts
+│   ├── game-design-lead/      # Design orchestration + 5 specialist personas
+│   ├── game-designer-persona/
+│   ├── level-designer-persona/
+│   ├── narrative-designer-persona/
+│   ├── technical-artist-persona/
+│   └── game-audio-engineer-persona/
+├── assets/                    # Empty — all art is procedural
+├── screenshots/               # F9 screenshot captures
+└── dist/                      # Vite build output (gitignored)
 ```
 
-**Key decision**: All game code is in a single `game.js` file. This avoids module bundler complexity and keeps the project as a simple static site. The `src/` directory is archived from the pre-Phaser canvas 2D version.
+**Key decision**: All game code uses ES modules. No bundler needed for dev (Vite handles it). Phaser 4 loaded from CDN. The `assets/` directory is empty — all sprites and tiles are procedurally generated.
+
+---
+
+## Build & Serve
+
+```bash
+# Dev server with hot reload (port 5173)
+npm run dev
+
+# Production build → dist/
+npm run build
+
+# Preview build locally (port 8090, matches Tailscale)
+npm run preview
+```
 
 ---
 
@@ -32,22 +71,20 @@ sci-fi-princesses/
 
 ### Version & CDN
 - **Phaser 4.2.0** loaded from `https://cdn.jsdelivr.net/npm/phaser@4.2.0/dist/phaser.min.js`
-- No build step, no npm install, no bundler
+- No npm install of Phaser — loaded as global via script tag in `index.html`
 
 ### Phaser 4 API Patterns Used
 
 ```javascript
-// Game config
+// Game config (in main.js)
 const config = {
-  type: Phaser.CANVAS,        // Canvas 2D renderer (not WebGL)
-  width: 480, height: 270,    // Internal resolution
-  pixelArt: true,             // Disables anti-aliasing
-  scale: {
-    mode: Phaser.Scale.FIT,   // Auto-scales to fill viewport
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  },
+  type: Phaser.CANVAS,
+  width: 480, height: 270,
+  parent: 'game-container',
+  backgroundColor: '#0a0a1a',
+  scale: { mode: Phaser.Scale.NONE, autoCenter: Phaser.Scale.NO_CENTER },
   input: { gamepads: true, keyboard: true },
-  scene: [BootScene, TitleScene, TownScene, DialogueScene, ShopScene, InventoryScene]
+  scene: [BootScene, TitleScene, TownScene, ...]
 };
 
 // Scene class pattern
@@ -71,27 +108,18 @@ this.scene.pause();
 this.scene.stop();
 this.scene.get('TownScene').scene.resume();
 
-// Gamepad input
+// Gamepad input — poll ONCE per frame, cache result
 const gp = scene.input.gamepad.getPad(0);
-gp.buttons[0]    // A button
-gp.buttons[1]    // B button
-gp.buttons[12]   // D-pad up
-gp.buttons[13]   // D-pad down
-gp.buttons[14]   // D-pad left
-gp.buttons[15]   // D-pad right
-gp.axes[0]       // Left stick X (-1 to 1)
-gp.axes[1]       // Left stick Y (-1 to 1)
-
 // JustDown for single-press detection
-Phaser.Input.Gamepad.JustDown(gp.buttons[0])
+Phaser.Input.Gamepad.JustDown(gp.buttons[0]);
 ```
 
-### Phaser 4 Gotchas Encountered
-1. **`this.textures.generate()` doesn't exist in Phaser 4** — use `graphics.generateTexture(key, width, height)` instead
-2. **`scene.scene` to access parent** — use `this.scene.get('SceneKey')` to access another scene
-3. **`setCrop` on images** — needed when reusing a texture at different positions
-4. **Graphics objects must be destroyed** — `g.destroy()` after `generateTexture()` to avoid memory leaks
-5. **`make.graphics({ add: false })** — must pass `add: false` for off-screen texture generation
+### Phaser 4 Gotchas
+1. `this.textures.generate()` doesn't exist in Phaser 4 — use `graphics.generateTexture(key, w, h)`
+2. `graphics.generateTexture()` requires explicit width/height — won't auto-detect
+3. `make.graphics({ add: false })` must pass `add: false` for off-screen texture generation
+4. Graphics objects must be destroyed after use: `g.destroy()`
+5. `gamepad.getPad(0)` can return undefined — always null-check
 
 ---
 
@@ -101,28 +129,24 @@ Phaser.Input.Gamepad.JustDown(gp.buttons[0])
 ```
 BootScene → TitleScene → TownScene ←→ [DialogueScene, ShopScene, InventoryScene]
                                   ↓
-                           OverworldScene (planned)
-                                  ↓
-                           CombatScene (planned)
-                                  ↓
-                           BossScene (planned)
+                           DungeonScene → CombatScene
 ```
 
-### Current Implementation (v3.0)
+### Current Implementation
 | Scene | Status | Description |
 |-------|--------|-------------|
-| BootScene | ✅ Complete | Generates all textures, character sprites |
-| TitleScene | ✅ Complete | Title screen, new game / continue |
-| TownScene | ✅ Complete | Full town with movement, NPCs, shops, chests |
-| DialogueScene | ✅ Complete | Typewriter text, recruit choices |
-| ShopScene | ✅ Complete | Buy/Sell/Upgrade/Heal |
-| InventoryScene | ✅ Complete | View, equip, drop items |
-| OverworldScene | ❌ Not started | Zone exploration |
-| CombatScene | ❌ Not started | Turn-based ATB combat |
-| BossScene | ❌ Not started | Boss encounters |
+| BootScene | Complete | Generates all textures, character sprites |
+| TitleScene | Complete | Title screen, new game / continue |
+| TownScene | Complete | Full town with movement, NPCs, shops, chests |
+| DialogueScene | Complete | Typewriter text, recruit choices |
+| ShopScene | Complete | Buy/Sell/Upgrade/Heal |
+| InventoryScene | Complete | View, equip, drop items |
+| DungeonScene | Complete | 8-room dungeon, enemy encounters |
+| CombatScene | Complete | Turn-based battle (Attack/Skill/Item/Flee) |
 
 ### Game Data Model
 ```javascript
+// gameData.js — single global state object
 const GameData = {
   gold: 500,
   inventory: [],           // Array of item objects
@@ -151,112 +175,57 @@ const GameData = {
 
 ### Town Map System
 - **Tile-based**: 60×40 grid, 16px tiles
-- **Tile types**: FLOOR, WALL, DOOR, WATER, BRIDGE, GRASS, PATH, COUNTER, SHELF, PLANT, SIGN, CHEST, GATE, PORTAL, BED, TABLE, BAR, STAIRS, VOID, ICE, LAVA
+- **21 tile types**: FLOOR, WALL, DOOR, WATER, BRIDGE, GRASS, PATH, COUNTER, SHELF, PLANT, SIGN, CHEST, GATE, PORTAL, BED, TABLE, BAR, STAIRS, VOID, ICE, LAVA
 - **Buildings**: Crown Spire, Weapon Shop, Armor Shop, Tavern, Healer's Hall, Material Shop, Stargate Dock, Training Ground, Gardens
-- **NPCs**: 11 NPCs including 2 recruitable companions (Erynn the cat person, Pip the robot)
-- **Signs**: 8 directional signs
-- **Chests**: 2 lootable chests
-
-### NPC System
-```javascript
-// NPC data format: [x, y, type, name, dialogueLines, shopType, recruitable]
-const townNPCs = [
-  [28, 16, 'townie1', 'Citizen Milo', ['Line 1', 'Line 2'], null, false],
-  [7, 31, 'cat', 'Erynn "Eryx" Vexx', ['...', 'Dialogue 2'], null, true],
-];
-```
-
-### Save System
-- **localStorage** key: `stellar_save`
-- **Auto-save on**: new game start, companion recruitment
-- **Manual save**: shop transactions
-- **Load**: automatic on title screen if save exists
+- **11 NPCs**: including 2 recruitable companions (Erynn the cat person, Pip the robot)
+- **8 signs**, **2 chests**
 
 ### Input System
 - **Keyboard**: WASD/Arrows (move), Z/Space (interact), X/Esc (cancel), Enter (menu)
-- **Gamepad**: Left stick/D-pad (move), A (interact), B (cancel), X (inventory), Start (pause)
-- **Helper function**: `getInput(scene)` returns `{ dx, dy, interact, cancel, menu, gp }`
-- Uses `Phaser.Input.Keyboard.JustDown()` and `Phaser.Input.Gamepad.JustDown()` for single-press
+- **Gamepad**: Left stick/D-pad (move), A (interact), B (cancel), X (inventory), Y (party), Start (pause)
+- **Cached polling**: Gamepad polled ONCE per frame, result cached — prevents duplicate input and GpButtons stale state bugs
+- `getInput(scene)` in `input.js` returns `{ dx, dy, interact, cancel, menu, gp }`
 
 ### Rendering
-- **Internal resolution**: 480×270 (16:9, SNES-era)
-- **Scaling**: `Phaser.Scale.FIT` auto-scales to fill browser window
-- **Pixel art**: `pixelArt: true` in config disables anti-aliasing
-- **Camera**: Manual camera system in TownScene (not Phaser camera)
-  - Camera follows player, clamped to map bounds
-  - All sprites repositioned each frame based on camera offset
+- **Internal resolution**: 480×270 (16:9, pixel-art friendly)
+- **Scaling**: CSS canvas scaling with pixelated rendering (`image-rendering: pixelated`)
+- **Integer canvas scaling**: `Math.floor(Math.min(maxW/480, maxH/270))` for crisp pixels
+- **Camera**: Manual repositioning each frame (not Phaser camera system)
+- All sprites repositioned each frame based on camera offset
 
 ### Sprite Generation
 All sprites are procedurally generated via `Phaser.Graphics`:
 
 1. **Tile textures**: 21 tile types generated in `BootScene.create()` via `generateTileTexture()`
 2. **Character textures**: 12 character sprites generated via `generateCharacterTexture()`
-   - Species variants: human, cat (ears), frog (bulging eyes), dragon (horns + tail), robot (single eye + antenna)
+   - Species variants: human, cat (ears + tail), frog (bulging eyes), dragon (horns + tail), robot (single eye + antenna)
    - Each character has unique hair, eye, skin, and outfit colors
    - 16×20 base size at 2× pixel scale = 32×40 texture
 
----
-
-## Deployment
-
-### Dev Server
-```bash
-cd /home/jrhol/sci-fi-princesses
-bash serve.sh
-```
-- Serves on port 8080 (also 8090 via Tailscale)
-- `serve.sh` uses `python3 -m http.server`
-- `inotifywait` watches for file changes (optional)
-
-### Tailscale Access
-- **URL**: `http://omega2-1.tail62bd55.ts.net:8090`
-- Tailscale serve maps port 8090 to the game server
-- Accessible from any device on the tailnet
-
-### Auto-Deploy
-Currently manual refresh. The `serve.sh` script detects file changes via `inotifywait` but doesn't auto-reload the browser. Future improvement: add WebSocket-based live reload.
-
----
-
-## Git History
-```
-146d020 v3.0: Complete Phaser 4 rewrite
-4a306c3 v2.3: Fix controller input, canvas scaling, auto-save
-1e9e3c1 v2.2: Fix gamepad input polling
-18d0905 v2.1: Xbox controller support
-c3ef334 v2.0: Modular rewrite + 1080p resolution + new content
-```
+### Save System
+- **localStorage** key: `stellar_save`
+- **Auto-save on**: new game start, companion recruitment, shop transactions
+- **Load**: automatic on title screen if save exists
 
 ---
 
 ## Known Issues & TODO
 
 ### Bugs
-- Empty error message in console (Phaser 4 internal, non-blocking)
-- Camera edge clamping can cause slight visual jitter at map boundaries
+- Inventory "Drop" action sets `this.mode = 'list'` instead of `'inventory'` (typo in InventoryScene.js line 200)
+- CombatScene/DungeonScene enemies drawn as graphics primitives (no sprite textures)
+- No animation system — sprites are static
 
-### Missing Features (by Step)
-**Step 1 (Town)**: ✅ Complete
-- Town map, NPCs, dialogue, shops, inventory, save/load all working
-
-**Step 2 (Overworld + Plot)**: ❌ Not started
-- Overworld map with zones
-- Random encounter system
-- Turn-based combat system
-- Party management UI
-- Quest system
-- Narrative progression triggers
-
-**Step 3 (Boss Battle)**: ❌ Not started
-- Boss encounter system
-- Boss 1: Void Sentinel Kael (designed in GDD)
-- Evolution trigger after boss
-- Evolution visual effects
+### Missing Features (by GDD Step)
+**Step 1 (Town)**: Complete
+**Step 2 (Overworld + Plot)**: Partial — dungeon exists but no overworld zones
+**Step 3 (Boss Battle)**: Partial — CombatScene works but no multi-phase bosses
+**Step 4+**: Party evolutions, additional zones, endgame content
 
 ### Future Architecture Needs
-- Combat scene with ATB gauge system
 - Overworld scene with zone transitions
-- Cutscene/dialogue system for story progression
-- Audio system (Web Audio API, chiptune)
+- Boss multi-phase encounter system
+- Cutscene system for story progression
 - Particle effects system
-- Animation system (currently static sprites)
+- Sprite animation system
+- Audio system improvements (currently basic Web Audio oscillators)

@@ -1,16 +1,15 @@
 {
-  "name": "sci-fi-princesses",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "name": "stellar-princesses",
+  "version": "4.0.0",
+  "description": "Stellar Princesses — Sci-Fi RPG (Phaser 4)",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "dev": "vite --host 127.0.0.1 --port 5173",
+    "build": "vite build --emptyOutDir",
+    "preview": "vite preview --host 127.0.0.1 --port 8090"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "ws": "^8.21.0"
+  "devDependencies": {
+    "vite": "^6.4.3"
   }
 }
