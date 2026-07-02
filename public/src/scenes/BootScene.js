@@ -6,16 +6,32 @@ import { COLORS } from '../config.js';
 import { generateAllTextures } from '../textures.js';
 import { generateCharacterTexture } from '../sprites.js';
 import { AudioSys } from '../audio.js';
+import walkSheetUrl from '../sprites/lyra_walk/walk-cycle-32x40.png';
+import idleUrl from '../sprites/lyra_walk/lyra-idle.png';
 
 export class BootScene extends Phaser.Scene {
   constructor() { super({ key: 'BootScene' }); }
 
+  preload() {
+    this.load.spritesheet('lyra_walk', walkSheetUrl, {
+      frameWidth: 32,
+      frameHeight: 40
+    });
+    this.load.image('char_lyra', idleUrl);
+  }
+
   create() {
     generateAllTextures(this);
 
-    // Generate character textures
+    this.anims.create({
+      key: 'lyra_walk_anim',
+      frames: this.anims.generateFrameNumbers('lyra_walk', { start: 0, end: 24 }),
+      frameRate: 12,
+      repeat: -1
+    });
+
+    // Generate character textures (skip char_lyra — already loaded)
     const chars = [
-      ['char_lyra', 'human', COLORS.hair1, COLORS.eye1, COLORS.skin, COLORS.purple],
       ['char_eryx', 'cat', COLORS.hair2, COLORS.eye3, COLORS.skin, COLORS.purple],
       ['char_brimble', 'frog', null, COLORS.eye3, COLORS.frog, COLORS.darkGreen],
       ['char_drakkor', 'dragon', null, COLORS.eye4, COLORS.dragon, COLORS.darkRed],

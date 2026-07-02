@@ -85,8 +85,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   buildPlayer() {
-    this.playerSprite = this.add.image(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'char_lyra');
+    this.playerSprite = this.add.sprite(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'lyra_walk');
     this.playerSprite.setOrigin(0.5, 0.8);
+    this.playerSprite.play('lyra_walk_anim');
+    this.playerSprite.anims.setProgress(0);
+    this.playerSprite.anims.pause();
   }
 
   buildEnemies() {
@@ -152,7 +155,17 @@ export class DungeonScene extends Phaser.Scene {
           this.player.x = nx; this.player.y = ny; this.updateCamera();
         }
       }
-    } else { this.moveTimer = 0; }
+      if (this.playerSprite) {
+        this.playerSprite.anims.resume();
+        if (dx < 0) this.playerSprite.setFlipX(true);
+        else if (dx > 0) this.playerSprite.setFlipX(false);
+      }
+    } else {
+      this.moveTimer = 0;
+      if (this.playerSprite) {
+        this.playerSprite.anims.pause();
+      }
+    }
 
     if (cancel) { AudioSys.playBGM(); this.scene.stop(); if (this.returnScene) this.returnScene.scene.resume(); }
 

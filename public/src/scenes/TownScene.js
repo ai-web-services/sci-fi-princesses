@@ -81,8 +81,11 @@ export class TownScene extends Phaser.Scene {
   }
 
   buildPlayer() {
-    this.playerSprite = this.add.image(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'char_lyra');
+    this.playerSprite = this.add.sprite(this.player.x * TILE + TILE/2, this.player.y * TILE + TILE/2, 'lyra_walk');
     this.playerSprite.setOrigin(0.5, 0.8);
+    this.playerSprite.play('lyra_walk_anim');
+    this.playerSprite.anims.setProgress(0);
+    this.playerSprite.anims.pause();
   }
 
   buildHUD() {
@@ -171,12 +174,17 @@ export class TownScene extends Phaser.Scene {
       }
       this.player.frame++;
       if (this.playerSprite) {
-        const bob = Math.sin(this.player.frame * 0.3) * 1.5;
-        this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY + bob;
+        this.playerSprite.anims.resume();
+        if (dx < 0) this.playerSprite.setFlipX(true);
+        else if (dx > 0) this.playerSprite.setFlipX(false);
+        this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY;
       }
     } else {
       this.moveTimer = 0;
-      if (this.playerSprite) this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY;
+      if (this.playerSprite) {
+        this.playerSprite.anims.pause();
+        this.playerSprite.y = this.player.y * TILE + TILE/2 - this.cameraY;
+      }
     }
 
     if (interact) {
