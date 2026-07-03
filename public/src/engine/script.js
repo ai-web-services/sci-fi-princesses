@@ -16,13 +16,14 @@
 //  { give: { item, qty } } | { give: { gold } }
 //  { teleport: { map, x, y, dir } }
 //  { quest: { id, stage?, status? } }
+//  { autosave: locationName? }
 //  { recruit: charId }
 //  { banner: text }
 //  { run: (scene) => {} }                       escape hatch
 //  { if: (state) => bool, then: [ops], else: [ops] }
 // ═══════════════════════════════════════════════════════════════
 
-import { GameState, setFlag } from '../game/state.js';
+import { GameState, setFlag, autoSave } from '../game/state.js';
 import { fadeIn, fadeOut, flash, shake } from './fx.js';
 import { sfx, playSong, stopSong } from './audio.js';
 import { addItem, addGold } from '../game/inventory.js';
@@ -113,10 +114,18 @@ export async function runScript(scene, ops, ctx = {}) {
         }
       } else if (op.teleport) {
         await new Promise(res => fadeOut(scene, 300, res));
+        if (GameState) {
+          GameState.map = op.teleport.map;
+          GameState.x = op.teleport.x;
+          GameState.y = op.teleport.y;
+          GameState.dir = op.teleport.dir || 'down';
+        }
         scene.scene.restart({ mapId: op.teleport.map, entry: { x: op.teleport.x, y: op.teleport.y, dir: op.teleport.dir || 'down' } });
         return;   // scene is gone; stop executing
       } else if (op.quest) {
         setQuest(op.quest.id, op.quest);
+      } else if (op.autosave !== undefined) {
+        autoSave(typeof op.autosave === 'string' ? op.autosave : undefined);
       } else if (op.recruit) {
         recruit(op.recruit);
       } else if (op.banner) {

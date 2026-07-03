@@ -38,18 +38,30 @@ export function newGameState() {
     investments: [],          // home-base projects completed
     // location
     map: 'nova_plaza',
-    x: 10, y: 8, dir: 'down',
+    x: 14, y: 17, dir: 'up',
     // records
     bestiary: {},             // enemyId → {seen, defeated, scanned}
     lore: [],                 // lore ids discovered
     tutorialsSeen: {},
     resonancesFound: [],
-    mapsVisited: []
+    mapsVisited: [],
+    unlockedDestinations: ['nova_plaza'],
+    trackedQuestId: null
   };
   return GameState;
 }
 
-export function setGameState(s) { GameState = s; }
+export function normalizeGameState(s) {
+  if (!s) return s;
+  if (!Array.isArray(s.mapsVisited)) s.mapsVisited = [];
+  if (!Array.isArray(s.unlockedDestinations)) s.unlockedDestinations = ['nova_plaza'];
+  if (s.trackedQuestId === undefined) s.trackedQuestId = null;
+  if (!s.quests) s.quests = {};
+  if (!s.flags) s.flags = {};
+  return s;
+}
+
+export function setGameState(s) { GameState = normalizeGameState(s); }
 
 // Build save meta shown in slot UI.
 export function saveMeta(locationName) {
@@ -79,7 +91,7 @@ export function autoSave(locationName) {
 export function loadFromSlot(slot) {
   const payload = readSave(slot);
   if (!payload) return false;
-  GameState = payload.state;
+  GameState = normalizeGameState(payload.state);
   return true;
 }
 

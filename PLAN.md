@@ -74,7 +74,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 |---|---|---|---|
 | M0 | Audit + this plan | §goal rules 1–3 | **done** |
 | M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | **done (v4.5)** |
-| M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **in progress** |
+| M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **done (v4.7)** |
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | pending |
 | M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | pending |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
@@ -149,3 +149,12 @@ public/src/
   Headless browser validation confirmed title-to-map startup, collision-based
   movement, dialogue advancement, choice selection, clean overlay shutdown, and a
   console-clean runtime; the representative choice screen was visually inspected.
+- **2026-07-02 — v4.7 / M2 complete:** Completed the exploration foundation with
+  validated map exits, one-shot arrival triggers, discovered-map tracking, safe
+  destination-state commits, autosave reorientation, the Stargate destination
+  interface, and an active/completed quest journal. Added the authored Starfall
+  Plaza → Stargate Dock → Shattered Gate loop and a four-stage leadership quest
+  that changes the relay state. Schema v2 migrates v4.6 saves without losing
+  progress. Map/sprite validators, production build, save migration/corruption
+  fallback checks, and a browser playthrough through quest completion passed with
+  no console errors; journal, travel, and arrival screens were visually inspected.

@@ -1,5 +1,5 @@
 # STELLAR PRINCESSES — Technical Documentation
-## v4.6 — Data-Driven Phaser 4 Foundation
+## v4.7 — Data-Driven Phaser 4 Foundation
 
 > The detailed v4.0 prototype inventory later in this document is retained as
 > historical context. The current implementation was rebuilt in v4.5 and now uses
@@ -10,7 +10,8 @@
 - 640×360 internal resolution with integer CSS scaling and crisp pixel rendering.
 - Phaser 4.2.0 from the pinned CDN, loaded before the Vite-built ES module.
 - Scene flow: `BootScene → TitleScene → MapScene`, with `OptionsScene`,
-  `SaveLoadScene`, and `DialogueScene` overlays/workflows.
+  `SaveLoadScene`, `DialogueScene`, `QuestJournalScene`, and `TravelScene`
+  overlays/workflows.
 - `engine/`: versioned/checksummed save slots, persistent accessibility/settings,
   remappable keyboard/gamepad input, synth music/SFX, UI primitives, transitions,
   and the data-driven script runner.
@@ -21,17 +22,19 @@
 ### Exploration and Dialogue Contract
 
 `MapScene` owns collision, grid movement, NPC actors, interaction, map music, and
-script execution. Script operations may show dialogue/choices, mutate flags and
-quests, grant resources, recruit characters, move actors, run effects, or teleport.
+script execution. It also resolves exits after movement completes, runs idempotent
+one-shot triggers, tracks discovered maps, and opens journal/travel overlays.
+Script operations may show dialogue/choices, mutate flags and quests, grant
+resources, recruit characters, move actors, autosave, run effects, or teleport.
 While a script is active, `DialogueScene` exclusively polls input so shared
 edge-triggered actions cannot be consumed twice. Persistent quest transitions reject
 stage/status regression unless a caller explicitly opts in.
 
 ### Validation
 
-Run `npm run build` for the production bundle and
-`node scripts/validate_sprites.mjs` to verify every authored 24×32 actor grid,
-direction, animation frame, and palette symbol.
+Run `npm run build`, `npm run validate:sprites`, and `npm run validate:maps`.
+Map validation checks rectangular grids, legend coverage, unique authored IDs,
+walkable arrivals, non-bouncing exits, target existence, and required reachability.
 
 ---
 

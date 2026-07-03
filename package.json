@@ -1,6 +1,6 @@
 {
   "name": "stellar-princesses",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "description": "Stellar Princesses — Sci-Fi RPG (Phaser 4)",
   "private": true,
   "type": "module",
@@ -8,7 +8,8 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build --emptyOutDir",
     "preview": "vite preview --host 127.0.0.1 --port 8090",
-    "validate:sprites": "node scripts/validate_sprites.mjs"
+    "validate:sprites": "node scripts/validate_sprites.mjs",
+    "validate:maps": "node scripts/validate_maps.mjs"
   },
   "devDependencies": {
     "vite": "^6.4.3"

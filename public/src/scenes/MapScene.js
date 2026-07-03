@@ -11,12 +11,13 @@ import { rng } from '../art/pixel.js';
 import { pollInput, swallowInput } from '../engine/input.js';
 import { fadeIn } from '../engine/fx.js';
 import { ActorSprite } from '../art/actors.js';
-import { GameState } from '../game/state.js';
+import { GameState, autoSave, setFlag } from '../game/state.js';
 import { PixelText } from '../art/font.js';
 import { RAMP } from '../art/palette.js';
 import { runScript } from '../engine/script.js';
 import { playSong } from '../engine/audio.js';
 import { SONGS } from '../data/music.js';
+import { questObjective } from '../data/quests.js';
 
 const STEP_MS = 140;   // per-tile walk duration
 
@@ -43,8 +44,19 @@ export class MapScene extends Phaser.Scene {
     this.placeActor(this.player, this.px, this.py);
     this.stepping = false;
     this.scriptRunning = false;
+    this.modalOpen = false;
+    this.arrivalPending = true;
     this.buildNpcs();
     this.playMapSong(this.map.music || 'nova');
+
+    if (GameState) {
+      GameState.map = this.mapId;
+      GameState.x = this.px;
+      GameState.y = this.py;
+      GameState.dir = spawn.dir || 'down';
+      if (!GameState.mapsVisited.includes(this.mapId)) GameState.mapsVisited.push(this.mapId);
+      autoSave(this.map.name);
+    }
 
     // camera
     const worldW = this.map.grid[0].length * TILE;
@@ -60,6 +72,16 @@ export class MapScene extends Phaser.Scene {
 
     // location banner
     this.showLocationBanner();
+    if (GameState && GameState.trackedQuestId && GameState.quests[GameState.trackedQuestId]) {
+      const tracked = GameState.quests[GameState.trackedQuestId];
+      this.time.delayedCall(2200, () => {
+        this.showBanner('Objective: ' + questObjective(GameState.trackedQuestId, tracked.stage));
+      });
+    }
+    this.time.delayedCall(300, () => {
+      this.arrivalPending = false;
+      this.handleArrival();
+    });
 
     swallowInput();
     fadeIn(this, 350);
@@ -126,6 +148,10 @@ export class MapScene extends Phaser.Scene {
     return null;
   }
 
+  interactionAt(tx, ty) {
+    return (this.map.interactions || []).find(it => it.x === tx && it.y === ty) || null;
+  }
+
   isSolid(tx, ty) {
     if (ty < 0 || ty >= this.solid.length) return true;
     if (tx < 0 || tx >= this.solid[ty].length) return true;
@@ -143,11 +169,16 @@ export class MapScene extends Phaser.Scene {
   interact() {
     const tile = this.facingTile();
     const entity = this.npcAt(tile.x, tile.y);
-    if (!entity || !entity.data.script) return false;
-    const towardPlayer = this.px < entity.x ? 'left' : this.px > entity.x ? 'right'
-      : this.py < entity.y ? 'up' : 'down';
-    entity.actor.face(towardPlayer);
-    runScript(this, entity.data.script);
+    if (entity && entity.data.script) {
+      const towardPlayer = this.px < entity.x ? 'left' : this.px > entity.x ? 'right'
+        : this.py < entity.y ? 'up' : 'down';
+      entity.actor.face(towardPlayer);
+      runScript(this, entity.data.script);
+      return true;
+    }
+    const interaction = this.interactionAt(tile.x, tile.y);
+    if (!interaction || !interaction.script) return false;
+    runScript(this, interaction.script);
     return true;
   }
 
@@ -161,6 +192,59 @@ export class MapScene extends Phaser.Scene {
     t.x = Math.round((GAME_W - t.textW) / 2);
     t.setDepth(DEPTH.UI).setScrollFactor(0);
     this.tweens.add({ targets: t, alpha: 0, delay: 1800, duration: 500, onComplete: () => t.destroy() });
+  }
+
+  cellMatches(def, x, y) {
+    return (def.cells || []).some(cell => cell.x === x && cell.y === y);
+  }
+
+  handleArrival() {
+    if (this.scriptRunning || this.modalOpen || this._transitioning) return;
+    const exit = (this.map.exits || []).find(candidate => this.cellMatches(candidate, this.px, this.py));
+    if (exit && exit.to) {
+      runScript(this, [{ teleport: exit.to }]);
+      return;
+    }
+    const trigger = (this.map.triggers || []).find(candidate => {
+      if (!this.cellMatches(candidate, this.px, this.py)) return false;
+      if (candidate.onceFlag && GameState && GameState.flags[candidate.onceFlag]) return false;
+      return !candidate.if || candidate.if(GameState);
+    });
+    if (!trigger) return;
+    if (trigger.onceFlag) setFlag(trigger.onceFlag, true);
+    runScript(this, trigger.script || []);
+  }
+
+  openJournal() {
+    if (this.scriptRunning || this.modalOpen) return;
+    this.modalOpen = true;
+    this.scene.launch('QuestJournalScene', { parentScene: 'MapScene' });
+    this.scene.pause();
+  }
+
+  openTravel() {
+    if (this.modalOpen) return;
+    this.modalOpen = true;
+    this.scene.launch('TravelScene', { parentScene: 'MapScene', currentMap: this.mapId });
+    this.scene.pause();
+  }
+
+  travelTo(destination) {
+    if (!destination || !destination.map || !destination.entry) {
+      this.modalOpen = false;
+      this.scene.resume();
+      return;
+    }
+    this.modalOpen = false;
+    runScript(this, [{
+      teleport: {
+        map: destination.map,
+        x: destination.entry.x,
+        y: destination.entry.y,
+        dir: destination.entry.dir
+      }
+    }]);
+    this.scene.resume();
   }
 
   stepEntityAsync(entity, dir) {
@@ -220,13 +304,16 @@ export class MapScene extends Phaser.Scene {
         this.player.setPos(this.player.x, this.player.y);
         this.player.setDepth(DEPTH.ACTOR + this.player.y / TILE);
       },
-      onComplete: () => { this.stepping = false; }
+      onComplete: () => {
+        this.stepping = false;
+        this.handleArrival();
+      }
     });
   }
 
   update(time, delta) {
     if (GameState) GameState.playtime += delta / 1000;
-    if (this.scriptRunning) {
+    if (this.scriptRunning || this.modalOpen || this.arrivalPending) {
       this.player.update(delta, false);
       for (const entity of this.entities.values()) entity.actor.update(delta, false);
       return;
@@ -235,6 +322,10 @@ export class MapScene extends Phaser.Scene {
     const inp = pollInput(this, time);
 
     if (!this.stepping) {
+      if (inp.menued) {
+        this.openJournal();
+        return;
+      }
       if (inp.confirmed && this.interact()) return;
       if (inp.dx !== 0) this.tryStep(inp.dx, 0, time);
       else if (inp.dy !== 0) this.tryStep(0, inp.dy, time);

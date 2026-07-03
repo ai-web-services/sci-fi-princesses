@@ -28,7 +28,16 @@ function key(slot) { return SAVE_PREFIX + slot; }
 // ── Migrations ─────────────────────────────────────────
 // Each entry upgrades a payload from version N to N+1.
 const MIGRATIONS = {
-  // 1: (data) => { ...mutate...; return data; }
+  1: (data) => {
+    const state = data.state || {};
+    if (!Array.isArray(state.mapsVisited)) state.mapsVisited = [];
+    if (!Array.isArray(state.unlockedDestinations)) {
+      state.unlockedDestinations = ['nova_plaza'];
+    }
+    if (state.trackedQuestId === undefined) state.trackedQuestId = null;
+    data.state = state;
+    return data;
+  }
 };
 
 function migrate(data) {

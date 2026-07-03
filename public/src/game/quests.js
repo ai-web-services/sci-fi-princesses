@@ -16,6 +16,12 @@ export function setQuest(id, patch = {}) {
   }
   delete next.allowRegression;
   GameState.quests[id] = Object.assign(current, next);
+  if (GameState.quests[id].status === 'active' && !GameState.trackedQuestId) {
+    GameState.trackedQuestId = id;
+  }
+  if (GameState.quests[id].status === 'done' && GameState.trackedQuestId === id) {
+    GameState.trackedQuestId = null;
+  }
   return GameState.quests[id];
 }
 
