@@ -181,17 +181,17 @@ The M4 slice is decomposed so parallel Sonnet subagents can author content while
 integrating session owns shared files. Contracts:
 
 **Agent-ownable (new files only, validate with a node script in scripts/):**
-1.  — flesh out NOVA_MAPS: nova_market, nova_residential, nova_palace,
+1. `public/src/data/maps/nova.js` — flesh out NOVA_MAPS: nova_market, nova_residential, nova_palace,
    nova_tavern, nova_shop_weapons/armor/materials, nova_healers_hall, nova_gardens.
    Use NOVA_LEGEND chars only; follow nova_plaza's def shape (equal-width grid rows, spawn,
    music, npcs/exits/interactions/triggers). Ambient NPCs only (story NPCs handled separately).
    Exits must link back to nova_plaza edges (agree ids with integrator).
-2.  — flesh out STARGATE_MAPS: gate_approach, gate_hall_west,
+2. `public/src/data/maps/stargate.js` — flesh out STARGATE_MAPS: gate_approach, gate_hall_west,
    gate_hall_east, gate_depths, gate_heart. STARGATE_LEGEND chars; encounters blocks
    (groups from: voidling, shade, corrupted_sentry, void_maw, gate_wisp, shard_golem;
    backdrop 'stargate'); barrier/console puzzle (needs MapScene.setCell — integrator);
    boss trigger at gate_heart: battle op {enemies:['kael'], isBoss:true, canFlee:false}.
-3.  — Act 1 story: prologue cutscene (Crownfall attack on Nova Prime),
+3. `public/src/data/act1.js` — Act 1 story: prologue cutscene (Crownfall attack on Nova Prime),
    quest chain (q_fall_aftershock exists in maps.js/quests.js — extend), Pip recruitment
    (found damaged at Stargate Dock), Erynn recruitment (met at gate_approach), Kael defeat →
    Shard of the Gate → Lyra Evolution 1 (Crown Bearer), Nova Prime reaction scenes.
