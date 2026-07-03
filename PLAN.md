@@ -76,7 +76,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 | M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | **done (v4.5)** |
 | M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **done (v4.7)** |
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | **done (v4.8)** |
-| M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | pending |
+| M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | **in progress (infra landed v4.9)** |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
 | M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | pending |
 | M7 | Kessari Reach + Erynn arc + Shard 4 | §7.3, §8.4 | pending |
@@ -168,3 +168,44 @@ public/src/
   data (validated), hero battle poses, 19 enemy battle sprites, 25 portrait expressions,
   15-song music library. Build + all validators + browser battle playtest passed.
   Polish backlog: Erynn/Drakkor/Lyra portrait faces, Kael sprite shading.
+- **2026-07-03 — v4.9 \ M4 infra + HANDOFF:** Added interior tiles (wood floor, carpet,
+  inner walls, shelf/bed/table/stool) and the full Shattered Stargate tileset (void floor/
+  walls/pits, crystals, debris, bridge, console, pedestal, barrier, ring chunks); exported
+  NOVA_LEGEND + STARGATE_LEGEND; MAPS registry now merges region files
+  (data/maps/nova.js, data/maps/stargate.js — currently authored-comment skeletons).
+  Build + boot verified.
+
+## 7. M4 Handoff — remaining work and division of labor
+
+The M4 slice is decomposed so parallel Sonnet subagents can author content while one
+integrating session owns shared files. Contracts:
+
+**Agent-ownable (new files only, validate with a node script in scripts/):**
+1.  — flesh out NOVA_MAPS: nova_market, nova_residential, nova_palace,
+   nova_tavern, nova_shop_weapons/armor/materials, nova_healers_hall, nova_gardens.
+   Use NOVA_LEGEND chars only; follow nova_plaza's def shape (equal-width grid rows, spawn,
+   music, npcs/exits/interactions/triggers). Ambient NPCs only (story NPCs handled separately).
+   Exits must link back to nova_plaza edges (agree ids with integrator).
+2.  — flesh out STARGATE_MAPS: gate_approach, gate_hall_west,
+   gate_hall_east, gate_depths, gate_heart. STARGATE_LEGEND chars; encounters blocks
+   (groups from: voidling, shade, corrupted_sentry, void_maw, gate_wisp, shard_golem;
+   backdrop 'stargate'); barrier/console puzzle (needs MapScene.setCell — integrator);
+   boss trigger at gate_heart: battle op {enemies:['kael'], isBoss:true, canFlee:false}.
+3.  — Act 1 story: prologue cutscene (Crownfall attack on Nova Prime),
+   quest chain (q_fall_aftershock exists in maps.js/quests.js — extend), Pip recruitment
+   (found damaged at Stargate Dock), Erynn recruitment (met at gate_approach), Kael defeat →
+   Shard of the Gate → Lyra Evolution 1 (Crown Bearer), Nova Prime reaction scenes.
+   Export shape: { npcsByMap, triggersByMap, interactionsByMap, quests } — integrator wires
+   a storyContent.js merge into MapScene.
+**Integrator-owned (shared files):**
+4. MapScene: merge story npcs/triggers/interactions from data/storyContent.js; add
+   setCell(x,y,ch) (tile overlay image + solidity update) and script op {setcell}.
+5. ShopScene (buy/sell vs data/shops.js — to author) + script op {shop:'weapons'}.
+6. MenuScene (party/equip/use-items/records/save/options) reachable from MapScene menu key
+   (currently menu key opens QuestJournalScene — rewire journal inside MenuScene).
+7. EvolutionScene (bespoke transformation presentation; uses progression.evolve()).
+8. Tutorial prompts (engine/tutorial.js, one-time contextual windows, reviewable).
+9. End-to-end Act 1 playtest → commit v5.0.
+
+**Polish backlog (M12):** Erynn/Drakkor/Lyra portrait faces; Kael battle sprite shading;
+inlay tile could still read busy in long paths; victory panel layout.

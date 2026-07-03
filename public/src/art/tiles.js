@@ -198,6 +198,175 @@ export const TILESETS = {
       px(g, RAMP.wood[1], 0, 12, T, 4);
       px(g, RAMP.wood[2], 2, 5, 1, 6);
       px(g, RAMP.wood[2], 9, 4, 1, 7);
+    },
+    // ── interiors ──
+    floorWood: (g, seed) => {
+      const r = rng(seed);
+      base(g, RAMP.wood[2]);
+      px(g, RAMP.wood[1], 0, 3, T, 1);
+      px(g, RAMP.wood[1], 0, 7, T, 1);
+      px(g, RAMP.wood[1], 0, 11, T, 1);
+      px(g, RAMP.wood[1], 0, 15, T, 1);
+      px(g, RAMP.wood[3], 0, 0, T, 1);
+      const off = Math.floor(r() * 12);
+      px(g, RAMP.wood[1], off, 0, 1, 3);
+      px(g, RAMP.wood[1], (off + 8) % 16, 4, 1, 3);
+      px(g, RAMP.wood[1], (off + 4) % 16, 8, 1, 3);
+      if (r() < 0.3) px(g, RAMP.wood[3], 2 + Math.floor(r() * 10), 5 + Math.floor(r() * 8), 3, 1);
+    },
+    carpet: (g, seed) => {
+      base(g, 0x5a2440);
+      px(g, 0x7a3456, 1, 1, 14, 14);
+      px(g, RAMP.novaGold[1], 2, 2, 12, 1);
+      px(g, RAMP.novaGold[1], 2, 13, 12, 1);
+      px(g, RAMP.novaGold[1], 2, 2, 1, 12);
+      px(g, RAMP.novaGold[1], 13, 2, 1, 12);
+      if (seed % 3 === 0) { px(g, RAMP.novaGold[2], 7, 7, 2, 2); }
+    },
+    wallInner: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x4a3a55);
+      px(g, 0x5c4a68, 0, 0, T, 2);
+      px(g, 0x3a2d44, 0, 6, T, 1);
+      px(g, 0x3a2d44, 0, 12, T, 1);
+      px(g, 0x2d2333, 0, 15, T, 1);
+      if (r() < 0.35) px(g, RAMP.novaGold[1], 3 + Math.floor(r() * 9), 8, 2, 2);
+    },
+    shelf: (g, seed) => {
+      const r = rng(seed);
+      base(g, RAMP.wood[1]);
+      px(g, RAMP.wood[2], 1, 1, 14, 14);
+      px(g, RAMP.wood[0], 1, 5, 14, 1);
+      px(g, RAMP.wood[0], 1, 10, 14, 1);
+      for (const y of [2, 6, 11]) {
+        for (let i = 0; i < 4; i++) {
+          if (r() < 0.7) {
+            const colors = [0x8ab0d0, 0xc26a5a, 0x8a5aa8, 0x6aa86a, RAMP.brass[3]];
+            px(g, colors[Math.floor(r() * colors.length)], 2 + i * 3 + Math.floor(r() * 2), y, 2, 3);
+          }
+        }
+      }
+    },
+    bed: (g) => {
+      base(g, RAMP.wood[1]);
+      px(g, RAMP.wood[2], 0, 0, T, 2);
+      px(g, 0x8898c0, 1, 2, 14, 13);
+      px(g, 0xa8b8e0, 1, 2, 14, 4);
+      px(g, 0xf0f0fa, 2, 3, 5, 2);
+      px(g, 0x6878a0, 1, 14, 14, 1);
+    },
+    table: (g) => {
+      TILESETS.nova.floorWood(g, 3);
+      px(g, RAMP.wood[3], 2, 3, 12, 9);
+      px(g, RAMP.wood[4], 2, 3, 12, 2);
+      px(g, RAMP.wood[1], 3, 12, 2, 3);
+      px(g, RAMP.wood[1], 11, 12, 2, 3);
+    },
+    stool: (g) => {
+      TILESETS.nova.floorWood(g, 5);
+      px(g, RAMP.wood[3], 5, 6, 6, 4);
+      px(g, RAMP.wood[1], 5, 10, 1, 4);
+      px(g, RAMP.wood[1], 10, 10, 1, 4);
+    }
+  },
+
+  // ── SHATTERED STARGATE — void-fractured gate complex ──
+  stargate: {
+    floor: (g, seed) => {
+      const r = rng(seed);
+      base(g, RAMP.voidAsh[2]);
+      px(g, RAMP.voidAsh[1], 0, 7, T, 1);
+      px(g, RAMP.voidAsh[1], 0, 15, T, 1);
+      const off = (seed % 2) ? 4 : 11;
+      px(g, RAMP.voidAsh[1], off, 0, 1, 7);
+      px(g, RAMP.voidAsh[1], (off + 7) % 16, 8, 1, 7);
+      px(g, RAMP.voidAsh[3], 0, 0, T, 1);
+      if (r() < 0.25) { // void fracture glint
+        px(g, RAMP.voidGlow[2], 2 + Math.floor(r() * 11), 2 + Math.floor(r() * 11), 1, 2 + Math.floor(r() * 2));
+      }
+      if (r() < 0.2) px(g, RAMP.voidAsh[0], 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 9), 3, 1);
+    },
+    wall: (g, seed) => {
+      const r = rng(seed);
+      base(g, RAMP.voidAsh[1]);
+      px(g, RAMP.voidAsh[3], 0, 0, T, 2);
+      px(g, RAMP.voidAsh[2], 0, 2, T, 4);
+      px(g, RAMP.voidAsh[0], 0, 10, T, 1);
+      px(g, RAMP.voidAsh[0], 0, 15, T, 1);
+      const vx = 2 + Math.floor(r() * 4) * 4;
+      px(g, RAMP.voidAsh[0], vx, 2, 1, 8);
+      if (r() < 0.3) px(g, RAMP.voidGlow[1], vx, 5 + Math.floor(r() * 4), 1, 2);
+    },
+    voidpit: (g, seed) => {
+      const r = rng(seed);
+      base(g, RAMP.voidDeep[0]);
+      for (let i = 0; i < 5; i++) {
+        px(g, RAMP.voidDeep[1], Math.floor(r() * 14), Math.floor(r() * 14), 2, 1);
+      }
+      if (r() < 0.4) px(g, RAMP.voidGlow[1], 3 + Math.floor(r() * 10), 3 + Math.floor(r() * 10), 1, 1);
+    },
+    crystal: (g, seed) => {
+      TILESETS.stargate.floor(g, seed);
+      const r = rng(seed + 3);
+      const cx = 5 + Math.floor(r() * 4);
+      px(g, RAMP.voidGlow[1], cx, 4, 5, 10);
+      px(g, RAMP.voidGlow[2], cx + 1, 2, 3, 12);
+      px(g, RAMP.voidGlow[3], cx + 2, 1, 1, 13);
+      px(g, RAMP.voidGlow[4], cx + 2, 2, 1, 3);
+      px(g, RAMP.voidDeep[1], cx - 1, 13, 7, 2);
+    },
+    debris: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.stargate.floor(g, seed);
+      for (let i = 0; i < 6; i++) {
+        const c = r() < 0.3 ? RAMP.novaGold[1] : RAMP.voidAsh[Math.floor(r() * 2)];
+        px(g, c, 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 12), 2 + Math.floor(r() * 3), 1 + Math.floor(r() * 2));
+      }
+    },
+    bridge: (g, seed) => {
+      base(g, RAMP.voidDeep[0]);
+      px(g, RAMP.steel[2], 1, 0, 14, T);
+      px(g, RAMP.steel[3], 1, 0, 14, 1);
+      px(g, RAMP.steel[1], 1, 5, 14, 1);
+      px(g, RAMP.steel[1], 1, 10, 14, 1);
+      px(g, RAMP.steel[0], 1, 15, 14, 1);
+      px(g, RAMP.steel[0], 1, 0, 1, T);
+      px(g, RAMP.steel[0], 14, 0, 1, T);
+    },
+    console: (g) => {
+      TILESETS.stargate.floor(g, 7);
+      px(g, RAMP.steel[1], 2, 5, 12, 9);
+      px(g, RAMP.steel[2], 2, 5, 12, 3);
+      px(g, RAMP.novaGlass[3], 4, 6, 8, 2);
+      px(g, RAMP.novaGold[2], 4, 10, 2, 1);
+      px(g, 0xc24552, 8, 10, 2, 1);
+      px(g, RAMP.novaGlass[2], 11, 10, 1, 1);
+    },
+    pedestal: (g) => {
+      TILESETS.stargate.floor(g, 11);
+      px(g, RAMP.novaWall[2], 4, 6, 8, 8);
+      px(g, RAMP.novaWall[3], 4, 6, 8, 2);
+      px(g, RAMP.novaGold[2], 5, 5, 6, 1);
+      px(g, RAMP.novaGold[3], 6, 3, 4, 2);
+    },
+    barrier: (g, seed) => {
+      TILESETS.stargate.floor(g, seed);
+      const r = rng(seed + 9);
+      for (let y = 0; y < 16; y += 2) {
+        px(g, RAMP.voidGlow[2], 6, y, 1, 1);
+        px(g, RAMP.voidGlow[3], 9, y + 1, 1, 1);
+      }
+      px(g, RAMP.voidGlow[1], 7, 0, 2, T);
+      if (r() < 0.5) px(g, RAMP.voidGlow[4], 7, Math.floor(r() * 14), 2, 2);
+    },
+    ringChunk: (g, seed) => {
+      TILESETS.stargate.floor(g, seed);
+      const r = rng(seed + 13);
+      px(g, RAMP.novaGold[1], 3, 4, 10, 8);
+      px(g, RAMP.novaGold[2], 3, 4, 10, 3);
+      px(g, RAMP.novaGold[0], 3, 10, 10, 2);
+      px(g, RAMP.voidGlow[2], 5 + Math.floor(r() * 5), 6, 1, 5);
+      px(g, RAMP.voidAsh[0], 3, 12, 10, 1);
     }
   }
 };

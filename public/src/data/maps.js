@@ -5,7 +5,7 @@
 // and register here.
 // ═══════════════════════════════════════════════════════════════
 
-const NOVA_LEGEND = {
+export const NOVA_LEGEND = {
   '^': { tile: 'wallTop', solid: true },
   '#': { tile: 'wall', variants: 3, solid: true },
   'w': { tile: 'window', solid: true },
@@ -21,7 +21,28 @@ const NOVA_LEGEND = {
   'r': { tile: 'rubble' },
   's': { tile: 'scorch' },
   'x': { tile: 'wallCracked', variants: 2, solid: true },
-  'c': { tile: 'counter', solid: true }
+  'c': { tile: 'counter', solid: true },
+  // interiors
+  'W': { tile: 'wallInner', variants: 3, solid: true },
+  'F': { tile: 'floorWood', variants: 4 },
+  'K': { tile: 'carpet', variants: 3 },
+  'S': { tile: 'shelf', variants: 3, solid: true },
+  'B': { tile: 'bed', solid: true },
+  'T': { tile: 'table', solid: true },
+  'k': { tile: 'stool' }
+};
+
+export const STARGATE_LEGEND = {
+  '#': { tile: 'wall', variants: 3, solid: true },
+  '.': { tile: 'floor', variants: 4 },
+  'o': { tile: 'voidpit', variants: 3, solid: true },
+  'c': { tile: 'crystal', variants: 3, solid: true },
+  'd': { tile: 'debris', variants: 3 },
+  'b': { tile: 'bridge', variants: 2 },
+  'C': { tile: 'console', solid: true },
+  'P': { tile: 'pedestal', solid: true },
+  '|': { tile: 'barrier', variants: 2, solid: true },
+  'R': { tile: 'ringChunk', solid: true }
 };
 
 export const MAPS = {
@@ -288,6 +309,11 @@ export const MAPS = {
     ]
   }
 };
+
+// Region map files register here. Each exports an object of map defs.
+import { NOVA_MAPS } from './maps/nova.js';
+import { STARGATE_MAPS } from './maps/stargate.js';
+Object.assign(MAPS, NOVA_MAPS, STARGATE_MAPS);
 
 export function getMap(id) {
   const m = MAPS[id];
