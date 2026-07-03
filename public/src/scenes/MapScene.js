@@ -14,6 +14,9 @@ import { ActorSprite } from '../art/actors.js';
 import { GameState } from '../game/state.js';
 import { PixelText } from '../art/font.js';
 import { RAMP } from '../art/palette.js';
+import { runScript } from '../engine/script.js';
+import { playSong } from '../engine/audio.js';
+import { SONGS } from '../data/music.js';
 
 const STEP_MS = 140;   // per-tile walk duration
 
@@ -39,6 +42,9 @@ export class MapScene extends Phaser.Scene {
     this.player.face(spawn.dir || 'down');
     this.placeActor(this.player, this.px, this.py);
     this.stepping = false;
+    this.scriptRunning = false;
+    this.buildNpcs();
+    this.playMapSong(this.map.music || 'nova');
 
     // camera
     const worldW = this.map.grid[0].length * TILE;
@@ -97,10 +103,89 @@ export class MapScene extends Phaser.Scene {
     }));
   }
 
+  buildNpcs() {
+    this.entities = new Map();
+    for (const data of this.map.npcs || []) {
+      const actor = new ActorSprite(this, data.actor, 0, 0);
+      actor.face(data.dir || 'down');
+      const entity = { id: data.id, actor, data, x: data.x, y: data.y };
+      this.placeActor(actor, data.x, data.y);
+      this.entities.set('npc:' + data.id, entity);
+    }
+  }
+
+  getEntity(id) {
+    if (id === 'player') return { actor: this.player, x: this.px, y: this.py };
+    return this.entities.get(id) || null;
+  }
+
+  npcAt(tx, ty) {
+    for (const entity of this.entities.values()) {
+      if (entity.x === tx && entity.y === ty) return entity;
+    }
+    return null;
+  }
+
   isSolid(tx, ty) {
     if (ty < 0 || ty >= this.solid.length) return true;
     if (tx < 0 || tx >= this.solid[ty].length) return true;
-    return this.solid[ty][tx];
+    return this.solid[ty][tx] || !!this.npcAt(tx, ty);
+  }
+
+  facingTile() {
+    const d = this.player.dir;
+    return {
+      x: this.px + (d === 'left' ? -1 : d === 'right' ? 1 : 0),
+      y: this.py + (d === 'up' ? -1 : d === 'down' ? 1 : 0)
+    };
+  }
+
+  interact() {
+    const tile = this.facingTile();
+    const entity = this.npcAt(tile.x, tile.y);
+    if (!entity || !entity.data.script) return false;
+    const towardPlayer = this.px < entity.x ? 'left' : this.px > entity.x ? 'right'
+      : this.py < entity.y ? 'up' : 'down';
+    entity.actor.face(towardPlayer);
+    runScript(this, entity.data.script);
+    return true;
+  }
+
+  playMapSong(id) {
+    const song = SONGS[id];
+    if (song) playSong(id, song);
+  }
+
+  showBanner(text) {
+    const t = new PixelText(this, 0, 28, text, { scale: 1, color: RAMP.uiGold[4], align: 'center' });
+    t.x = Math.round((GAME_W - t.textW) / 2);
+    t.setDepth(DEPTH.UI).setScrollFactor(0);
+    this.tweens.add({ targets: t, alpha: 0, delay: 1800, duration: 500, onComplete: () => t.destroy() });
+  }
+
+  stepEntityAsync(entity, dir) {
+    const delta = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[dir];
+    if (!delta) return Promise.resolve();
+    entity.actor.face(dir);
+    const nx = entity.x + delta[0], ny = entity.y + delta[1];
+    if (this.isSolid(nx, ny)) return Promise.resolve();
+    entity.x = nx; entity.y = ny;
+    return new Promise(resolve => {
+      this.tweens.add({
+        targets: entity.actor,
+        x: nx * TILE + TILE / 2,
+        y: ny * TILE + TILE - 1,
+        duration: STEP_MS,
+        onUpdate: () => {
+          entity.actor.setPos(entity.actor.x, entity.actor.y);
+          entity.actor.setDepth(DEPTH.ACTOR + entity.actor.y / TILE);
+        },
+        onComplete: () => {
+          this.placeActor(entity.actor, nx, ny);
+          resolve();
+        }
+      });
+    });
   }
 
   placeActor(actor, tx, ty) {
@@ -140,13 +225,21 @@ export class MapScene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    const inp = pollInput(this, time);
     if (GameState) GameState.playtime += delta / 1000;
+    if (this.scriptRunning) {
+      this.player.update(delta, false);
+      for (const entity of this.entities.values()) entity.actor.update(delta, false);
+      return;
+    }
+
+    const inp = pollInput(this, time);
 
     if (!this.stepping) {
+      if (inp.confirmed && this.interact()) return;
       if (inp.dx !== 0) this.tryStep(inp.dx, 0, time);
       else if (inp.dy !== 0) this.tryStep(0, inp.dy, time);
     }
     this.player.update(delta, this.stepping);
+    for (const entity of this.entities.values()) entity.actor.update(delta, false);
   }
 }

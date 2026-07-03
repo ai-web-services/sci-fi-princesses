@@ -5,7 +5,7 @@ full-vision build effort defined in `goal.md` against `PRD.md`.
 
 ---
 
-## 1. Audit: Current Product vs PRD (2026-07-02, at v4.3)
+## 1. Baseline Audit: Prototype vs PRD (2026-07-02, v4.3)
 
 The repo at v4.3 contains a ~1,900-line Phaser 4.2 prototype:
 
@@ -70,11 +70,11 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 
 ## 3. Milestones (vertical slices)
 
-| # | Milestone | PRD sections covered | Status |
+| # | Milestone | Target PRD sections | Status |
 |---|---|---|---|
 | M0 | Audit + this plan | §goal rules 1–3 | **done** |
-| M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | pending |
-| M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | pending |
+| M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | **done (v4.5)** |
+| M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **in progress** |
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | pending |
 | M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | pending |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
@@ -135,3 +135,17 @@ public/src/
 ## 6. Progress log
 
 - **2026-07-02** — M0 complete: audit + plan written (this file). Next: M1.
+- **2026-07-02 — v4.5 / M1 complete:** Replaced the prototype foundation with a
+  640×360 Phaser 4 shell providing versioned/checksummed save slots and autosave
+  fallback, persistent settings, remappable keyboard/gamepad actions, synth audio,
+  reusable UI/focus primitives, and the authored pixel-art/font/tile/actor pipeline.
+  Production build and browser smoke/visual checks passed. M2 started next.
+- **2026-07-02 — v4.6 / M2 in progress:** Added authored companion and Nova Prime
+  NPC actor sheets, map NPC collision/interaction, a data-driven script runner for
+  dialogue, choices, movement, state mutations, rewards, recruitment, quest updates,
+  and transitions, plus the dialogue overlay and persistent party/inventory/quest
+  helpers. Added the first Nova Prime conversation and leadership choice as an
+  exploration-system proof. Production build and sprite-schema validation passed.
+  Headless browser validation confirmed title-to-map startup, collision-based
+  movement, dialogue advancement, choice selection, clean overlay shutdown, and a
+  console-clean runtime; the representative choice screen was visually inspected.

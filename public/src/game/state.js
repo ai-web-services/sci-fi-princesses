@@ -16,9 +16,15 @@ export function newGameState() {
     chapter: 'c1_fall',       // story chapter id
     slot: null,               // last manual slot used
     // party & growth
-    roster: [],               // characterIds in recruit order
-    active: [],               // up to 3 active characterIds
-    chars: {},                // id → {level, xp, hp, sp, equipment, skillsKnown, evolution, build}
+    roster: ['lyra'],         // characterIds in recruit order
+    active: ['lyra'],         // up to 3 active characterIds
+    chars: {
+      lyra: {
+        level: 1, xp: 0, hp: 110, maxHp: 110, sp: 48, maxSp: 48,
+        equipment: {}, skillsKnown: ['lyra_strike', 'stellar_slash', 'guiding_light'],
+        evolution: 0, build: {}
+      }
+    },                        // id → persistent character progression
     // resources
     gold: 120,
     inventory: [],            // [{id, qty}]

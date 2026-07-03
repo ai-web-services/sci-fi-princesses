@@ -1,5 +1,37 @@
 # STELLAR PRINCESSES — Technical Documentation
-## v4.0 — Modular ES Modules + Vite
+## v4.6 — Data-Driven Phaser 4 Foundation
+
+> The detailed v4.0 prototype inventory later in this document is retained as
+> historical context. The current implementation was rebuilt in v4.5 and now uses
+> the architecture below.
+
+### Current Runtime
+
+- 640×360 internal resolution with integer CSS scaling and crisp pixel rendering.
+- Phaser 4.2.0 from the pinned CDN, loaded before the Vite-built ES module.
+- Scene flow: `BootScene → TitleScene → MapScene`, with `OptionsScene`,
+  `SaveLoadScene`, and `DialogueScene` overlays/workflows.
+- `engine/`: versioned/checksummed save slots, persistent accessibility/settings,
+  remappable keyboard/gamepad input, synth music/SFX, UI primitives, transitions,
+  and the data-driven script runner.
+- `art/`: authored pixel-grid actors, font, tiles, palette ramps, and texture baking.
+- `game/`: pure persistent state plus party, inventory, and quest mutation helpers.
+- `data/`: maps, story chapters, music, character skills/statuses, and script content.
+
+### Exploration and Dialogue Contract
+
+`MapScene` owns collision, grid movement, NPC actors, interaction, map music, and
+script execution. Script operations may show dialogue/choices, mutate flags and
+quests, grant resources, recruit characters, move actors, run effects, or teleport.
+While a script is active, `DialogueScene` exclusively polls input so shared
+edge-triggered actions cannot be consumed twice. Persistent quest transitions reject
+stage/status regression unless a caller explicitly opts in.
+
+### Validation
+
+Run `npm run build` for the production bundle and
+`node scripts/validate_sprites.mjs` to verify every authored 24×32 actor grid,
+direction, animation frame, and palette symbol.
 
 ---
 

@@ -8,6 +8,7 @@ import { TitleScene } from './scenes/TitleScene.js';
 import { OptionsScene } from './scenes/OptionsScene.js';
 import { SaveLoadScene } from './scenes/SaveLoadScene.js';
 import { MapScene } from './scenes/MapScene.js';
+import { DialogueScene } from './scenes/DialogueScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -27,7 +28,7 @@ const config = {
     gamepads: true,
     keyboard: true
   },
-  scene: [BootScene, TitleScene, OptionsScene, SaveLoadScene, MapScene]
+  scene: [BootScene, TitleScene, OptionsScene, SaveLoadScene, MapScene, DialogueScene]
 };
 
 // Guard against duplicate instances (Vite HMR full-reload edge cases)

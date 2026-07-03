@@ -9,6 +9,11 @@ import { initAudio, resumeAudio } from '../engine/audio.js';
 import { buildFont } from '../art/font.js';
 import { buildActorTexture, buildShadowTexture } from '../art/actors.js';
 import { LYRA_SPRITE } from '../art/sprites/lyra.js';
+import { ERYNN_SPRITE } from '../art/sprites/erynn.js';
+import { BRIMBLE_SPRITE } from '../art/sprites/brimble.js';
+import { DRAKKOR_SPRITE } from '../art/sprites/drakkor.js';
+import { PIP_SPRITE } from '../art/sprites/pip.js';
+import { NPC_SPRITES } from '../art/sprites/npcs.js';
 import { RAMP } from '../art/palette.js';
 import { rng } from '../art/pixel.js';
 
@@ -20,6 +25,9 @@ export class BootScene extends Phaser.Scene {
     buildFont(this);
     buildShadowTexture(this);
     buildActorTexture(this, LYRA_SPRITE);
+    for (const def of [ERYNN_SPRITE, BRIMBLE_SPRITE, DRAKKOR_SPRITE, PIP_SPRITE, ...NPC_SPRITES]) {
+      buildActorTexture(this, def);
+    }
     this.buildStarfield();
     this.buildCrownEmblem();
 
