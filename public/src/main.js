@@ -12,6 +12,10 @@ import { DialogueScene } from './scenes/DialogueScene.js';
 import { QuestJournalScene } from './scenes/QuestJournalScene.js';
 import { TravelScene } from './scenes/TravelScene.js';
 import { CombatScene } from './scenes/CombatScene.js';
+import { TutorialScene } from './scenes/TutorialScene.js';
+import { EvolutionScene } from './scenes/EvolutionScene.js';
+import { ShopScene } from './scenes/ShopScene.js';
+import { MenuScene } from './scenes/MenuScene.js';
 import { GameState } from './game/state.js';
 
 const config = {
@@ -35,7 +39,7 @@ const config = {
   scene: [
     BootScene, TitleScene, OptionsScene, SaveLoadScene,
     MapScene, DialogueScene, QuestJournalScene, TravelScene,
-    CombatScene
+    CombatScene, TutorialScene, EvolutionScene, ShopScene, MenuScene
   ]
 };
 
@@ -60,7 +64,14 @@ window.__stellarTest = {
       flags: GameState ? Object.assign({}, GameState.flags) : {},
       quests: GameState ? JSON.parse(JSON.stringify(GameState.quests)) : {},
       mapsVisited: GameState ? GameState.mapsVisited.slice() : [],
-      trackedQuestId: GameState ? GameState.trackedQuestId : null
+      trackedQuestId: GameState ? GameState.trackedQuestId : null,
+      tutorialsSeen: GameState ? GameState.tutorialsSeen.slice() : [],
+      roster: GameState ? GameState.roster.slice() : [],
+      shards: GameState ? GameState.shards.slice() : [],
+      evolution: GameState && GameState.chars.lyra ? GameState.chars.lyra.evolution : 0,
+      gold: GameState ? GameState.gold : 0,
+      inventory: GameState ? GameState.inventory.map(item => ({ ...item })) : [],
+      mapChanges: GameState ? JSON.parse(JSON.stringify(GameState.mapChanges)) : {}
     };
   }
 };

@@ -287,6 +287,17 @@ export const MAPS = {
     npcs: [],
     interactions: [
       {
+        id: 'shattered_gate_threshold',
+        x: 14, y: 2,
+        script: [
+          { if: state => state.quests.q_first_claim && state.quests.q_first_claim.status === 'active', then: [
+            { teleport: { map: 'gate_approach', x: 14, y: 19, dir: 'up' } }
+          ], else: [
+            { say: { speaker: 'Fractured Threshold', text: 'The outer route will not stabilize without a confirmed Crown signature.' } }
+          ] }
+        ]
+      },
+      {
         id: 'shattered_gate_console',
         x: 14, y: 19,
         script: [
@@ -311,9 +322,10 @@ export const MAPS = {
 };
 
 // Region map files register here. Each exports an object of map defs.
-import { NOVA_MAPS } from './maps/nova.js';
+import { NOVA_MAPS, NOVA_PLAZA_EXIT_CONTRACTS } from './maps/nova.js';
 import { STARGATE_MAPS } from './maps/stargate.js';
 Object.assign(MAPS, NOVA_MAPS, STARGATE_MAPS);
+MAPS.nova_plaza.exits.push(...NOVA_PLAZA_EXIT_CONTRACTS);
 
 export function getMap(id) {
   const m = MAPS[id];

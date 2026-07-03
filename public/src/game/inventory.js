@@ -27,3 +27,9 @@ export function addGold(amount) {
   GameState.gold = Math.max(0, GameState.gold + Math.floor(amount));
   return true;
 }
+
+export function spendGold(amount) {
+  if (!GameState || !Number.isFinite(amount) || amount < 0 || GameState.gold < amount) return false;
+  GameState.gold -= Math.floor(amount);
+  return true;
+}

@@ -15,7 +15,7 @@ export const SPR_H = 32;   // exploration sprite height
 export const SAVE_PREFIX = 'stellar_save_v2_slot';   // + 0..2, 'auto'
 export const LEGACY_SAVE_KEY = 'stellar_save';
 export const SETTINGS_KEY = 'stellar_settings_v2';
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 
 // Depth layers (MapScene)
 export const DEPTH = {

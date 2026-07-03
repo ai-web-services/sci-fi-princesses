@@ -233,8 +233,7 @@ export const ENEMIES = {
     xp: 220, gold: 150,
     drops: [
       { item: 'stellar_crystal', chance: 1.0 },
-      { item: 'void_essence', chance: 0.6 },
-      { item: 'celestial_shard', chance: 0.25 }
+      { item: 'void_essence', chance: 0.6 }
     ],
     boss: true,
     phases: [

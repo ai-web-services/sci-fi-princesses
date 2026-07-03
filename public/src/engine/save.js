@@ -37,6 +37,15 @@ const MIGRATIONS = {
     if (state.trackedQuestId === undefined) state.trackedQuestId = null;
     data.state = state;
     return data;
+  },
+  2: (data) => {
+    const state = data.state || {};
+    if (!state.mapChanges || typeof state.mapChanges !== 'object') state.mapChanges = {};
+    if (!Array.isArray(state.tutorialsSeen)) {
+      state.tutorialsSeen = Object.keys(state.tutorialsSeen || {});
+    }
+    data.state = state;
+    return data;
   }
 };
 

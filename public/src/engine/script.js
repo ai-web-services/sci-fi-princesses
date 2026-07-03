@@ -17,6 +17,10 @@
 //  { teleport: { map, x, y, dir } }
 //  { quest: { id, stage?, status? } }
 //  { battle: { enemies:[ids], isBoss?, backdrop?, canFlee?, winScript?: [ops] } }
+//  { setcell: { x, y, ch } }
+//  { tutorial: id } | { evolve: characterId }
+//  { shop: shopId }
+//  { rest: { cost, location? } }
 //  { autosave: locationName? }
 //  { recruit: charId }
 //  { banner: text }
@@ -60,6 +64,10 @@ function choice(scene, payload) {
       scene.game.events.emit('dialogue:choice', Object.assign({ resolve }, payload));
     });
   });
+}
+
+function closeDialogue(scene) {
+  if (scene.scene.isActive('DialogueScene')) scene.game.events.emit('dialogue:end');
 }
 
 export async function runScript(scene, ops, ctx = {}) {
@@ -127,7 +135,7 @@ export async function runScript(scene, ops, ctx = {}) {
         setQuest(op.quest.id, op.quest);
       } else if (op.battle) {
         // close any open dialogue before combat
-        if (scene.scene.isActive('DialogueScene')) scene.game.events.emit('dialogue:end');
+        closeDialogue(scene);
         const outcome = await new Promise(res => {
           scene.events.once('combat:end', (d) => res(d.outcome));
           scene.scene.launch('CombatScene', op.battle);
@@ -135,6 +143,50 @@ export async function runScript(scene, ops, ctx = {}) {
         });
         if (outcome === 'victory' && op.battle.winScript) {
           await runScript(scene, op.battle.winScript, ctx);
+        }
+      } else if (op.setcell) {
+        scene.setCell(op.setcell.x, op.setcell.y, op.setcell.ch);
+      } else if (op.tutorial) {
+        if (!GameState.tutorialsSeen.includes(op.tutorial)) {
+          closeDialogue(scene);
+          await new Promise(res => {
+            scene.scene.launch('TutorialScene', {
+              id: op.tutorial, parentScene: scene.sys.settings.key, resolve: res
+            });
+            scene.scene.pause();
+          });
+        }
+      } else if (op.evolve) {
+        closeDialogue(scene);
+        await new Promise(res => {
+          scene.scene.launch('EvolutionScene', {
+            characterId: op.evolve, parentScene: scene.sys.settings.key, resolve: res
+          });
+          scene.scene.pause();
+        });
+      } else if (op.shop) {
+        closeDialogue(scene);
+        await new Promise(res => {
+          scene.scene.launch('ShopScene', {
+            shopId: op.shop, parentScene: scene.sys.settings.key, resolve: res
+          });
+          scene.scene.pause();
+        });
+      } else if (op.rest) {
+        const cost = Math.max(0, op.rest.cost || 0);
+        usedDialogue = true;
+        if (GameState.gold < cost) {
+          sfx('error');
+          await say(scene, { text: 'Not enough gold.' });
+        } else {
+          addGold(-cost);
+          for (const id of GameState.roster) {
+            const rec = GameState.chars[id];
+            if (rec) { rec.hp = rec.maxHp; rec.sp = rec.maxSp; }
+          }
+          sfx('heal');
+          await say(scene, { text: 'The party is fully rested.' });
+          autoSave(op.rest.location);
         }
       } else if (op.autosave !== undefined) {
         autoSave(typeof op.autosave === 'string' ? op.autosave : undefined);

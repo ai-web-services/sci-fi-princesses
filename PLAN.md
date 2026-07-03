@@ -76,7 +76,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 | M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | **done (v4.5)** |
 | M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **done (v4.7)** |
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | **done (v4.8)** |
-| M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | **in progress (infra landed v4.9)** |
+| M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | **done (v5.0)** |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
 | M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | pending |
 | M7 | Kessari Reach + Erynn arc + Shard 4 | §7.3, §8.4 | pending |
@@ -174,11 +174,20 @@ public/src/
   NOVA_LEGEND + STARGATE_LEGEND; MAPS registry now merges region files
   (data/maps/nova.js, data/maps/stargate.js — currently authored-comment skeletons).
   Build + boot verified.
+- **2026-07-03 — v5.0 / M4 complete:** Delivered the complete Act I vertical slice:
+  Crownfall prologue, Nova Prime districts and services, contextual tutorials, Pip and
+  Erynn recruitment, the multi-map Shattered Stargate dungeon and persistent barrier
+  puzzle, Commander Kael confrontation, Gate Shard claim, Lyra's Crown Bearer evolution,
+  and Nova debrief. Added the unified party/equipment/items/records menu, buy/sell shops,
+  healer and tavern services, story-content merging, persistent map mutations, and save
+  schema v3. All content validators and production build passed. Browser checks covered
+  the complete story-state progression, recruit/overlay handoffs, shop transaction,
+  evolution, menu flow, and map-mutation save/reload with a clean console.
 
-## 7. M4 Handoff — remaining work and division of labor
+## 7. M4 Handoff — completed in v5.0
 
-The M4 slice is decomposed so parallel Sonnet subagents can author content while one
-integrating session owns shared files. Contracts:
+The M4 slice was decomposed across parallel content authors and an integrating session.
+The contracts below are retained as implementation history; all listed work is complete.
 
 **Agent-ownable (new files only, validate with a node script in scripts/):**
 1. `public/src/data/maps/nova.js` — flesh out NOVA_MAPS: nova_market, nova_residential, nova_palace,
@@ -205,7 +214,7 @@ integrating session owns shared files. Contracts:
    (currently menu key opens QuestJournalScene — rewire journal inside MenuScene).
 7. EvolutionScene (bespoke transformation presentation; uses progression.evolve()).
 8. Tutorial prompts (engine/tutorial.js, one-time contextual windows, reviewable).
-9. End-to-end Act 1 playtest → commit v5.0.
+9. End-to-end Act 1 playtest → commit v5.0. **Complete.**
 
 **Polish backlog (M12):** Erynn/Drakkor/Lyra portrait faces; Kael battle sprite shading;
 inlay tile could still read busy in long paths; victory panel layout.

@@ -14,7 +14,7 @@ import { newGameState } from '../game/state.js';
 import { transition } from '../engine/fx.js';
 import { Settings } from '../engine/settings.js';
 
-export const VERSION = 'v4.7';
+export const VERSION = 'v5.0';
 
 export class TitleScene extends Phaser.Scene {
   constructor() { super({ key: 'TitleScene' }); }

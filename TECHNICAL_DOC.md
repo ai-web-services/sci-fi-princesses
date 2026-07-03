@@ -1,5 +1,5 @@
 # STELLAR PRINCESSES — Technical Documentation
-## v4.7 — Data-Driven Phaser 4 Foundation
+## v5.0 — Act I Vertical Slice
 
 > The detailed v4.0 prototype inventory later in this document is retained as
 > historical context. The current implementation was rebuilt in v4.5 and now uses
@@ -9,36 +9,45 @@
 
 - 640×360 internal resolution with integer CSS scaling and crisp pixel rendering.
 - Phaser 4.2.0 from the pinned CDN, loaded before the Vite-built ES module.
-- Scene flow: `BootScene → TitleScene → MapScene`, with `OptionsScene`,
-  `SaveLoadScene`, `DialogueScene`, `QuestJournalScene`, and `TravelScene`
+- Scene flow: `BootScene → TitleScene → MapScene`, with combat, dialogue, travel,
+  quest journal, tutorial, evolution, shop, unified menu, options, and save/load
   overlays/workflows.
 - `engine/`: versioned/checksummed save slots, persistent accessibility/settings,
   remappable keyboard/gamepad input, synth music/SFX, UI primitives, transitions,
   and the data-driven script runner.
 - `art/`: authored pixel-grid actors, font, tiles, palette ramps, and texture baking.
-- `game/`: pure persistent state plus party, inventory, and quest mutation helpers.
-- `data/`: maps, story chapters, music, character skills/statuses, and script content.
+- `game/`: persistent state plus battle, party, progression, inventory, and quest helpers.
+- `data/`: 17 reachable maps, Act I story content, quests, shops, music, characters,
+  skills, statuses, enemies, items, encounters, and bosses.
 
 ### Exploration and Dialogue Contract
 
 `MapScene` owns collision, grid movement, NPC actors, interaction, map music, and
 script execution. It also resolves exits after movement completes, runs idempotent
 one-shot triggers, tracks discovered maps, and opens journal/travel overlays.
-Script operations may show dialogue/choices, mutate flags and quests, grant
-resources, recruit characters, move actors, autosave, run effects, or teleport.
+Script operations may show dialogue/choices/tutorials, mutate flags, quests, and map
+cells, grant resources, recruit or evolve characters, launch combat/shops, move actors,
+autosave, run effects, rest the party, or teleport.
 While a script is active, `DialogueScene` exclusively polls input so shared
 edge-triggered actions cannot be consumed twice. Persistent quest transitions reject
 stage/status regression unless a caller explicitly opts in.
 
 ### Validation
 
-Run `npm run build`, `npm run validate:sprites`, and `npm run validate:maps`.
+Run `npm run build`, `npm run validate:sprites`, `npm run validate:maps`,
+`npm run validate:nova`, `npm run validate:stargate`, and `npm run validate:act1`.
 Map validation checks rectangular grids, legend coverage, unique authored IDs,
 walkable arrivals, non-bouncing exits, target existence, and required reachability.
+Act I validation additionally checks placements, script operations, content references,
+shop inventories, quest completeness, and the single authoritative Kael battle.
 
 ---
 
 ## Project Structure
+
+The tree and prototype notes below are retained as historical v4.0 context. The current
+runtime structure is defined by `public/src/{engine,art,data,game,scenes}` and the current
+scene registry in `public/src/main.js`.
 
 ```
 sci-fi-princesses/

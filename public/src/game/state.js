@@ -21,13 +21,18 @@ export function newGameState() {
     chars: {
       lyra: {
         level: 1, xp: 0, hp: 110, maxHp: 110, sp: 48, maxSp: 48,
-        equipment: {}, skillsKnown: ['lyra_strike', 'stellar_slash', 'guiding_light'],
+        equipment: { weapon: 'starlight_saber', armor: 'traveler_weave' },
+        skillsKnown: ['lyra_strike', 'stellar_slash', 'guiding_light'],
         evolution: 0, build: {}
       }
     },                        // id → persistent character progression
     // resources
     gold: 120,
-    inventory: [],            // [{id, qty}]
+    inventory: [
+      { id: 'potion', qty: 3 },
+      { id: 'sp_tonic', qty: 1 },
+      { id: 'revive_spark', qty: 1 }
+    ],                        // [{id, qty}]
     // story
     flags: {},                // string → value
     decisions: {},            // major decision id → choice
@@ -42,11 +47,12 @@ export function newGameState() {
     // records
     bestiary: {},             // enemyId → {seen, defeated, scanned}
     lore: [],                 // lore ids discovered
-    tutorialsSeen: {},
+    tutorialsSeen: [],
     resonancesFound: [],
     mapsVisited: [],
     unlockedDestinations: ['nova_plaza'],
-    trackedQuestId: null
+    trackedQuestId: null,
+    mapChanges: {}
   };
   return GameState;
 }
@@ -58,6 +64,8 @@ export function normalizeGameState(s) {
   if (s.trackedQuestId === undefined) s.trackedQuestId = null;
   if (!s.quests) s.quests = {};
   if (!s.flags) s.flags = {};
+  if (!s.mapChanges || typeof s.mapChanges !== 'object') s.mapChanges = {};
+  if (!Array.isArray(s.tutorialsSeen)) s.tutorialsSeen = Object.keys(s.tutorialsSeen || {});
   return s;
 }
 

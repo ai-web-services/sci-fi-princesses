@@ -6,7 +6,7 @@
 
 import { TILE, DEPTH, GAME_W, GAME_H } from '../config.js';
 import { getMap } from '../data/maps.js';
-import { TILESETS, setTileOffset } from '../art/tiles.js';
+import { TILESETS, setTileOffset, tileKey } from '../art/tiles.js';
 import { rng } from '../art/pixel.js';
 import { pollInput, swallowInput } from '../engine/input.js';
 import { fadeIn } from '../engine/fx.js';
@@ -18,6 +18,7 @@ import { runScript } from '../engine/script.js';
 import { playSong } from '../engine/audio.js';
 import { SONGS } from '../data/music.js';
 import { questObjective } from '../data/quests.js';
+import { mergeStoryContent } from '../data/storyContent.js';
 
 const STEP_MS = 140;   // per-tile walk duration
 
@@ -30,9 +31,11 @@ export class MapScene extends Phaser.Scene {
   }
 
   create() {
-    this.map = getMap(this.mapId);
+    this.map = mergeStoryContent(getMap(this.mapId), GameState);
     this.buildGround();
     this.buildCollision();
+    this.cellOverlays = new Map();
+    this.applyMapChanges();
 
     // player
     const spawn = this.entry || (GameState && GameState.map === this.mapId
@@ -40,6 +43,9 @@ export class MapScene extends Phaser.Scene {
       : this.map.spawn);
     this.px = spawn.x; this.py = spawn.y;
     this.player = new ActorSprite(this, 'lyra', 0, 0);
+    if ((GameState.chars.lyra?.evolution || 0) > 0) {
+      this.player.img.setTint(0xfff1ad);
+    }
     this.player.face(spawn.dir || 'down');
     this.placeActor(this.player, this.px, this.py);
     this.stepping = false;
@@ -47,6 +53,8 @@ export class MapScene extends Phaser.Scene {
     this.modalOpen = false;
     this.arrivalPending = true;
     this.stepsSinceBattle = 0;
+    this.bannerQueue = [];
+    this.bannerActive = false;
     this.buildNpcs();
     this.playMapSong(this.map.music || 'nova');
 
@@ -133,6 +141,35 @@ export class MapScene extends Phaser.Scene {
     }));
   }
 
+  applyMapChanges() {
+    const changes = GameState && GameState.mapChanges && GameState.mapChanges[this.mapId];
+    if (!changes) return;
+    for (const [coord, ch] of Object.entries(changes)) {
+      const [x, y] = coord.split(',').map(Number);
+      this.setCell(x, y, ch, false);
+    }
+  }
+
+  setCell(x, y, ch, persist = true) {
+    if (y < 0 || y >= this.map.grid.length || x < 0 || x >= this.map.grid[y].length) return false;
+    const entry = this.map.legend[ch];
+    const painter = entry && TILESETS[this.map.tileset] && TILESETS[this.map.tileset][entry.tile];
+    if (!entry || !painter) return false;
+    const id = `${x},${y}`;
+    const prior = this.cellOverlays.get(id);
+    if (prior) prior.destroy();
+    const key = tileKey(this, this.map.tileset, entry.tile, 0);
+    const overlay = this.add.image(x * TILE, y * TILE, key)
+      .setOrigin(0, 0).setDepth(DEPTH.GROUND + 1);
+    this.cellOverlays.set(id, overlay);
+    this.solid[y][x] = !!entry.solid;
+    if (persist && GameState) {
+      if (!GameState.mapChanges[this.mapId]) GameState.mapChanges[this.mapId] = {};
+      GameState.mapChanges[this.mapId][id] = ch;
+    }
+    return true;
+  }
+
   buildNpcs() {
     this.entities = new Map();
     for (const data of this.map.npcs || []) {
@@ -196,10 +233,26 @@ export class MapScene extends Phaser.Scene {
   }
 
   showBanner(text) {
+    if (!text) return;
+    this.bannerQueue.push(text);
+    this.showNextBanner();
+  }
+
+  showNextBanner() {
+    if (this.bannerActive || !this.bannerQueue.length) return;
+    this.bannerActive = true;
+    const text = this.bannerQueue.shift();
     const t = new PixelText(this, 0, 28, text, { scale: 1, color: RAMP.uiGold[4], align: 'center' });
     t.x = Math.round((GAME_W - t.textW) / 2);
-    t.setDepth(DEPTH.UI).setScrollFactor(0);
-    this.tweens.add({ targets: t, alpha: 0, delay: 1800, duration: 500, onComplete: () => t.destroy() });
+    t.setDepth(DEPTH.UI).setScrollFactor(0).setAlpha(0);
+    this.tweens.add({
+      targets: t, alpha: 1, duration: 180, hold: 1400, yoyo: true,
+      onComplete: () => {
+        t.destroy();
+        this.bannerActive = false;
+        this.showNextBanner();
+      }
+    });
   }
 
   cellMatches(def, x, y) {
@@ -223,10 +276,10 @@ export class MapScene extends Phaser.Scene {
     runScript(this, trigger.script || []);
   }
 
-  openJournal() {
+  openMenu() {
     if (this.scriptRunning || this.modalOpen) return;
     this.modalOpen = true;
-    this.scene.launch('QuestJournalScene', { parentScene: 'MapScene' });
+    this.scene.launch('MenuScene', { parentScene: 'MapScene', locationName: this.map.name });
     this.scene.pause();
   }
 
@@ -287,10 +340,7 @@ export class MapScene extends Phaser.Scene {
 
   showLocationBanner() {
     const label = this.map.region ? this.map.region + ' — ' + this.map.name : this.map.name;
-    const t = new PixelText(this, 0, 14, label, { scale: 1, color: RAMP.uiGold[4], align: 'center' });
-    t.x = Math.round((GAME_W - t.textW) / 2);
-    t.setDepth(DEPTH.UI).setScrollFactor(0).setAlpha(0);
-    this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 1600, yoyo: true, onComplete: () => t.destroy() });
+    this.showBanner(label);
   }
 
   tryStep(dx, dy, time) {
@@ -331,9 +381,10 @@ export class MapScene extends Phaser.Scene {
     if (Math.random() >= (enc.rate || 0.1)) return;
     this.stepsSinceBattle = 0;
     const group = enc.groups[Math.floor(Math.random() * enc.groups.length)];
-    runScript(this, [{
-      battle: { enemies: group.slice(), backdrop: enc.backdrop || 'nova' }
-    }]);
+    const ops = [];
+    if (GameState && !GameState.tutorialsSeen.includes('combat')) ops.push({ tutorial: 'combat' });
+    ops.push({ battle: { enemies: group.slice(), backdrop: enc.backdrop || 'nova' } });
+    runScript(this, ops);
   }
 
   update(time, delta) {
@@ -348,7 +399,7 @@ export class MapScene extends Phaser.Scene {
 
     if (!this.stepping) {
       if (inp.menued) {
-        this.openJournal();
+        this.openMenu();
         return;
       }
       if (inp.confirmed && this.interact()) return;

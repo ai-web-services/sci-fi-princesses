@@ -4,6 +4,8 @@
 // presentation-only so save data stays compact and stable.
 // ═══════════════════════════════════════════════════════════════
 
+import { quests as ACT1_QUESTS } from './act1.js';
+
 export const QUESTS = {
   q_fall_aftershock: {
     id: 'q_fall_aftershock',
@@ -16,7 +18,8 @@ export const QUESTS = {
       'Report the relay status to Commander Reyes.',
       "Nova Prime's local relay has been restored."
     ]
-  }
+  },
+  ...ACT1_QUESTS
 };
 
 export function getQuestDefinition(id) {
