@@ -24,7 +24,7 @@ export const STATUSES = {
   },
   regen: {
     id: 'regen', name: 'Regen', icon: 'up', color: 0x66ffaa,
-    dotFrac: 0.06, maxTurns: 3
+    regenFrac: 0.06, maxTurns: 3
   },
   shield: {
     id: 'shield', name: 'Shield', icon: 'shield', color: 0x66ccff,

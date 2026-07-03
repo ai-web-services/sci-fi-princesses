@@ -14,8 +14,11 @@ import { BRIMBLE_SPRITE } from '../art/sprites/brimble.js';
 import { DRAKKOR_SPRITE } from '../art/sprites/drakkor.js';
 import { PIP_SPRITE } from '../art/sprites/pip.js';
 import { NPC_SPRITES } from '../art/sprites/npcs.js';
+import { PORTRAITS } from '../art/portraits/index.js';
 import { RAMP } from '../art/palette.js';
-import { rng } from '../art/pixel.js';
+import { rng, drawGrid } from '../art/pixel.js';
+import { loadProgressionData } from '../game/progression.js';
+import { loadBattleArt } from '../art/battleArt.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() { super({ key: 'BootScene' }); }
@@ -28,6 +31,7 @@ export class BootScene extends Phaser.Scene {
     for (const def of [ERYNN_SPRITE, BRIMBLE_SPRITE, DRAKKOR_SPRITE, PIP_SPRITE, ...NPC_SPRITES]) {
       buildActorTexture(this, def);
     }
+    this.buildPortraits();
     this.buildStarfield();
     this.buildCrownEmblem();
 
@@ -40,7 +44,24 @@ export class BootScene extends Phaser.Scene {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    this.scene.start('TitleScene');
+    // data modules that load tolerantly (combat data, battle art)
+    Promise.all([loadProgressionData(), loadBattleArt()]).then(() => {
+      this.scene.start('TitleScene');
+    });
+  }
+
+  buildPortraits() {
+    for (const id of Object.keys(PORTRAITS)) {
+      const def = PORTRAITS[id];
+      for (const expr of Object.keys(def.expressions)) {
+        const key = 'portrait_' + id + '_' + expr;
+        if (this.textures.exists(key)) continue;
+        const g = this.make.graphics({ x: 0, y: 0, add: false });
+        drawGrid(g, def.expressions[expr], def.map, 0, 0, 1);
+        g.generateTexture(key, def.w, def.h);
+        g.destroy();
+      }
+    }
   }
 
   buildStarfield() {

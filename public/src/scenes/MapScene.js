@@ -46,8 +46,16 @@ export class MapScene extends Phaser.Scene {
     this.scriptRunning = false;
     this.modalOpen = false;
     this.arrivalPending = true;
+    this.stepsSinceBattle = 0;
     this.buildNpcs();
     this.playMapSong(this.map.music || 'nova');
+
+    // combat handoff: resume map music after a battle ends
+    this.events.on('combat:end', (d) => {
+      if (d.outcome === 'victory' || d.outcome === 'fled') {
+        this.playMapSong(this.map.music || 'nova');
+      }
+    });
 
     if (GameState) {
       GameState.map = this.mapId;
@@ -307,8 +315,25 @@ export class MapScene extends Phaser.Scene {
       onComplete: () => {
         this.stepping = false;
         this.handleArrival();
+        this.maybeEncounter();
       }
     });
+  }
+
+  // Random encounters on maps that define them:
+  //   encounters: { rate: 0.10, minSteps: 4, backdrop: 'stargate',
+  //                 groups: [ ['voidling','voidling'], ['shade'] ] }
+  maybeEncounter() {
+    const enc = this.map.encounters;
+    if (!enc || this.scriptRunning || this.modalOpen || this._transitioning) return;
+    this.stepsSinceBattle++;
+    if (this.stepsSinceBattle < (enc.minSteps || 4)) return;
+    if (Math.random() >= (enc.rate || 0.1)) return;
+    this.stepsSinceBattle = 0;
+    const group = enc.groups[Math.floor(Math.random() * enc.groups.length)];
+    runScript(this, [{
+      battle: { enemies: group.slice(), backdrop: enc.backdrop || 'nova' }
+    }]);
   }
 
   update(time, delta) {

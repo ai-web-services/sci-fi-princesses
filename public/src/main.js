@@ -11,6 +11,7 @@ import { MapScene } from './scenes/MapScene.js';
 import { DialogueScene } from './scenes/DialogueScene.js';
 import { QuestJournalScene } from './scenes/QuestJournalScene.js';
 import { TravelScene } from './scenes/TravelScene.js';
+import { CombatScene } from './scenes/CombatScene.js';
 import { GameState } from './game/state.js';
 
 const config = {
@@ -33,7 +34,8 @@ const config = {
   },
   scene: [
     BootScene, TitleScene, OptionsScene, SaveLoadScene,
-    MapScene, DialogueScene, QuestJournalScene, TravelScene
+    MapScene, DialogueScene, QuestJournalScene, TravelScene,
+    CombatScene
   ]
 };
 

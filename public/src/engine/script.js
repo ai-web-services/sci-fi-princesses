@@ -16,6 +16,7 @@
 //  { give: { item, qty } } | { give: { gold } }
 //  { teleport: { map, x, y, dir } }
 //  { quest: { id, stage?, status? } }
+//  { battle: { enemies:[ids], isBoss?, backdrop?, canFlee?, winScript?: [ops] } }
 //  { autosave: locationName? }
 //  { recruit: charId }
 //  { banner: text }
@@ -124,6 +125,17 @@ export async function runScript(scene, ops, ctx = {}) {
         return;   // scene is gone; stop executing
       } else if (op.quest) {
         setQuest(op.quest.id, op.quest);
+      } else if (op.battle) {
+        // close any open dialogue before combat
+        if (scene.scene.isActive('DialogueScene')) scene.game.events.emit('dialogue:end');
+        const outcome = await new Promise(res => {
+          scene.events.once('combat:end', (d) => res(d.outcome));
+          scene.scene.launch('CombatScene', op.battle);
+          scene.scene.pause();
+        });
+        if (outcome === 'victory' && op.battle.winScript) {
+          await runScript(scene, op.battle.winScript, ctx);
+        }
       } else if (op.autosave !== undefined) {
         autoSave(typeof op.autosave === 'string' ? op.autosave : undefined);
       } else if (op.recruit) {

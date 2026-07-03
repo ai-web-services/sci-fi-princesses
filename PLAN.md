@@ -75,7 +75,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 | M0 | Audit + this plan | §goal rules 1–3 | **done** |
 | M1 | Engine foundation: save/settings/input/audio/UI kit/art pipeline, Title+Options+SaveLoad | §14–16, §17.2–17.3, §19 | **done (v4.5)** |
 | M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **done (v4.7)** |
-| M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | pending |
+| M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | **done (v4.8)** |
 | M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | pending |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
 | M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | pending |
@@ -158,3 +158,13 @@ public/src/
   progress. Map/sprite validators, production build, save migration/corruption
   fallback checks, and a browser playthrough through quest completion passed with
   no console errors; journal, travel, and arrival screens were visually inspected.
+- **2026-07-03 — v4.8 \ M3 complete:** Combat core delivered: CTB turn timeline with
+  preview strip, FF4-style side-view CombatScene (command/skill/item/swap/target menus,
+  gauges, floating damage, element bursts, boss-phase banners), pure-logic battle engine
+  (weakness/resist/immune, crits, statuses, buffs, shields, thorns, resonance combos with
+  discovery records, enemy AI profiles, boss phases, difficulty modifiers, flee/defend/swap,
+  rewards with XP curve + level-up skill learning), random-encounter + scripted-battle
+  wiring, defeat recovery menu. Parallel-authored content landed: characters/enemies/items
+  data (validated), hero battle poses, 19 enemy battle sprites, 25 portrait expressions,
+  15-song music library. Build + all validators + browser battle playtest passed.
+  Polish backlog: Erynn/Drakkor/Lyra portrait faces, Kael sprite shading.
