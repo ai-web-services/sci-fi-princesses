@@ -1,32 +1,37 @@
 // ═══════════════════════════════════════════════════════════════
-// MAIN — Phaser game config and bootstrap
+// MAIN — Phaser 4 bootstrap
 // ═══════════════════════════════════════════════════════════════
 
 import { GAME_W, GAME_H } from './config.js';
 import { BootScene } from './scenes/BootScene.js';
 import { TitleScene } from './scenes/TitleScene.js';
-import { TownScene } from './scenes/TownScene.js';
-import { DialogueScene } from './scenes/DialogueScene.js';
-import { ShopScene } from './scenes/ShopScene.js';
-import { InventoryScene } from './scenes/InventoryScene.js';
-import { CombatScene } from './scenes/CombatScene.js';
-import { DungeonScene } from './scenes/DungeonScene.js';
+import { OptionsScene } from './scenes/OptionsScene.js';
+import { SaveLoadScene } from './scenes/SaveLoadScene.js';
+import { MapScene } from './scenes/MapScene.js';
 
 const config = {
-  type: Phaser.CANVAS,
+  type: Phaser.AUTO,
   width: GAME_W,
   height: GAME_H,
   parent: 'game-container',
-  backgroundColor: '#0a0a1a',
+  backgroundColor: '#0a0a1f',
   scale: {
     mode: Phaser.Scale.NONE,
     autoCenter: Phaser.Scale.NO_CENTER
+  },
+  render: {
+    pixelArt: true,
+    roundPixels: true
   },
   input: {
     gamepads: true,
     keyboard: true
   },
-  scene: [BootScene, TitleScene, TownScene, DialogueScene, ShopScene, InventoryScene, CombatScene, DungeonScene]
+  scene: [BootScene, TitleScene, OptionsScene, SaveLoadScene, MapScene]
 };
 
-new Phaser.Game(config);
+// Guard against duplicate instances (Vite HMR full-reload edge cases)
+if (window.__stellarGame) {
+  window.__stellarGame.destroy(true);
+}
+window.__stellarGame = new Phaser.Game(config);

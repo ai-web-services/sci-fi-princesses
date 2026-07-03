@@ -1,38 +1,52 @@
 // ═══════════════════════════════════════════════════════════════
-// CONFIG — Constants, tile types, colors
+// CONFIG — Resolution, tiles, global constants
 // ═══════════════════════════════════════════════════════════════
 
+// Internal resolution: 640×360 (16:9). Integer-scales to 720p (×2), 1080p (×3), 4K (×6).
+export const GAME_W = 640;
+export const GAME_H = 360;
 export const TILE = 16;
-export const MAP_W = 60;
-export const MAP_H = 40;
-export const GAME_W = 480;
-export const GAME_H = 270;
 
-export const COLORS = {
-  floor1: 0x2a2a4a, floor2: 0x252545, wall1: 0x444466, wall2: 0x3a3a5a,
-  wood: 0x664422, wood2: 0x553311, gold: 0xffaa00,
-  water1: 0x2244aa, water2: 0x1a33aa,
-  grass1: 0x225533, grass2: 0x1a4428,
-  path1: 0x554433, path2: 0x4a3a2a,
-  void1: 0x1a0a2a, void2: 0x0a0a1a,
-  ice1: 0xaaccff, ice2: 0x88aadd,
-  lava1: 0xff4400, lava2: 0xcc2200,
-  skin: 0xffccaa, skin2: 0xddaa88,
-  hair1: 0xffdd44, hair2: 0xcc8833, hair3: 0x333333, hair4: 0xff6633,
-  eye1: 0x44ddff, eye2: 0xff4444, eye3: 0x44ff44, eye4: 0xffaa00,
-  purple: 0xaa44ff, blue: 0x3344aa, red: 0xff3344, green: 0x33cc66,
-  darkRed: 0x881122, darkGreen: 0x116633, brown: 0x886644,
-  white: 0xffffff, gray: 0x666688, lightGray: 0xaaaacc,
-  yellow: 0xffcc33, orange: 0xff8833, pink: 0xff66aa,
-  robot: 0x8899aa, robotEye: 0x44ffff,
-  frog: 0x44aa66, dragon: 0xcc3333, catEar: 0xff8866,
-  metal: 0x778899, darkBrown: 0x553322
+// Sprite dimensions
+export const SPR_W = 24;   // exploration sprite width
+export const SPR_H = 32;   // exploration sprite height
+
+// Save keys
+export const SAVE_PREFIX = 'stellar_save_v2_slot';   // + 0..2, 'auto'
+export const LEGACY_SAVE_KEY = 'stellar_save';
+export const SETTINGS_KEY = 'stellar_settings_v2';
+export const SAVE_SCHEMA_VERSION = 1;
+
+// Depth layers (MapScene)
+export const DEPTH = {
+  GROUND: 0,
+  DECO: 10,
+  BELOW: 20,      // objects behind actors
+  ACTOR: 30,      // y-sorted actors add y*0.01
+  ABOVE: 500,     // overhangs, roofs
+  WEATHER: 700,
+  UI: 900,
+  FADE: 1000
 };
 
-// Tile types
-export const T = {
-  FLOOR: 0, WALL: 1, DOOR: 2, WATER: 3, BRIDGE: 4,
-  GRASS: 5, PATH: 6, COUNTER: 7, SHELF: 8, PLANT: 9,
-  SIGN: 10, CHEST: 11, GATE: 12, PORTAL: 13, BED: 14,
-  TABLE: 15, BAR: 16, STAIRS: 17, VOID: 18, ICE: 19, LAVA: 20
+// Elements & damage types
+export const ELEMENTS = ['fire', 'water', 'ice', 'volt', 'stellar', 'void', 'slash', 'pierce', 'blunt'];
+
+export const ELEMENT_INFO = {
+  fire:    { name: 'Fire',    color: 0xff7733, icon: 'elFire' },
+  water:   { name: 'Water',   color: 0x44aaff, icon: 'elWater' },
+  ice:     { name: 'Ice',     color: 0xaaddff, icon: 'elIce' },
+  volt:    { name: 'Volt',    color: 0xffee44, icon: 'elVolt' },
+  stellar: { name: 'Stellar', color: 0xffd97a, icon: 'elStellar' },
+  void:    { name: 'Void',    color: 0xbb66ee, icon: 'elVoid' },
+  slash:   { name: 'Slash',   color: 0xcccccc, icon: 'elSlash' },
+  pierce:  { name: 'Pierce',  color: 0xbbbbcc, icon: 'elPierce' },
+  blunt:   { name: 'Blunt',   color: 0xccbbaa, icon: 'elBlunt' }
+};
+
+// Difficulty presets — modular assist values (multipliers)
+export const DIFFICULTY_PRESETS = {
+  story:      { name: 'Story',      enemyHp: 0.7, enemyDmg: 0.6, spRegen: 1.5, reviveOnDefeat: true },
+  adventurer: { name: 'Adventurer', enemyHp: 1.0, enemyDmg: 1.0, spRegen: 1.0, reviveOnDefeat: false },
+  veteran:    { name: 'Veteran',    enemyHp: 1.3, enemyDmg: 1.25, spRegen: 0.8, reviveOnDefeat: false }
 };

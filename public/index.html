@@ -3,41 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stellar Princesses — Sci-Fi RPG</title>
+<title>Stellar Princesses</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;margin:0;padding:0;overflow:hidden;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center}
 canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 #game-container{position:relative}
-#controller-status{position:absolute;bottom:8px;right:12px;color:#4af;font-size:14px;z-index:20;font-family:monospace;text-shadow:0 0 6px #000;pointer-events:none}
-#loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffcc33;font-size:14px;text-align:center;z-index:30}
+#loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffd166;font-size:14px;text-align:center;z-index:30;font-family:monospace}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/phaser@4.2.0/dist/phaser.min.js"></script>
 </head>
 <body>
 <div id="game-container">
 <div id="loading">Loading...</div>
-<div id="controller-status">🎮 Controller: Disconnected</div>
 </div>
 <script>
+var GAME_W = 640, GAME_H = 360;
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Tab' || (e.key.startsWith('F') && e.key.length <= 3) || (e.altKey && e.key === 'Tab')) {
+  if (e.key === 'Tab' || (e.key.length > 1 && e.key.length <= 3 && e.key[0] === 'F')) {
     e.preventDefault();
   }
 });
 function scaleCanvas() {
-  const canvas = document.querySelector('canvas');
+  var canvas = document.querySelector('canvas');
   if (!canvas) return;
-  const maxW = window.innerWidth;
-  const maxH = window.innerHeight;
-  const scale = Math.max(1, Math.floor(Math.min(maxW / 480, maxH / 270)));
-  canvas.style.width = (480 * scale) + 'px';
-  canvas.style.height = (270 * scale) + 'px';
+  var scale = Math.max(1, Math.floor(Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H)));
+  canvas.style.width = (GAME_W * scale) + 'px';
+  canvas.style.height = (GAME_H * scale) + 'px';
 }
 window.addEventListener('resize', scaleCanvas);
+setInterval(scaleCanvas, 500);
 setTimeout(scaleCanvas, 100);
 </script>
-<!-- Vite will process the line below during dev; during build we handle it separately -->
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
