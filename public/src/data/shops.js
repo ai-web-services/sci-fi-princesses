@@ -22,6 +22,11 @@ export const SHOPS = {
     id: 'healer', name: "ELARA'S CLINIC",
     keeper: 'Dr. Elara',
     items: ['potion', 'hi_potion', 'sp_tonic', 'revive_spark', 'antidote', 'clarity_herb']
+  },
+  mire_goods: {
+    id: 'mire_goods', name: 'DROWNED MARKET',
+    keeper: 'Anura Trader',
+    items: ['potion', 'hi_potion', 'antidote', 'clarity_herb', 'smoke_bomb', 'tidewood_staff', 'tide_band']
   }
 };
 

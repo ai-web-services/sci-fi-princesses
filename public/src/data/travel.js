@@ -27,8 +27,8 @@ export const TRAVEL_DESTINATIONS = [
     id: 'mirelight',
     name: 'Mirelight Deeps',
     region: 'Anura Frontier',
-    map: null,
-    entry: null,
+    map: 'mire_landing',
+    entry: { x: 14, y: 19, dir: 'up' },
     unlocked: state => state.unlockedDestinations.includes('mirelight'),
     lockedReason: 'No stable gate signature.'
   }

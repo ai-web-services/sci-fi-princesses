@@ -12,11 +12,14 @@
 //  { fade: 'out'|'in' }
 //  { flash: color } | { shake: true }
 //  { music: songId|null } | { sfx: id }
-//  { flag: { key, value } }
+//  { flag: { key, value } }                     GameState.flags
+//  { world: { key, value } }                    GameState.world (D21 consequence flags)
+//  { bond: { char, amount? } }                   GameState.relationships[char].bond (D15)
 //  { give: { item, qty } } | { give: { gold } }
 //  { teleport: { map, x, y, dir } }
+//  { unlock: destinationId }                    adds to GameState.unlockedDestinations
 //  { quest: { id, stage?, status? } }
-//  { battle: { enemies:[ids], isBoss?, backdrop?, canFlee?, winScript?: [ops] } }
+//  { battle: { enemies:[ids], isBoss?, backdrop?, canFlee?, winScript?: [ops], mercyScript?: [ops] } }
 //  { setcell: { x, y, ch } }
 //  { tutorial: id } | { evolve: characterId }
 //  { shop: shopId }
@@ -28,12 +31,13 @@
 //  { if: (state) => bool, then: [ops], else: [ops] }
 // ═══════════════════════════════════════════════════════════════
 
-import { GameState, setFlag, autoSave } from '../game/state.js';
+import { GameState, setFlag, setWorldFlag, autoSave } from '../game/state.js';
 import { fadeIn, fadeOut, flash, shake } from './fx.js';
 import { sfx, playSong, stopSong } from './audio.js';
 import { addItem, addGold } from '../game/inventory.js';
 import { setQuest } from '../game/quests.js';
 import { recruit } from '../game/party.js';
+import { addBond } from '../game/relationships.js';
 
 function wait(scene, ms) {
   return new Promise(res => scene.time.delayedCall(ms, res));
@@ -112,6 +116,10 @@ export async function runScript(scene, ops, ctx = {}) {
         sfx(op.sfx);
       } else if (op.flag) {
         setFlag(op.flag.key, op.flag.value !== undefined ? op.flag.value : true);
+      } else if (op.world) {
+        setWorldFlag(op.world.key, op.world.value !== undefined ? op.world.value : true);
+      } else if (op.bond) {
+        addBond(op.bond.char, op.bond.amount || 1);
       } else if (op.give) {
         if (op.give.gold) addGold(op.give.gold);
         if (op.give.item) addItem(op.give.item, op.give.qty || 1);
@@ -131,6 +139,10 @@ export async function runScript(scene, ops, ctx = {}) {
         }
         scene.scene.restart({ mapId: op.teleport.map, entry: { x: op.teleport.x, y: op.teleport.y, dir: op.teleport.dir || 'down' } });
         return;   // scene is gone; stop executing
+      } else if (op.unlock) {
+        if (GameState && !GameState.unlockedDestinations.includes(op.unlock)) {
+          GameState.unlockedDestinations.push(op.unlock);
+        }
       } else if (op.quest) {
         setQuest(op.quest.id, op.quest);
       } else if (op.battle) {
@@ -143,6 +155,8 @@ export async function runScript(scene, ops, ctx = {}) {
         });
         if (outcome === 'victory' && op.battle.winScript) {
           await runScript(scene, op.battle.winScript, ctx);
+        } else if (outcome === 'mercy' && (op.battle.mercyScript || op.battle.winScript)) {
+          await runScript(scene, op.battle.mercyScript || op.battle.winScript, ctx);
         }
       } else if (op.setcell) {
         scene.setCell(op.setcell.x, op.setcell.y, op.setcell.ch);

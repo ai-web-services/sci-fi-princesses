@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { quests as ACT1_QUESTS } from './act1.js';
+import { quests as ACT2_MIRELIGHT_QUESTS } from './act2_mirelight.js';
 
 export const QUESTS = {
   q_fall_aftershock: {
@@ -19,7 +20,8 @@ export const QUESTS = {
       "Nova Prime's local relay has been restored."
     ]
   },
-  ...ACT1_QUESTS
+  ...ACT1_QUESTS,
+  ...ACT2_MIRELIGHT_QUESTS
 };
 
 export function getQuestDefinition(id) {

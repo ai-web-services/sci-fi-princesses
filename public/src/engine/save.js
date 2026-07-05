@@ -46,6 +46,19 @@ const MIGRATIONS = {
     }
     data.state = state;
     return data;
+  },
+  3: (data) => {
+    const state = data.state || {};
+    if (!state.world || typeof state.world !== 'object') state.world = {};
+    if (!state.relationships || typeof state.relationships !== 'object') state.relationships = {};
+    for (const id of Object.keys(state.relationships)) {
+      const rel = state.relationships[id];
+      if (rel && typeof rel.bond !== 'number') rel.bond = 0;
+      if (rel && !Array.isArray(rel.scenes)) rel.scenes = [];
+      if (rel && typeof rel.battles !== 'number') rel.battles = 0;
+    }
+    data.state = state;
+    return data;
   }
 };
 

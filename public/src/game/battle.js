@@ -12,6 +12,7 @@ import { resonanceFor } from '../data/resonance.js';
 import { effectiveStats, itemData, awardXp } from './progression.js';
 import { difficultyValues } from '../engine/settings.js';
 import { removeItem } from './inventory.js';
+import { noteBattleParticipation } from './relationships.js';
 
 const BASE_TURN = 1000;
 const rand = () => Math.random();
@@ -64,6 +65,7 @@ export class Battle {
         weak: def.weak || [], resist: def.resist || [], immune: def.immune || [],
         ai: def.ai || 'aggressive',
         phases: (def.phases || []).slice(), phaseIndex: 0,
+        telegraph: null,
         next: BASE_TURN / Math.max(1, def.spd) * (0.9 + rand() * 0.2)
       });
     });
@@ -366,8 +368,8 @@ export class Battle {
             for (const foe of this.alive('enemy')) this.recordBestiary(foe.id, 'scanned');
             events.push({ type: 'scan' });
           }
-          if (skill.id === 'summon_shade') {
-            events.push({ type: 'summon', enemyId: 'shade' });
+          if (skill.summonId) {
+            events.push({ type: 'summon', enemyId: skill.summonId });
           }
         }
       }
@@ -487,11 +489,30 @@ export class Battle {
     const heroes = this.alive('hero');
     const allies = this.alive('enemy');
     if (!heroes.length) return null;
+
+    // Telegraphed attacks: a skill announced N ticks in advance, giving
+    // the party a chance to Defend/shield against it before it resolves.
+    if (actor.telegraph) {
+      actor.telegraph.ticks--;
+      if (actor.telegraph.ticks <= 0) {
+        const pending = actor.telegraph;
+        actor.telegraph = null;
+        return { skillId: pending.skillId, targetKey: pending.targetKey, resolvedTelegraph: true };
+      }
+      return { telegraphing: true, skillId: actor.telegraph.skillId, ticks: actor.telegraph.ticks };
+    }
     const usable = actor.skills.filter(id => SKILLS[id]);
+    const telegraphed = usable.filter(id => SKILLS[id].telegraph);
+    if (telegraphed.length && rand() < 0.35) {
+      const skillId = telegraphed[Math.floor(rand() * telegraphed.length)];
+      const skill = SKILLS[skillId];
+      actor.telegraph = { skillId, targetKey: null, ticks: skill.telegraph };
+      return { telegraphing: true, skillId, ticks: skill.telegraph };
+    }
     const attackSkills = usable.filter(id => ['physical', 'magic'].includes(SKILLS[id].kind));
     const supportSkills = usable.filter(id => ['heal', 'buff'].includes(SKILLS[id].kind));
     const debuffSkills = usable.filter(id => SKILLS[id].kind === 'debuff');
-    const summons = usable.filter(id => SKILLS[id].id === 'summon_shade');
+    const summons = usable.filter(id => SKILLS[id].summonId);
     const weakest = heroes.slice().sort((a, b) => a.hp - b.hp)[0];
     const randomHero = heroes[Math.floor(rand() * heroes.length)];
 
@@ -565,7 +586,7 @@ export class Battle {
     GameState.gold += gold;
     // bond: shared victory
     for (const id of GameState.active) {
-      if (id !== 'lyra' && GameState.relationships[id]) GameState.relationships[id].battles = (GameState.relationships[id].battles || 0) + 1;
+      if (id !== 'lyra' && GameState.relationships[id]) noteBattleParticipation(id);
     }
     return { xp, gold, drops, levelUps };
   }

@@ -77,7 +77,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 | M2 | Exploration core: MapScene, dialogue/cutscenes, quests/journal, travel | §8.6, §9, §12.1, §14.4 | **done (v4.7)** |
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | **done (v4.8)** |
 | M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | **done (v5.0)** |
-| M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | pending |
+| M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | **done (v5.1)** |
 | M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | pending |
 | M7 | Kessari Reach + Erynn arc + Shard 4 | §7.3, §8.4 | pending |
 | M8 | The Silent Archive + Pip arc + Crown revelation | §6.3 (Complication), §8.3 | pending |
@@ -183,6 +183,27 @@ public/src/
   schema v3. All content validators and production build passed. Browser checks covered
   the complete story-state progression, recruit/overlay handoffs, shop transaction,
   evolution, menu flow, and map-mutation save/reload with a clean console.
+- **2026-07-05 — v5.1 / M5 complete:** Delivered Mirelight Deeps and its
+  supporting systems. New engine-level systems: a bond system (`game/
+  relationships.js`, stages Stranger→Kindred, battle-participation
+  milestone, Records "Bonds" panel), the `state.world` consequence-flag
+  namespace (D21) with `{world}`/`{bond}`/`{unlock}` script ops, a
+  telegraphed-attack mechanic in the battle engine (announce → countdown
+  → resolve, reusable for future boss mechanics), and a boss "Talk"
+  combat command driven by a data-only `mercy` clause on enemy defs.
+  Content: the 5-map Mirelight region (drowned marsh tileset, tide-lever
+  flood-drain puzzle, Brimble's homestead), the `q_mirelight_tide` main
+  quest and `q_brimble_return` companion quest (homecoming bond beat,
+  grief/keep-or-release scene), the Drowned Matriarch boss with both a
+  kill and a nonlethal-mercy resolution (each claiming the Tide Shard and
+  playing a Crown-memory cutscene), Lyra's Tide power bump, and a
+  `mire_goods` shop. Save schema v4 (world/relationship migration from
+  v3). All validators (including new `validate_mirelight.mjs`) and the
+  production build passed. A live browser session drove the full loop
+  end to end via the module-level test seam (arrival → village → bond
+  gate → puzzle → grief choice → boss → both mercy-branch and telegraph
+  logic verified directly) plus save/load and v3→v4 migration checks,
+  all with a clean console.
 
 ## 7. M4 Handoff — completed in v5.0
 

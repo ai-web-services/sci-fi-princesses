@@ -368,6 +368,138 @@ export const TILESETS = {
       px(g, RAMP.voidGlow[2], 5 + Math.floor(r() * 5), 6, 1, 5);
       px(g, RAMP.voidAsh[0], 3, 12, 10, 1);
     }
+  },
+
+  // ── MIRELIGHT DEEPS — drowned marsh world ──────────────
+  mirelight: {
+    // bog mud floor — dark loam with wet sheen and root fibers
+    mud: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x3a2d1f);
+      px(g, 0x2c2115, 0, 7, T, 1);
+      px(g, 0x2c2115, 0, 15, T, 1);
+      const off = (seed % 2) ? 4 : 10;
+      px(g, 0x2c2115, off, 0, 1, 7);
+      px(g, 0x2c2115, (off + 8) % 16, 8, 1, 7);
+      px(g, 0x4c3c28, 0, 0, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.5) px(g, 0x241a10, 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 2), 1);
+      }
+      if (r() < 0.3) px(g, 0x5a4a30, 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 9), 2, 1); // wet sheen
+    },
+    // brackish shallows — pale murky water, ripple lines
+    shallows: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x2e4038);
+      px(g, 0x263630, 0, 0, T, 3);
+      for (let i = 0; i < 3; i++) {
+        px(g, 0x3c5a4e, Math.floor(r() * 10), 3 + i * 4 + Math.floor(r() * 2), 4 + Math.floor(r() * 6), 1);
+      }
+      if (r() < 0.4) px(g, 0x5a8a76, 2 + Math.floor(r() * 10), 2 + Math.floor(r() * 10), 2, 1);
+      px(g, 0x1e2c26, 0, 15, T, 1);
+    },
+    // deep black water — near-black with faint bioluminescent glints
+    deepwater: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x0a1614);
+      px(g, 0x0e1e1a, 0, 0, T, 6);
+      for (let i = 0; i < 3; i++) {
+        if (r() < 0.6) px(g, 0x2a9a92, Math.floor(r() * 14), Math.floor(r() * 14), 1, 1);
+      }
+      if (r() < 0.3) px(g, 0x44ccb8, 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1);
+      px(g, 0x060e0c, 0, 15, T, 1);
+    },
+    // marsh wall — waterlogged rotted stone/root mass, solid
+    mireWall: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x293a30);
+      px(g, 0x1e2c24, 0, 0, T, 2);
+      px(g, 0x152018, 0, 6, T, 1);
+      px(g, 0x152018, 0, 12, T, 1);
+      px(g, 0x0e1610, 0, 15, T, 1);
+      const vx = 3 + Math.floor(r() * 3) * 4;
+      px(g, 0x152018, vx, 3, 1, 10);
+      if (r() < 0.35) px(g, 0x3d5b47, 2 + Math.floor(r() * 11), 4 + Math.floor(r() * 8), 2, 1); // moss patch
+    },
+    // reed clumps over mud
+    reed: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.mirelight.mud(g, seed);
+      for (let i = 0; i < 5; i++) {
+        const x = 2 + Math.floor(r() * 12);
+        const h = 6 + Math.floor(r() * 6);
+        px(g, 0x3f764a, x, 14 - h, 1, h);
+        px(g, 0x579758, x, 14 - h, 1, 2);
+      }
+      if (r() < 0.3) px(g, 0x94d998, 3 + Math.floor(r() * 9), 4 + Math.floor(r() * 4), 1, 1);
+    },
+    // lilypad floating on shallows
+    lilypad: (g, seed) => {
+      TILESETS.mirelight.shallows(g, seed);
+      const r = rng(seed + 5);
+      const cx = 5 + Math.floor(r() * 4), cy = 5 + Math.floor(r() * 4);
+      px(g, 0x2f6b3a, cx, cy, 6, 5);
+      px(g, 0x3f8a4a, cx, cy, 6, 2);
+      px(g, 0x1e4a28, cx + 2, cy + 2, 2, 1);
+      if (r() < 0.4) px(g, 0xc26a8a, cx + 2, cy - 1, 2, 1); // bloom
+    },
+    // void-corrupted coral growth, solid
+    coral: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.mirelight.mud(g, seed);
+      px(g, 0x2e1a3a, 4, 3, 8, 11);
+      px(g, 0x452a55, 5, 2, 6, 3);
+      px(g, 0x6a3d78, 6, 1, 2, 3);
+      px(g, 0x6a3d78, 9, 2, 2, 4);
+      if (r() < 0.5) px(g, 0xa844c2, 6 + Math.floor(r() * 4), 3 + Math.floor(r() * 4), 1, 1);
+      px(g, 0x1e1028, 4, 13, 8, 1);
+    },
+    // rotted plank bridge over water
+    bridge: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x2c2115);
+      px(g, RAMP.wood[2], 0, 1, T, 13);
+      px(g, RAMP.wood[3], 0, 1, T, 2);
+      px(g, RAMP.wood[1], 0, 6, T, 1);
+      px(g, RAMP.wood[1], 0, 11, T, 1);
+      px(g, 0x1c140c, 0, 0, T, 1);
+      px(g, 0x1c140c, 0, 14, T, 2);
+      if (r() < 0.3) px(g, 0x0e1610, 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 6), 2, 1); // rot hole
+    },
+    // drowned-ruin rubble, solid
+    ruin: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.mirelight.mud(g, seed);
+      for (let i = 0; i < 6; i++) {
+        const c = [0x4a4a52, 0x3a3a42, 0x5c5c66][Math.floor(r() * 3)];
+        px(g, c, 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 12), 2 + Math.floor(r() * 3), 2 + Math.floor(r() * 2));
+      }
+      if (r() < 0.3) px(g, 0x2f6b3a, 2 + Math.floor(r() * 9), 2 + Math.floor(r() * 9), 2, 1); // moss creeping over stone
+      px(g, 0x232328, 3, 13, 9, 1);
+    },
+    // corroded tide-lever mechanism, solid
+    tideLever: (g) => {
+      TILESETS.mirelight.mud(g, 3);
+      px(g, 0x3a4a4a, 6, 2, 4, 12);
+      px(g, 0x5a6e6e, 7, 2, 2, 12);
+      px(g, 0x2a9a92, 7, 3, 2, 2);
+      px(g, RAMP.brass[2], 4, 9, 8, 2);
+      px(g, RAMP.brass[1], 4, 9, 8, 1);
+      px(g, 0x1e2626, 6, 13, 4, 2);
+    },
+    // mossy throne stone for boss arena, solid
+    throneStone: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x3d4a42);
+      px(g, 0x2e3a34, 0, 0, T, 2);
+      px(g, 0x2e3a34, 0, 13, T, 3);
+      px(g, 0x4d5c52, 0, 2, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.6) px(g, 0x3f764a, 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 2, 1); // moss
+      }
+      if (r() < 0.3) px(g, 0x44ccb8, 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1); // faint glow vein
+      px(g, 0x232b26, 3, 12, 10, 1);
+    }
   }
 };
 

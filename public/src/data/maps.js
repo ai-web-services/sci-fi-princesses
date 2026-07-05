@@ -45,6 +45,21 @@ export const STARGATE_LEGEND = {
   'R': { tile: 'ringChunk', solid: true }
 };
 
+export const MIRELIGHT_LEGEND = {
+  '#': { tile: 'mireWall', variants: 3, solid: true },
+  '.': { tile: 'mud', variants: 4 },
+  ',': { tile: 'shallows', variants: 3 },
+  '~': { tile: 'deepwater', variants: 2, solid: true },   // impassable until drained
+  'd': { tile: 'deepwater', variants: 2 },                // drained path (same art, walkable) — reached only via setCell replacing '~'
+  'r': { tile: 'reed', variants: 3 },
+  'l': { tile: 'lilypad', variants: 2 },
+  'c': { tile: 'coral', variants: 2, solid: true },
+  'b': { tile: 'bridge', variants: 2 },
+  'u': { tile: 'ruin', variants: 3, solid: true },
+  'v': { tile: 'tideLever', solid: true },                // decorative lever post; puzzle interactions target the same x,y
+  'm': { tile: 'throneStone', solid: true }
+};
+
 export const MAPS = {
   nova_plaza: {
     id: 'nova_plaza',
@@ -324,7 +339,9 @@ export const MAPS = {
 // Region map files register here. Each exports an object of map defs.
 import { NOVA_MAPS, NOVA_PLAZA_EXIT_CONTRACTS } from './maps/nova.js';
 import { STARGATE_MAPS } from './maps/stargate.js';
+import { MIRELIGHT_MAPS } from './maps/mirelight.js';
 Object.assign(MAPS, NOVA_MAPS, STARGATE_MAPS);
+Object.assign(MAPS, MIRELIGHT_MAPS);
 MAPS.nova_plaza.exits.push(...NOVA_PLAZA_EXIT_CONTRACTS);
 
 export function getMap(id) {

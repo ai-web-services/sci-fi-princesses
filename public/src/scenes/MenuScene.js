@@ -14,6 +14,7 @@ import { removeItem } from '../game/inventory.js';
 import { uiSfx } from '../engine/audio.js';
 import { ENEMIES } from '../data/enemies.js';
 import { RESONANCES } from '../data/resonance.js';
+import { bondStageName } from '../game/relationships.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() { super({ key: 'MenuScene' }); }
@@ -239,6 +240,7 @@ export class MenuScene extends Phaser.Scene {
     this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, [
       { label: 'Bestiary', value: 'bestiary' },
       { label: 'Resonance', value: 'resonance' },
+      { label: 'Bonds', value: 'bonds' },
       { label: 'Lore', value: 'lore' },
       { label: 'Back', value: 'back' }
     ], {
@@ -260,6 +262,11 @@ export class MenuScene extends Phaser.Scene {
       lines = GameState.resonancesFound.map(id => {
         const record = RESONANCES.find(entry => entry.id === id);
         return `◆ ${record?.name || readableId(id)}`;
+      }).join('\n');
+    } else if (type === 'bonds') {
+      lines = GameState.roster.filter(id => id !== 'lyra').map(id => {
+        const data = charData(id);
+        return `◆ ${data ? data.name : readableId(id)} — ${bondStageName(id)}`;
       }).join('\n');
     } else if (type === 'lore') {
       lines = GameState.lore.map(id => `◆ ${readableId(id)}`).join('\n');

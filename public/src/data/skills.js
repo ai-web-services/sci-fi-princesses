@@ -360,6 +360,21 @@ export const SKILLS = {
     id: 'summon_shade', name: 'Summon Shade',
     desc: 'Tears open a small rift, calling forth lesser voidlings to fight.',
     cost: 0, target: 'self', power: 0, kind: 'utility',
-    element: 'void', tags: ['void', 'enemy', 'boss', 'summon']
+    element: 'void', tags: ['void', 'enemy', 'boss', 'summon'],
+    summonId: 'shade'
+  },
+  summon_drowned: {
+    id: 'summon_drowned', name: 'Call the Drowned',
+    desc: 'The Matriarch calls the sunken dead up from the silt to fight at her side.',
+    cost: 0, target: 'self', power: 0, kind: 'utility',
+    element: 'water', tags: ['water', 'enemy', 'boss', 'summon'],
+    summonId: 'drowned_one'
+  },
+  undertow: {
+    id: 'undertow', name: 'Undertow',
+    desc: 'A telegraphed flood that engulfs the whole arena — Defend or a raised Tidal Shield blunts the tide.',
+    cost: 0, target: 'allEnemies', power: 1.8, kind: 'magic',
+    element: 'water', tags: ['water', 'enemy', 'boss'],
+    telegraph: 2
   }
 };

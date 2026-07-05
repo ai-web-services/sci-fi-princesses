@@ -15,7 +15,7 @@ import { playSong, stopSong, sfx, uiSfx } from '../engine/audio.js';
 import { Battle } from '../game/battle.js';
 import { SKILLS } from '../data/skills.js';
 import { STATUSES } from '../data/statuses.js';
-import { GameState } from '../game/state.js';
+import { GameState, setWorldFlag } from '../game/state.js';
 import { itemData, charData } from '../game/progression.js';
 import { flash, shake } from '../engine/fx.js';
 import { buildHeroBattleTexture, buildEnemyBattleTexture, buildBattleBackdrop, enemySpriteSize } from '../art/battleArt.js';
@@ -348,6 +348,13 @@ export class CombatScene extends Phaser.Scene {
         }
         break;
       }
+      case 'telegraph': {
+        flash(this, 0x66b0e8, 160, 0.25);
+        this.showBigBanner(ev.say || 'Something stirs...', 0x66b0e8);
+        sfx('debuff');
+        await this.delay(700);
+        break;
+      }
       case 'phase': {
         shake(this, 0.006, 250);
         flash(this, 0xbb66ee, 220, 0.4);
@@ -476,7 +483,10 @@ export class CombatScene extends Phaser.Scene {
       await this.delay(300);
       const decision = this.battle.enemyDecide(actor);
       let events = [];
-      if (!decision || decision.defend) events = this.battle.defend(actor);
+      if (decision && decision.telegraphing) {
+        const skill = SKILLS[decision.skillId];
+        events = [{ type: 'telegraph', actor: actor.key, say: (skill ? skill.name : 'Something') + ' gathers... (' + decision.ticks + ')' }];
+      } else if (!decision || decision.defend) events = this.battle.defend(actor);
       else events = this.battle.useSkill(actor, decision.skillId, decision.targetKey);
       await this.animateEvents(events);
       return this.nextTurn();
@@ -510,18 +520,37 @@ export class CombatScene extends Phaser.Scene {
     if (m) { m.menu.destroy(); if (m.gfx) m.gfx.destroy(); }
   }
 
+  // Nonlethal boss resolution (D19): an enemy def may carry a `mercy`
+  // clause — { hpFrac, requires: charId, flag, text }. Returns that
+  // clause once the boss is low enough and the required ally is alive.
+  checkMercy() {
+    for (const e of this.battle.alive('enemy')) {
+      const m = e.def && e.def.mercy;
+      if (!m) continue;
+      if (e.hp / e.stats.maxHp > m.hpFrac) continue;
+      if (m.requires) {
+        const req = this.battle.heroes().find(h => h.id === m.requires);
+        if (!req || req.hp <= 0) continue;
+      }
+      return m;
+    }
+    return null;
+  }
+
   openCommandMenu(actor) {
     this.clearMenus();
     const reserve = GameState.roster.filter(id => !GameState.active.includes(id) && GameState.chars[id] && GameState.chars[id].hp > 0);
     const basic = actor.skills.find(id => SKILLS[id] && (SKILLS[id].cost || 0) === 0 && ['physical', 'magic'].includes(SKILLS[id].kind));
+    const mercy = this.checkMercy();
     const items = [
       { label: 'Attack', value: 'attack', disabled: !basic },
       { label: 'Skill', value: 'skill' },
       { label: 'Item', value: 'item', disabled: !GameState.inventory.some(s => { const d = itemData(s.id); return d && d.type === 'consumable'; }) },
       { label: 'Defend', value: 'defend' },
-      { label: 'Swap', value: 'swap', disabled: !reserve.length },
-      { label: 'Flee', value: 'flee', disabled: !this.battle.canFlee }
+      { label: 'Swap', value: 'swap', disabled: !reserve.length }
     ];
+    if (mercy) items.push({ label: 'Talk', value: 'talk' });
+    items.push({ label: 'Flee', value: 'flee', disabled: !this.battle.canFlee });
     this.pushMenu(items, {
       onSelect: (it) => this.command(actor, it.value, basic),
       onCancel: null
@@ -539,6 +568,7 @@ export class CombatScene extends Phaser.Scene {
         this.resolveHero(actor, () => this.battle.defend(actor));
         break;
       case 'swap': this.openSwapMenu(actor); break;
+      case 'talk': this.attemptMercy(); break;
       case 'flee': {
         const r = this.battle.tryFlee();
         if (r.ok) {
@@ -555,6 +585,19 @@ export class CombatScene extends Phaser.Scene {
         break;
       }
     }
+  }
+
+  attemptMercy() {
+    const mercy = this.checkMercy();
+    if (!mercy) { uiSfx('error'); return; }
+    this.clearMenus();
+    this.busy = true;
+    if (mercy.flag) setWorldFlag(mercy.flag, true);
+    this.battle.finish('mercy');
+    stopSong(0.4);
+    sfx('confirm');
+    this.showBigBanner(mercy.text || 'Mercy is shown.', 0x9fe3ff);
+    this.time.delayedCall(1000, () => this.endBattle('mercy'));
   }
 
   openSkillMenu(actor) {

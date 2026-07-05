@@ -247,7 +247,7 @@ export const ENEMIES = {
     desc: 'The ancient guardian spirit of Mirelight\'s flooded depths, twisted by void corruption into a vengeful tide-mother.',
     level: 8, hp: 980, atk: 22, mag: 24, def: 14, res: 16, spd: 8,
     weak: ['fire', 'stellar'], resist: ['water', 'void'], immune: [],
-    skills: ['tide_crush', 'dark_pulse', 'corrupt_grasp'],
+    skills: ['tide_crush', 'dark_pulse', 'corrupt_grasp', 'summon_drowned'],
     ai: 'aggressive',
     xp: 380, gold: 260,
     drops: [
@@ -257,8 +257,14 @@ export const ENEMIES = {
     ],
     boss: true,
     phases: [
-      { hpFrac: 0.5, addSkills: ['annihilation_beam'], say: 'The water remembers everything you drowned.' }
+      { hpFrac: 0.5, addSkills: ['undertow', 'annihilation_beam'], say: 'The water remembers everything you drowned.' }
     ],
+    // D19 nonlethal resolution: below 25% HP with Brimble alive, a Talk
+    // command opens offering the Matriarch mercy instead of a killing blow.
+    mercy: {
+      hpFrac: 0.25, requires: 'brimble', flag: 'mirelight_mercy',
+      text: 'The Matriarch stills. The tide recedes, and remembers.'
+    },
     size: 'boss',
     palette: { primary: 0x0f2a3a, glow: 0x44ccee }
   },

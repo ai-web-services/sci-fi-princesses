@@ -69,6 +69,13 @@ export function effectiveStats(id) {
       stats.maxSp = Math.round(stats.maxSp * mult);
     }
   }
+  // Tide Shard power bump (D14/D19): a stat bump short of a full
+  // evolution stage, granted on claiming the Mirelight Deeps shard.
+  if (id === 'lyra' && GameState.flags && GameState.flags.lyra_tide_attuned) {
+    stats.atk = Math.round(stats.atk * 1.06);
+    stats.mag = Math.round(stats.mag * 1.06);
+    stats.maxSp = Math.round(stats.maxSp * 1.08);
+  }
   // equipment
   if (rec && rec.equipment) {
     for (const slot of Object.keys(rec.equipment)) {

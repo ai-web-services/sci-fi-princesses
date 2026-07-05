@@ -37,7 +37,8 @@ export function newGameState() {
     flags: {},                // string → value
     decisions: {},            // major decision id → choice
     quests: {},               // questId → {stage, status:'active'|'done'|'failed'}
-    relationships: {},        // charId → {bond, scenes:[]}
+    relationships: {},        // charId → {bond, scenes:[], battles}
+    world: {},                // consequence-flag namespace, string → value (D21)
     shards: [],               // shard ids collected
     novaStage: 0,             // home-base growth stage 0..3
     investments: [],          // home-base projects completed
@@ -66,8 +67,20 @@ export function normalizeGameState(s) {
   if (!s.flags) s.flags = {};
   if (!s.mapChanges || typeof s.mapChanges !== 'object') s.mapChanges = {};
   if (!Array.isArray(s.tutorialsSeen)) s.tutorialsSeen = Object.keys(s.tutorialsSeen || {});
+  if (!s.world || typeof s.world !== 'object') s.world = {};
+  if (!s.relationships || typeof s.relationships !== 'object') s.relationships = {};
+  for (const id of Object.keys(s.relationships)) {
+    const rel = s.relationships[id];
+    if (rel && typeof rel.bond !== 'number') rel.bond = 0;
+    if (rel && !Array.isArray(rel.scenes)) rel.scenes = [];
+    if (rel && typeof rel.battles !== 'number') rel.battles = 0;
+  }
   return s;
 }
+
+// World-flag helpers (D21) — single namespace consumed by dialogue/epilogue.
+export function setWorldFlag(k, v = true) { GameState.world[k] = v; }
+export function getWorldFlag(k) { return GameState ? GameState.world[k] : undefined; }
 
 export function setGameState(s) { GameState = normalizeGameState(s); }
 

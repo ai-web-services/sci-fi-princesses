@@ -4,7 +4,22 @@
 // and beats exist for the current save state.
 // ═══════════════════════════════════════════════════════════════
 
-import { npcsByMap, triggersByMap, interactionsByMap } from './act1.js';
+import { npcsByMap as ACT1_NPCS, triggersByMap as ACT1_TRIGGERS, interactionsByMap as ACT1_INTERACTIONS } from './act1.js';
+import { npcsByMap as ACT2_NPCS, triggersByMap as ACT2_TRIGGERS, interactionsByMap as ACT2_INTERACTIONS } from './act2_mirelight.js';
+
+function mergeRegistries(...registries) {
+  const merged = {};
+  for (const registry of registries) {
+    for (const [mapId, entries] of Object.entries(registry)) {
+      merged[mapId] = [...(merged[mapId] || []), ...entries];
+    }
+  }
+  return merged;
+}
+
+const npcsByMap = mergeRegistries(ACT1_NPCS, ACT2_NPCS);
+const triggersByMap = mergeRegistries(ACT1_TRIGGERS, ACT2_TRIGGERS);
+const interactionsByMap = mergeRegistries(ACT1_INTERACTIONS, ACT2_INTERACTIONS);
 
 const SERVICE_SCRIPTS = {
   weapons_smith: [
