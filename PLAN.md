@@ -218,3 +218,218 @@ The contracts below are retained as implementation history; all listed work is c
 
 **Polish backlog (M12):** Erynn/Drakkor/Lyra portrait faces; Kael battle sprite shading;
 inlay tile could still read busy in long paths; victory panel layout.
+
+---
+
+## 8. Design decisions D14–D24 (Game Design Lead, 2026-07-05)
+
+These resolve everything M5–M13 needs. They are binding unless PLAN.md is amended.
+
+- **D14 Shard→region mapping:** Gate = Shattered Stargate (claimed, v5.0) · Tide = Mirelight
+  Deeps · Ember = Ashfall Dominion · Whisper = Kessari Reach · Logic = The Silent Archive ·
+  Throne = Void Threshold (final). Each shard claim plays a "memory of the Crown" cutscene
+  (D5/D6 canon): Tide = the first sovereign finding the Void wound; Ember = the forging;
+  Whisper = the captured intelligence's voice; Logic = the Constructs' role as jailers;
+  Throne = the extraction covenant revealed in full (triggers the Fracture).
+- **D15 Bond system:** per-companion bond integer 0–4 stored in `state.bonds`. Sources:
+  scripted story beats (+1 at fixed points), banter choices (some choices +1, never −),
+  personal-quest stage completion (+1 each), and a battle-participation counter that converts
+  to +1 once per game at 25 battles. No gift grinding. Bond is *visible* in Records as a
+  named stage (Stranger/Ally/Friend/Trusted/Kindred), never a raw number (PRD §7.4). Gates:
+  bond ≥2 unlocks personal quest stage 2; bond ≥3 unlocks stage 3 (the decisive trial +
+  evolution). Bond ≥3 also unlocks that companion's unique resonance pair with Lyra.
+- **D16 Companion quest template (all four):** 3 stages. **S1 Wound** — a Nova Prime or
+  regional scene surfaces the companion's history (unlocked on recruitment + first region
+  visit). **S2 Return** — a dedicated quest map in their home region confronting the past
+  (unlocked bond ≥2 + region cleared). **S3 Trial** — a scripted decisive battle/choice that
+  tests their stated belief (bond ≥3 + Act 2 complete for Erynn/Pip; region climax for
+  Brimble/Drakkor). S3 ends with the companion evolution and sets an arc-state flag
+  `arc_<name>: 'resolved'|'transformed'` consumed by epilogues (D7).
+- **D17 Companion evolutions:** Erynn → **Phantom Queen** (evasion → guaranteed-crit ripostes,
+  new skill `queens_gambit`), Brimble → **Leviathan Sovereign** (shields scale into party-wide
+  regen, new skill `sovereign_tide`), Drakkor → **Elder Wyrm** (breaks apply `molten` DoT, new
+  skill `extinction_flare`), Pip → **Omega Core** (revive once per battle passively, new skill
+  `genesis_loop`). Each is an EvolutionScene presentation + new battle sprite pose + stat/skill
+  changes in characters.js. Lyra: Crown Bearer (done) → **Starforged** after Shard 4 (Whisper)
+  → **Celestial Ascendant** at the Void Threshold gate (Act 3 opener).
+- **D18 New enemy rosters** (ids to add in enemies.js; reuse stat/AI schema):
+  Kessari: `dust_stalker, gutter_blade, smuggler_enforcer, void_hound, silk_assassin`;
+  Archive: `custodian_drone, logic_wraith, data_specter, failed_prototype, archive_titan`;
+  Void Threshold: `null_walker, void_choir, unmade_knight, entropy_bloom, crown_echo`.
+  Each region set teaches one lesson (PRD §10.7): Kessari = evasion/debuffs, Archive =
+  shields/scan-dependency, Void = status immunity + resonance-mandatory HP pools.
+- **D19 Remaining bosses:** M5 **Drowned Matriarch** (`matriarch`, exists): 2 phases; P1
+  summons `drowned_one` adds, P2 "Undertow" arena flood telegraphed 2 ticks ahead (Defend or
+  Brimble `tidal_shield` negates); nonlethal resolution — reduce to ≤25% HP with Brimble alive
+  and a Talk prompt offers mercy (sets `mirelight_mercy`). M6 **Ash Tyrant Ignis** (`ignis`,
+  exists): 3 phases; armor `sunder`-breakable, P3 enrage countdown answered by Drakkor
+  `wyrms_roar`. M7 **Silk Baroness Vess** (new `vess`): duel-opening (Erynn solo 3 ticks),
+  clone decoys dispelled by `scan`. M8 **Archivist Prime** (new `archivist_prime`): rotating
+  elemental firewall (weakness cycles each phase, Scan reveals), mid-fight Crown-revelation
+  dialogue interleave. M9 final: **The Unbound Crown** (new `unbound_crown`), 3 phases —
+  P1 Crown Sovereign (mirror of Lyra's skills), P2 Void Amalgam (uses defeated-boss echoes),
+  P3 The Wound (survival + dialogue; the four ending choices are made *inside* P3).
+- **D20 Nova Prime growth stages:** `state.novaStage` 0–3. Stage 1 after M5 (Anura refugees:
+  gardens rebuilt, healer upgraded), stage 2 after M7 (Kessari trade: market expands, **Forge**
+  crafting service opens), stage 3 after M8 (Construct engineers: palace + stargate plaza
+  restored, `nova_restored` music). Implementation: per-stage map-mutation lists + NPC adds
+  on the existing persistent-mutation system; ambient dialogue variants keyed on novaStage.
+- **D21 Consequence flags:** single namespace `state.world` (string→value) written by regional
+  climaxes (`mirelight_mercy`, `ashfall_heir`, `kessari_verdict`, `archive_fate`), arc states
+  (D16), and the ending. All dialogue/epilogue variation reads only these flags — no derived
+  inference — so authors can grep every consumer.
+- **D22 Crafting (Forge):** unlocks Nova stage 2. Recipes = `data/recipes.js`; consume regional
+  materials (already dropping as items) → produce top-tier equipment and each companion's
+  signature relic. No RNG, no farming walls: every recipe's materials are guaranteed drops
+  from named encounters listed in the recipe description.
+- **D23 Act 3 structure (M9):** Throne memory at the Archive triggers the **Fracture** — a
+  Nova Prime crisis scene where each companion challenges Lyra (content varies by bond/arc
+  flags), one leaves temporarily (lowest-bond companion; returns at the gate). Void Threshold
+  region: 3 maps (Failing Fields → Choir Spire → The Wound) with reality-glitch tiles (damage
+  floor unless Celestial Ascendant), no shops — preparation pressure per PRD §6.3. Final boss
+  per D19; ending choice per D7; epilogue = EndingScene slideshow assembled from D21 flags
+  (ending × 4 arc states × 4 regional flags × novaStage) + CreditsScene.
+- **D24 Difficulty/assist completeness (M11):** assists (toggleable anytime, Options →
+  Assists): battle speed ×1.5, auto-guard at low HP, encounter-rate −50%, damage-taken −25%,
+  retry-with-full-HP on defeat. After 3 defeats to the same boss, a non-shaming assist prompt
+  appears once. Accessibility: text-size step, reduced-flash mode (fx.js already gated),
+  hold-to-confirm off, colorblind-safe weakness icons (shape + color).
+
+## 9. Milestone handoff specs (M5–M13)
+
+Execution rules for every milestone: work from these specs without re-deriving design;
+follow §4 architecture and §5 verification; content authors own **new files only** and must
+pass `scripts/` validators; the integrator owns shared files (MapScene, state.js, MenuScene,
+etc.); commit `vX.Y` per D13 only after verification passes; append a §6 progress-log entry
+and mark the milestone row in §3. Parallel-author pattern: same as M4 (map file + story file
++ art/music additions can run concurrently; integrator merges).
+
+### M5 — Mirelight Deeps (target v5.1–v5.2)
+
+Systems (integrator, build first — every later milestone reuses them):
+1. **Bond system** (`game/relationships.js`): D15 exactly — `getBond/addBond`, stage names,
+   battle-participation counter hooked into CombatScene rewards; Records panel row per
+   companion. Save schema v4 (migrate: default bonds from recruitment flags).
+2. **Companion-quest framework**: quests.js entries with `personal: '<charId>'` + unlock
+   predicates over bond/flags; journal groups them under "Companions".
+3. **World flags**: `state.world` (D21) + script ops `{world:{key:val}}` and conditional
+   script blocks keyed on world flags (extend the existing script runner's condition support).
+
+Content (agent-ownable):
+4. `data/maps/mirelight.js` — 5 maps: `mire_landing` (arrival, safe), `mire_shallows`
+   (encounters), `mire_village` (Anura survivors, shop+healer variants), `mire_deeps`
+   (dungeon: tide-gate puzzle — pull 3 tide levers to drain path, uses setCell), `mire_throne`
+   (Matriarch arena). New tileset `art/tiles/` mirelight legend: water/deepwater/lilypad/
+   reed/mud/coral/tide-lever/drowned-ruin chars. Encounters: mire_croaker, drowned_one,
+   bog_lurker, tide_witch, coral_crab, void_eel (all exist). Music: `mirelight` (exists).
+5. `data/act2_mirelight.js` — story: arrival scene, village plight (void tide rising),
+   Brimble homecoming (bond +1 beat), quest chain `q_mirelight_tide` (4 stages: reach village
+   → scout deeps → open tide gates → face Matriarch), Matriarch mercy/kill branch writing
+   `world.mirelight_mercy`, Tide Shard claim + Crown memory cutscene, Nova debrief +
+   novaStage 1 mutation list. Brimble S1 scene (D16) in the village.
+6. Brimble personal quest S2 (`q_brimble_return`): his drowned homestead map corner in
+   mire_deeps, a grief scene with a keep/release choice for a family relic.
+
+Integrator: Matriarch boss per D19 (Talk prompt = new combat command appearing only when
+mercy conditions met), novaStage mutation applier, Shard 2 → Lyra power bump (no evolution).
+Verify: full region playthrough both Matriarch branches, bond gates, save v4 migration.
+
+### M6 — Ashfall Dominion (target v5.3)
+
+Content: `data/maps/ashfall.js` — 5 maps (`ash_gate`, `ash_wastes`, `ash_hold` village of
+last Drakonids, `ash_caldera` dungeon with heat hazard: standing on ember tiles ticks HP
+unless moving, cooled by `setCell` vents puzzle, `ash_throne` arena). Enemies exist
+(ember_hound, ash_revenant, magma_beetle, drake_whelp). Music `ashfall` (exists).
+`data/act2_ashfall.js` — Drakonid succession conflict (elder vs young claimant), Drakkor
+S1+S2 (`q_drakkor_return`: the fortress where his charges died), Ignis 3-phase fight per
+D19, `world.ashfall_heir` choice (back elder or claimant), Ember Shard + memory, Drakkor
+bond beats. Drakkor S3 Trial can trigger here if bond ≥3: solo-open scripted battle vs
+`ash_revenant` trio guarding his old banner → **Elder Wyrm** evolution.
+Integrator: hazard-tile support in MapScene (damage-tick tiles + immunity flags), enrage
+countdown + counter-skill hook in battle engine. Verify per §5 + both heir branches.
+
+### M7 — Kessari Reach (target v5.4)
+
+Content: `data/maps/kessari.js` — 5 maps (`kess_docks`, `kess_bazaar` trade hub with the
+game's best shops, `kess_underway` smuggler tunnels, `kess_court` Felidae law court,
+`kess_spire` Vess arena). **New art**: kessari tileset (sandstone/awning/lantern/crate/
+tunnel chars), 5 new enemy battle sprites (D18 Kessari set), `vess` boss sprite + portrait.
+Music `kessari` (exists). `data/act2_kessari.js` — Erynn's exile backstory made concrete:
+the officer she defied now runs Kessari law; quest chain exposes that Vess's smuggling ring
+trades void-touched relics; court verdict choice `world.kessari_verdict` (expose the officer
+publicly or quietly). Erynn S1–S3 (`q_erynn_return`; S3 duel-opening Vess fight per D19 →
+**Phantom Queen**). Whisper Shard + memory → **Lyra Starforged** evolution (second
+EvolutionScene, new Lyra sprites/portrait stage). novaStage 2 + Forge unlock (D20/D22):
+integrator builds ForgeScene (recipe list UI reusing ShopScene layout) + `data/recipes.js`.
+Verify: recipes craft correctly, evolutions persist through save/load.
+
+### M8 — The Silent Archive (target v5.5)
+
+Content: `data/maps/archive.js` — 4 maps (`archive_gate`, `archive_stacks` — rotating-bridge
+puzzle via setCell, `archive_core`, `archive_sanctum` arena). New art: archive tileset
+(datawall/conduit/hologram/dormant-construct chars), 5 Archive enemy sprites (D18),
+`archivist_prime` sprite. Music `archive` (exists). `data/act3_archive.js` — Pip's origin:
+the Archive built the Crown's jailer-constructs; Pip S1–S3 (`q_pip_origin`; S3 choice —
+restore factory memory or stay self-made → **Omega Core** either way, flavor differs),
+Archivist Prime fight per D19 with mid-fight revelation dialogue, Logic Shard + memory =
+**the Crown revelation** (D6 truth stated plainly), `world.archive_fate` (preserve or open
+the Archive to all cultures). Ends on the Throne-memory hook that launches M9's Fracture.
+Integrator: weakness-cycling boss support; dialogue-interleave in CombatScene (pause timeline,
+run script lines, resume). Verify per §5 + revelation sequence screenshots.
+
+### M9 — Act 3: Fracture, Void Threshold, endings (target v5.6–v5.7)
+
+Per D23. Content: Fracture crisis scene set (per-companion confrontation variants over
+bond+arc flags), `data/maps/void.js` (3 maps, glitch-tile hazard, no services), D18 Void
+enemy set + sprites, `unbound_crown` 3-phase boss + sprites, `data/endings.js` — 4 ending
+scripts + epilogue slide matrix over D21 flags (author all combinations as composable
+paragraphs, not enumerated wholes: base ending text + arc-state inserts + regional inserts +
+novaStage insert). Music: `void`, `final`, `credits` (exist). **Lyra Celestial Ascendant**
+evolution at the gate. Integrator: P3 in-battle ending choice (menu inside combat), EndingScene
+(slideshow) + CreditsScene, point of no return with mandatory save prompt (PRD §19), post-
+credits "return to pre-finale save" flow. Verify: all four endings reachable (scripted
+save-state harness), epilogue variation spot-checks (≥6 flag combos), no soft-locks.
+
+### M10 — Companion completion + Nova growth (target v5.8)
+
+Sweep milestone: any D16 S1–S3 stage not shipped in M5–M8 lands here (Brimble S3 Trial,
+any missed banter beats), inactive-companion presence (PRD §7.3: reserve companions get
+Nova Prime idle scenes per act + comment lines at regional climaxes), companion↔companion
+relationship scenes (minimum: Erynn+Pip, Brimble+Drakkor, one group scene per act), novaStage
+3 content (D20) including a Nova Prime crisis event (PRD §8.5: void surge on the plaza —
+defend it in one scripted battle). Verify: every companion reaches evolution + resolved arc
+in one playthrough; Records shows all bonds/arcs.
+
+### M11 — Accessibility, difficulty, onboarding, records (target v5.9)
+
+Per D24: assist toggles + defeat-prompt; accessibility options; verify remapping covers every
+action incl. combat Talk. Records completeness (PRD §14.2): bestiary (scan-fills), resonance
+list, memory-of-the-Crown replay, decision log (reads D21 flags), playtime/battle stats.
+Onboarding audit: every mechanic introduced by a tutorial prompt exactly once, reviewable in
+Records. Reorientation: loading any save shows a "Previously…" summary from quest state
+(PRD §19). Verify: options persist, assists apply mid-battle, fresh-player path never sees
+an unexplained mechanic (scripted playthrough checklist).
+
+### M12 — Presentation polish (target v6.0)
+
+Work the standing polish backlog (§7 end) + PRD §17.6–17.11/§18: portrait-face fixes
+(Erynn/Drakkor/Lyra), Kael sprite shading, victory panel, environmental animation passes
+per region (water shimmer, ash drift, bazaar banners, datawall pulses, void glitch),
+cutscene letterboxing + shard-memory visual treatment, motif audit (Crown/Lyra/Void motifs
+present in each region/boss track per D11 — extend musicLibrary where missing), signature
+SFX for shard claim/evolution/resonance discovery. No mechanics changes. Verify: visual
+inspection screenshots per region + before/after pairs in the commit message.
+
+### M13 — Full validation + PRD compliance audit (target v6.1)
+
+1. Full playthrough (assisted-speed) start→credits on Adventurer; second abbreviated run
+   exercising alternate flags (mercy/heir/verdict/fate inverted, different ending).
+2. All validators + build + save-migration chain v1→current.
+3. Performance: steady 60fps map+combat in Chromium on the WSL host; boot <3s.
+4. Write `COMPLIANCE.md`: table of every PRD §2–§22 requirement → evidence (file/screenshot/
+   log) → status, per §26. Anything unmet gets fixed or logged as an explicit accepted gap.
+5. Final commit + tag.
+
+Dependency notes for schedulers: M5 systems (bond/world-flags/personal-quest framework)
+block M6–M10 story content; M6/M7/M8 region content is mutually independent (parallelizable
+after M5 systems land); M9 needs M8's revelation; M10 needs M5–M9; M11–M13 sequential last.
