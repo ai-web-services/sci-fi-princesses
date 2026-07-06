@@ -500,6 +500,137 @@ export const TILESETS = {
       if (r() < 0.3) px(g, 0x44ccb8, 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1); // faint glow vein
       px(g, 0x232b26, 3, 12, 10, 1);
     }
+  },
+
+  // ── ASHFALL DOMINION — scorched volcanic Drakonid homeland ──
+  ashfall: {
+    // ash-grey wall — cracked volcanic rock, solid
+    ashWall: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x3a3530);
+      px(g, 0x2a2622, 0, 0, T, 2);
+      px(g, 0x241f1c, 0, 6, T, 1);
+      px(g, 0x241f1c, 0, 12, T, 1);
+      px(g, 0x181513, 0, 15, T, 1);
+      const vx = 3 + Math.floor(r() * 3) * 4;
+      px(g, 0x241f1c, vx, 3, 1, 10);
+      if (r() < 0.35) px(g, RAMP.drakkorScale[3], 2 + Math.floor(r() * 11), 4 + Math.floor(r() * 8), 2, 1); // ember crack glow
+    },
+    // ash floor — pale grey volcanic dust, soft footing
+    ash: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x5a5450);
+      px(g, 0x4d473f, 0, 7, T, 1);
+      px(g, 0x4d473f, 0, 15, T, 1);
+      const off = (seed % 2) ? 4 : 10;
+      px(g, 0x4d473f, off, 0, 1, 7);
+      px(g, 0x4d473f, (off + 8) % 16, 8, 1, 7);
+      px(g, 0x6e6660, 0, 0, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.5) px(g, 0x726a62, 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 2), 1);
+      }
+      if (r() < 0.3) px(g, 0x83786e, 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 9), 2, 1); // pale drift
+    },
+    // cinder floor — darker charred ground, scattered soot flecks
+    cinder: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x3f3a36);
+      px(g, 0x332e2a, 0, 0, T, 3);
+      for (let i = 0; i < 3; i++) {
+        px(g, 0x2b2622, Math.floor(r() * 10), 3 + i * 4 + Math.floor(r() * 2), 4 + Math.floor(r() * 6), 1);
+      }
+      if (r() < 0.4) px(g, RAMP.drakkorScale[2], 2 + Math.floor(r() * 10), 2 + Math.floor(r() * 10), 1, 1); // stray ember fleck
+      px(g, 0x211d1a, 0, 15, T, 1);
+    },
+    // ember tile — glowing hazard, walkable, radiant orange cracks
+    ember: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.ashfall.cinder(g, seed);
+      px(g, RAMP.drakkorScale[1], 3, 8, 10, 2);
+      px(g, RAMP.drakkorScale[2], 4, 8, 8, 1);
+      px(g, RAMP.drakkorScale[3], 6, 7, 4, 1);
+      px(g, RAMP.drakkorScale[4], 7, 7, 2, 1);
+      if (r() < 0.5) px(g, RAMP.drakkorScale[4], 5 + Math.floor(r() * 6), 9, 1, 1); // bright glint
+      px(g, 0x1c1815, 0, 15, T, 1);
+    },
+    // cooled ember — same crack pattern but dim, ashen, safe
+    emberCooled: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.ashfall.cinder(g, seed);
+      px(g, 0x4a3a30, 3, 8, 10, 2);
+      px(g, 0x5c4a3c, 4, 8, 8, 1);
+      px(g, 0x342a24, 6, 7, 4, 1);
+      if (r() < 0.4) px(g, 0x6a5648, 5 + Math.floor(r() * 6), 9, 1, 1);
+    },
+    // magma-slag blockage, solid — dark obsidian ridge with hot seams
+    slag: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x1c1816);
+      px(g, 0x110d0c, 0, 0, T, 2);
+      for (let i = 0; i < 5; i++) {
+        const c = [0x241f1c, 0x2c2622, 0x140f0d][Math.floor(r() * 3)];
+        px(g, c, 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 12), 2 + Math.floor(r() * 3), 2 + Math.floor(r() * 2));
+      }
+      px(g, RAMP.drakkorScale[2], 3, 9, 9, 1); // molten seam
+      px(g, RAMP.drakkorScale[3], 5, 9, 4, 1);
+      if (r() < 0.4) px(g, RAMP.drakkorScale[4], 6 + Math.floor(r() * 4), 9, 1, 1);
+      px(g, 0x0c0908, 0, 15, T, 1);
+    },
+    // geyser vent — decorative steam, walkable
+    geyser: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.ashfall.ash(g, seed);
+      px(g, 0x2c2723, 5, 10, 6, 4);
+      px(g, 0x1c1815, 6, 11, 4, 3);
+      px(g, 0xc8c0b6, 6, 4, 4, 6); // steam plume
+      px(g, 0xe4ded6, 7, 2, 2, 4);
+      if (r() < 0.5) px(g, 0xf2eee8, 7 + Math.floor(r() * 2), 1, 1, 2);
+    },
+    // vent valve post — puzzle interactive, solid
+    ventValve: (g) => {
+      TILESETS.ashfall.ash(g, 3);
+      px(g, 0x453f3a, 6, 2, 4, 12);
+      px(g, 0x635a52, 7, 2, 2, 12);
+      px(g, RAMP.drakkorScale[2], 7, 3, 2, 2);
+      px(g, RAMP.brass[2], 4, 9, 8, 2);
+      px(g, RAMP.brass[1], 4, 9, 8, 1);
+      px(g, 0x1e1a17, 6, 13, 4, 2);
+    },
+    // Drakonid banner post — crimson/bronze standard, solid, decorative
+    bannerPost: (g) => {
+      TILESETS.ashfall.ash(g, 4);
+      px(g, RAMP.wood[1], 7, 4, 2, 12); // pole
+      px(g, RAMP.wood[2], 7, 4, 1, 12);
+      px(g, RAMP.drakkorScale[1], 3, 2, 9, 7); // crimson banner cloth
+      px(g, RAMP.drakkorScale[2], 3, 2, 9, 2);
+      px(g, RAMP.drakkorHorn[2], 5, 4, 5, 2); // bronze emblem band
+      px(g, RAMP.drakkorHorn[1], 3, 8, 9, 1);
+      px(g, 0x1e1a17, 6, 15, 4, 1);
+    },
+    // ruined Drakonid hold walls, solid — scorched masonry rubble
+    ruinedHold: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.ashfall.ash(g, seed);
+      for (let i = 0; i < 6; i++) {
+        const c = [0x5a5148, 0x453f38, 0x6c635a][Math.floor(r() * 3)];
+        px(g, c, 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 12), 2 + Math.floor(r() * 3), 2 + Math.floor(r() * 2));
+      }
+      if (r() < 0.3) px(g, RAMP.drakkorScale[2], 2 + Math.floor(r() * 9), 2 + Math.floor(r() * 9), 2, 1); // scorch mark
+      px(g, 0x2a2622, 3, 13, 9, 1);
+    },
+    // throne-ash dais — dark scorched stone for boss arena, solid
+    throneAsh: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x453d38);
+      px(g, 0x342e2a, 0, 0, T, 2);
+      px(g, 0x342e2a, 0, 13, T, 3);
+      px(g, 0x5c5148, 0, 2, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.6) px(g, RAMP.drakkorScale[2], 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 2, 1); // ember vein
+      }
+      if (r() < 0.3) px(g, RAMP.drakkorScale[4], 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1); // glow fleck
+      px(g, 0x282320, 3, 12, 10, 1);
+    }
   }
 };
 

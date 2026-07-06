@@ -66,6 +66,7 @@ export class Battle {
         ai: def.ai || 'aggressive',
         phases: (def.phases || []).slice(), phaseIndex: 0,
         telegraph: null,
+        enrage: null,
         next: BASE_TURN / Math.max(1, def.spd) * (0.9 + rand() * 0.2)
       });
     });
@@ -221,6 +222,19 @@ export class Battle {
     return { amount, crit, weak: ef.weak, resist: ef.resist };
   }
 
+  // Applies a skill's stat-mod rider (e.g. Drakkor's Sunder: def -25%, 3
+  // turns) as a status with `mods`, refreshing duration if already present.
+  // Shared by direct physical/magic hits (armor-break skills) and the
+  // dedicated buff/debuff skill kind.
+  applyBuff(target, buff, events) {
+    if (!buff) return;
+    const st = { id: buff.stat + (buff.amount > 0 ? 'Up' : 'Down'), turns: buff.turns || 3, mods: { [buff.stat]: buff.amount } };
+    const existing = target.statuses.find(s => s.id === st.id);
+    if (existing) existing.turns = Math.max(existing.turns, st.turns);
+    else target.statuses.push(st);
+    events.push({ type: 'buff', target: target.key, stat: buff.stat, amount: buff.amount });
+  }
+
   applyStatus(target, statusId, turns, extra = {}) {
     if (target.immune.includes(statusId)) return { immune: true };
     const d = statusDef(statusId);
@@ -262,6 +276,16 @@ export class Battle {
       actor.sp = Math.min(actor.stats.maxSp, actor.sp + Math.round(6 * (this.diff.spRegen || 1)));
     }
     events.push({ type: 'skill', actor: actor.key, skill: skillId, name: skill.name, kind: skill.kind, element: skill.element });
+    // A hero countering an enraging boss's counterSkill defuses its countdown
+    // permanently (D19 Ignis: Drakkor's Wyrm's Roar answers the enrage).
+    if (actor.side === 'hero') {
+      for (const e of this.enemies()) {
+        if (e.enrage && !e.enrage.countered && e.enrage.counterSkill === skillId) {
+          e.enrage.countered = true;
+          events.push({ type: 'enrageCountered', target: e.key, actor: actor.key });
+        }
+      }
+    }
 
     const targets = this.targetsFor(skill, actor, targetKey);
     for (const target of targets) {
@@ -314,6 +338,8 @@ export class Battle {
             if (sr && sr.applied) events.push({ type: 'status', target: target.key, status: skill.status.id });
             else if (sr && sr.immune) events.push({ type: 'statusImmune', target: target.key, status: skill.status.id });
           }
+          // stat-mod rider (e.g. Sunder's armor-break def debuff)
+          if (skill.buff && target.hp > 0) this.applyBuff(target, skill.buff, events);
         } else if (skill.kind === 'heal') {
           if (skill.revive && target.hp <= 0) {
             const frac = typeof skill.revive === 'number' ? skill.revive : 0.5;
@@ -345,13 +371,7 @@ export class Battle {
             events.push({ type: 'shield', target: target.key });
           }
         } else if (skill.kind === 'buff' || skill.kind === 'debuff') {
-          if (skill.buff) {
-            const st = { id: skill.buff.stat + (skill.buff.amount > 0 ? 'Up' : 'Down'), turns: skill.buff.turns || 3, mods: { [skill.buff.stat]: skill.buff.amount } };
-            const existing = target.statuses.find(s => s.id === st.id);
-            if (existing) existing.turns = Math.max(existing.turns, st.turns);
-            else target.statuses.push(st);
-            events.push({ type: 'buff', target: target.key, stat: skill.buff.stat, amount: skill.buff.amount });
-          }
+          if (skill.buff) this.applyBuff(target, skill.buff, events);
           if (skill.status && target.hp > 0 && rand() < (skill.status.chance || 1)) {
             const sr = this.applyStatus(target, skill.status.id, skill.status.turns || 3);
             if (sr && sr.applied) events.push({ type: 'status', target: target.key, status: skill.status.id, friendly: skill.kind === 'buff' });
@@ -391,6 +411,15 @@ export class Battle {
         target.stats.spd = Math.round(target.stats.spd * phase.statMult);
       }
       events.push({ type: 'phase', target: target.key, say: phase.say });
+      // D19 enrage countdown: an unanswered counterSkill lets the boss
+      // unleash a devastating skillId once ticks run out.
+      if (phase.enrage) {
+        target.enrage = {
+          ticksLeft: phase.enrage.ticks, skillId: phase.enrage.skillId,
+          counterSkill: phase.enrage.counterSkill, countered: false
+        };
+        events.push({ type: 'enrageStart', target: target.key, ticks: target.enrage.ticksLeft });
+      }
     }
   }
 
@@ -489,6 +518,18 @@ export class Battle {
     const heroes = this.alive('hero');
     const allies = this.alive('enemy');
     if (!heroes.length) return null;
+
+    // D19 enrage countdown: counts down on the boss's own turns once a
+    // phase enters it; an uncountered timer unleashes `skillId` outright.
+    if (actor.enrage && !actor.enrage.countered) {
+      actor.enrage.ticksLeft--;
+      if (actor.enrage.ticksLeft <= 0) {
+        const skillId = actor.enrage.skillId;
+        actor.enrage = null;
+        return { skillId, targetKey: null, enrageUnleashed: true };
+      }
+      return { enraging: true, ticks: actor.enrage.ticksLeft };
+    }
 
     // Telegraphed attacks: a skill announced N ticks in advance, giving
     // the party a chance to Defend/shield against it before it resolves.

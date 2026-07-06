@@ -376,5 +376,11 @@ export const SKILLS = {
     cost: 0, target: 'allEnemies', power: 1.8, kind: 'magic',
     element: 'water', tags: ['water', 'enemy', 'boss'],
     telegraph: 2
+  },
+  cataclysm_flare: {
+    id: 'cataclysm_flare', name: 'Cataclysm Flare',
+    desc: "Ignis's final, world-ending breath, building for several turns before it scours the field. Only Drakkor's Wyrm's Roar can call him back from it.",
+    cost: 0, target: 'allEnemies', power: 2.6, kind: 'magic',
+    element: 'fire', tags: ['fire', 'enemy', 'boss', 'ultimate', 'enrage']
   }
 };

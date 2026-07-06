@@ -355,6 +355,26 @@ export class CombatScene extends Phaser.Scene {
         await this.delay(700);
         break;
       }
+      case 'enrageStart': {
+        flash(this, 0xff3300, 220, 0.4);
+        this.showBigBanner('ENRAGE BUILDING — ' + ev.ticks + ' turns!', 0xff5522);
+        sfx('boss');
+        await this.delay(900);
+        break;
+      }
+      case 'enrageTick': {
+        this.showBigBanner('The rage builds... (' + ev.ticks + ')', 0xff5522);
+        sfx('debuff');
+        await this.delay(700);
+        break;
+      }
+      case 'enrageCountered': {
+        flash(this, 0x66ccff, 200, 0.35);
+        this.showBigBanner('The enrage is broken!', 0x9fe3ff);
+        sfx('confirm');
+        await this.delay(700);
+        break;
+      }
       case 'phase': {
         shake(this, 0.006, 250);
         flash(this, 0xbb66ee, 220, 0.4);
@@ -486,6 +506,8 @@ export class CombatScene extends Phaser.Scene {
       if (decision && decision.telegraphing) {
         const skill = SKILLS[decision.skillId];
         events = [{ type: 'telegraph', actor: actor.key, say: (skill ? skill.name : 'Something') + ' gathers... (' + decision.ticks + ')' }];
+      } else if (decision && decision.enraging) {
+        events = [{ type: 'enrageTick', actor: actor.key, ticks: decision.ticks }];
       } else if (!decision || decision.defend) events = this.battle.defend(actor);
       else events = this.battle.useSkill(actor, decision.skillId, decision.targetKey);
       await this.animateEvents(events);

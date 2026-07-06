@@ -78,7 +78,7 @@ Recorded here per goal execution rule 3. Decisions favor coherence and keep futu
 | M3 | Combat core: timeline, skills, statuses, weaknesses, resonance, boss framework | §10 | **done (v4.8)** |
 | M4 | Act 1 slice: prologue, Nova Prime, tutorial, Pip+Erynn, Stargate dungeon, Kael, Shard 1, Evolution 1 | §6.3 (Fall/First Claim), §13, §14.3 | **done (v5.0)** |
 | M5 | Mirelight Deeps + Brimble + relationship/companion-quest systems + Drowned Matriarch | §7.2–7.4, §8.4 | **done (v5.1)** |
-| M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | pending |
+| M6 | Ashfall Dominion + Drakkor + Ash Tyrant Ignis | §8.4, §10.8 | **done (v5.3)** |
 | M7 | Kessari Reach + Erynn arc + Shard 4 | §7.3, §8.4 | pending |
 | M8 | The Silent Archive + Pip arc + Crown revelation | §6.3 (Complication), §8.3 | pending |
 | M9 | Act 3: Fracture, Void Threshold, final boss, Decision, endings + epilogues | §6.3, §6.5, §12.4 | pending |
@@ -204,6 +204,43 @@ public/src/
   gate → puzzle → grief choice → boss → both mercy-branch and telegraph
   logic verified directly) plus save/load and v3→v4 migration checks,
   all with a clean console.
+- **2026-07-05 — v5.3 / M6 complete:** Delivered Ashfall Dominion and Drakkor's
+  companion arc. New engine-level systems: hazard tiles in MapScene (a legend
+  entry's `hazard:{amount,interval}` ticks party HP on a repeating timer while
+  the player idles on the tile, cancelled the instant they step off — reused
+  for the caldera's ember floors), an enrage-countdown mechanic in the battle
+  engine (`enemy.enrage`, set by a boss phase's `enrage:{ticks,skillId,
+  counterSkill}`; ticks down on the boss's own turns and unleashes `skillId`
+  outright unless a hero uses `counterSkill` first, which defuses it
+  permanently), and a fix to the `sunder`-style armor-break skills: their
+  `buff` rider was previously dead code on physical/magic skills (only the
+  buff/debuff skill kind applied it) — physical hits now apply it too via a
+  shared `applyBuff` helper. Content: the 5-map Ashfall region (scorched
+  volcanic tileset, a 3-vent magma-slag-clearing puzzle gating the caldera
+  path plus scattered ember hazard tiles, Drakkor's walled-off fortress-corner
+  ruin), the `q_ashfall_ember` main quest and `q_drakkor_return` companion
+  quest (recruitment/wound scene folded into arrival, fortress grief scene
+  with a keep/release relic choice), a Drakonid succession-conflict choice
+  (`world.ashfall_heir`), and Ash Tyrant Ignis — a 3-phase boss whose P3
+  enrage (`cataclysm_flare`) is answered by Drakkor's `wyrms_roar`. Drakkor's
+  S3 Trial/Elder Wyrm evolution is deferred to M10 (companion evolutions),
+  matching how Brimble's S3 was implicitly deferred in M5. Along the way,
+  found and fixed a real bug in the M5 mirelight content: Brimble is never
+  actually recruited anywhere, so his whole companion-quest content is
+  currently unreachable dead code (flagged as a separate background task,
+  not fixed here to keep this milestone's diff scoped). All validators
+  (including new `validate_ashfall.mjs`) and the production build passed.
+  A live browser session drove the full region end to end via direct
+  module/scene manipulation (dynamic `import()` of the live `GameState`
+  singleton plus manual `game.step()` frame-pumping, since real-time waits
+  are heavily throttled in a backgrounded preview tab): recruit → hazard
+  tick → vent puzzle → fortress grief choice (bond 2→3) → succession choice
+  → Ignis fight → shard claim → Nova debrief, verified for **both**
+  `ashfall_heir` branches (elder/claimant), plus the enrage/counter-skill and
+  sunder-debuff mechanics verified directly against the pure battle-logic
+  engine in Node. Fixed a starved-trigger bug (two triggers sharing one
+  cell) and a D20 violation (a stray `novaStage = 2` in the M6 debrief,
+  which is M7's job) found during this verification pass.
 
 ## 7. M4 Handoff — completed in v5.0
 

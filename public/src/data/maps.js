@@ -60,6 +60,20 @@ export const MIRELIGHT_LEGEND = {
   'm': { tile: 'throneStone', solid: true }
 };
 
+export const ASHFALL_LEGEND = {
+  '#': { tile: 'ashWall', variants: 3, solid: true },
+  '.': { tile: 'ash', variants: 4 },
+  ',': { tile: 'cinder', variants: 3 },
+  'h': { tile: 'ember', variants: 2, hazard: { amount: 8, interval: 900 } },  // walkable but ticks HP unless the party keeps moving
+  'k': { tile: 'emberCooled', variants: 2 },              // safe cooled floor — reached only via setCell replacing 'h' or 'r'
+  'r': { tile: 'slag', variants: 3, solid: true },         // magma-slag blockage; impassable until vented
+  'g': { tile: 'geyser', variants: 2 },                    // decorative steam vent, walkable
+  'n': { tile: 'ventValve', solid: true },                 // vent valve post; puzzle interactions target the same x,y
+  'b': { tile: 'bannerPost', solid: true },                // Drakonid banner standard, decorative
+  'u': { tile: 'ruinedHold', variants: 3, solid: true },
+  'm': { tile: 'throneAsh', solid: true }
+};
+
 export const MAPS = {
   nova_plaza: {
     id: 'nova_plaza',
@@ -340,8 +354,10 @@ export const MAPS = {
 import { NOVA_MAPS, NOVA_PLAZA_EXIT_CONTRACTS } from './maps/nova.js';
 import { STARGATE_MAPS } from './maps/stargate.js';
 import { MIRELIGHT_MAPS } from './maps/mirelight.js';
+import { ASHFALL_MAPS } from './maps/ashfall.js';
 Object.assign(MAPS, NOVA_MAPS, STARGATE_MAPS);
 Object.assign(MAPS, MIRELIGHT_MAPS);
+Object.assign(MAPS, ASHFALL_MAPS);
 MAPS.nova_plaza.exits.push(...NOVA_PLAZA_EXIT_CONTRACTS);
 
 export function getMap(id) {

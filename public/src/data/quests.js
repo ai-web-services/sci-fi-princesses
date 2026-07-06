@@ -6,6 +6,7 @@
 
 import { quests as ACT1_QUESTS } from './act1.js';
 import { quests as ACT2_MIRELIGHT_QUESTS } from './act2_mirelight.js';
+import { quests as ACT2_ASHFALL_QUESTS } from './act2_ashfall.js';
 
 export const QUESTS = {
   q_fall_aftershock: {
@@ -21,7 +22,8 @@ export const QUESTS = {
     ]
   },
   ...ACT1_QUESTS,
-  ...ACT2_MIRELIGHT_QUESTS
+  ...ACT2_MIRELIGHT_QUESTS,
+  ...ACT2_ASHFALL_QUESTS
 };
 
 export function getQuestDefinition(id) {

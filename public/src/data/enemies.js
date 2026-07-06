@@ -283,7 +283,15 @@ export const ENEMIES = {
     ],
     boss: true,
     phases: [
-      { hpFrac: 0.5, addSkills: ['annihilation_beam'], say: 'Break my hide, then. See what waits beneath it.' }
+      { hpFrac: 0.5, addSkills: ['annihilation_beam'], say: 'Break my hide, then. See what waits beneath it.' },
+      // D19 P3: armor sundered enough to draw blood, Ignis enrages —
+      // a 3-tick countdown to Cataclysm Flare, answered only by Drakkor's
+      // Wyrm's Roar (see game/battle.js enrage/counterSkill hook).
+      {
+        hpFrac: 0.2,
+        enrage: { ticks: 3, skillId: 'cataclysm_flare', counterSkill: 'wyrms_roar' },
+        say: 'You have broken enough of me. Now feel what burns beneath the ash.'
+      }
     ],
     size: 'boss',
     palette: { primary: 0x661a0a, glow: 0xffaa22 }

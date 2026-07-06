@@ -9,13 +9,13 @@ import { getMap } from '../data/maps.js';
 import { TILESETS, setTileOffset, tileKey } from '../art/tiles.js';
 import { rng } from '../art/pixel.js';
 import { pollInput, swallowInput } from '../engine/input.js';
-import { fadeIn } from '../engine/fx.js';
+import { fadeIn, flash } from '../engine/fx.js';
 import { ActorSprite } from '../art/actors.js';
 import { GameState, autoSave, setFlag } from '../game/state.js';
 import { PixelText } from '../art/font.js';
 import { RAMP } from '../art/palette.js';
 import { runScript } from '../engine/script.js';
-import { playSong } from '../engine/audio.js';
+import { playSong, sfx } from '../engine/audio.js';
 import { SONGS } from '../data/music.js';
 import { questObjective } from '../data/quests.js';
 import { mergeStoryContent } from '../data/storyContent.js';
@@ -48,6 +48,8 @@ export class MapScene extends Phaser.Scene {
     }
     this.player.face(spawn.dir || 'down');
     this.placeActor(this.player, this.px, this.py);
+    this.hazardTimer = null;
+    this.updateHazard();
     this.stepping = false;
     this.scriptRunning = false;
     this.modalOpen = false;
@@ -167,7 +169,37 @@ export class MapScene extends Phaser.Scene {
       if (!GameState.mapChanges[this.mapId]) GameState.mapChanges[this.mapId] = {};
       GameState.mapChanges[this.mapId][id] = ch;
     }
+    if (x === this.px && y === this.py) this.updateHazard();
     return true;
+  }
+
+  // Hazard tiles (legend entry: { hazard: { amount, interval } }) tick party
+  // HP on a repeating timer while the player stands still on one; stepping
+  // off (tryStep's onComplete calls this again) cancels the timer, so only
+  // idling on the hazard costs HP. Damage never drops a hero below 1 HP —
+  // matches the existing "KO'd heroes leave battle at 1 hp" convention.
+  updateHazard() {
+    if (this.hazardTimer) { this.hazardTimer.remove(); this.hazardTimer = null; }
+    const ch = this.map.grid[this.py] && this.map.grid[this.py][this.px];
+    const entry = this.map.legend[ch];
+    if (!entry || !entry.hazard) return;
+    this.hazardTimer = this.time.addEvent({
+      delay: entry.hazard.interval || 800,
+      loop: true,
+      callback: () => this.applyHazardTick(entry.hazard)
+    });
+  }
+
+  applyHazardTick(hazard) {
+    if (!GameState || this.scriptRunning || this.modalOpen) return;
+    const amount = hazard.amount || 5;
+    for (const id of GameState.roster) {
+      const rec = GameState.chars[id];
+      if (rec && rec.hp > 0) rec.hp = Math.max(1, rec.hp - amount);
+    }
+    flash(this, 0xff5522, 120, 0.2);
+    sfx('fire');
+    this.showBanner('The heat sears through!');
   }
 
   buildNpcs() {
@@ -364,6 +396,7 @@ export class MapScene extends Phaser.Scene {
       },
       onComplete: () => {
         this.stepping = false;
+        this.updateHazard();
         this.handleArrival();
         this.maybeEncounter();
       }

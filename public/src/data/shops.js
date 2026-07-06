@@ -27,6 +27,11 @@ export const SHOPS = {
     id: 'mire_goods', name: 'DROWNED MARKET',
     keeper: 'Anura Trader',
     items: ['potion', 'hi_potion', 'antidote', 'clarity_herb', 'smoke_bomb', 'tidewood_staff', 'tide_band']
+  },
+  ash_goods: {
+    id: 'ash_goods', name: 'CINDER MARKET',
+    keeper: 'Drakonid Trader',
+    items: ['potion', 'hi_potion', 'antidote', 'clarity_herb', 'smoke_bomb', 'emberbrand_axe', 'dragonhide_plate']
   }
 };
 

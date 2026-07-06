@@ -6,6 +6,7 @@
 
 import { npcsByMap as ACT1_NPCS, triggersByMap as ACT1_TRIGGERS, interactionsByMap as ACT1_INTERACTIONS } from './act1.js';
 import { npcsByMap as ACT2_NPCS, triggersByMap as ACT2_TRIGGERS, interactionsByMap as ACT2_INTERACTIONS } from './act2_mirelight.js';
+import { npcsByMap as ACT2_ASH_NPCS, triggersByMap as ACT2_ASH_TRIGGERS, interactionsByMap as ACT2_ASH_INTERACTIONS } from './act2_ashfall.js';
 
 function mergeRegistries(...registries) {
   const merged = {};
@@ -17,9 +18,9 @@ function mergeRegistries(...registries) {
   return merged;
 }
 
-const npcsByMap = mergeRegistries(ACT1_NPCS, ACT2_NPCS);
-const triggersByMap = mergeRegistries(ACT1_TRIGGERS, ACT2_TRIGGERS);
-const interactionsByMap = mergeRegistries(ACT1_INTERACTIONS, ACT2_INTERACTIONS);
+const npcsByMap = mergeRegistries(ACT1_NPCS, ACT2_NPCS, ACT2_ASH_NPCS);
+const triggersByMap = mergeRegistries(ACT1_TRIGGERS, ACT2_TRIGGERS, ACT2_ASH_TRIGGERS);
+const interactionsByMap = mergeRegistries(ACT1_INTERACTIONS, ACT2_INTERACTIONS, ACT2_ASH_INTERACTIONS);
 
 const SERVICE_SCRIPTS = {
   weapons_smith: [
