@@ -50,6 +50,9 @@ export class TitleScene extends Phaser.Scene {
     const v = new PixelText(this, 0, GAME_H - 14, VERSION + '  ·  a science-fantasy tale', { scale: 1, color: 0x555577, align: 'center' });
     v.x = Math.round((GAME_W - v.textW) / 2);
 
+    // debug asset viewer (ART_PRODUCTION_PLAN.md Phase 0)
+    this.input.keyboard.on('keydown-G', () => this.scene.start('GalleryScene'));
+
     // music (starts after first gesture unlocks audio)
     this.musicStarted = false;
     swallowInput();

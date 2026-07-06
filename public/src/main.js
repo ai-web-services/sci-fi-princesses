@@ -16,6 +16,7 @@ import { TutorialScene } from './scenes/TutorialScene.js';
 import { EvolutionScene } from './scenes/EvolutionScene.js';
 import { ShopScene } from './scenes/ShopScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
+import { GalleryScene } from './scenes/GalleryScene.js';
 import { GameState } from './game/state.js';
 
 const config = {
@@ -39,7 +40,7 @@ const config = {
   scene: [
     BootScene, TitleScene, OptionsScene, SaveLoadScene,
     MapScene, DialogueScene, QuestJournalScene, TravelScene,
-    CombatScene, TutorialScene, EvolutionScene, ShopScene, MenuScene
+    CombatScene, TutorialScene, EvolutionScene, ShopScene, MenuScene, GalleryScene
   ]
 };
 
