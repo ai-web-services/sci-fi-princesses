@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
-# STELLAR PRINCESSES — SCI-FI RPG
-# Game Design Document (GDD) v1.0
+# STELLAR PRINCESSES — SCI-FI ACTION RPG
+# Game Design Document (GDD) v6.0-alpha
 # ═══════════════════════════════════════════════════════════════
 
 ## DESIGN PILLARS
@@ -9,6 +9,53 @@
 3. **Rewarding RPG Progression** — Deep itemization, equipment upgrades, material crafting
 4. **Challenging Boss Fights** — Bosses that demand strategy, not just stats
 5. **Home Base as Heart** — Zelda-style town with shops, NPCs, and warmth
+
+## v6 ACTION-RPG DIRECTION
+
+Nova Prime remains the authored, persistent home base. Stargate expeditions use a
+separate continuous-movement action scene backed by deterministic procedural regions.
+The initial Lumenwild vertical slice is graph-first: landing, ecological basin,
+territory, relay, shrine, mini-boss, shortcut, Kael arena, and extraction are connected
+before terrain decoration is applied. Every run stores its seed and generator version.
+
+Lyra moves in eight directions and manages health, stamina, and Crown energy. Plasma
+Blade, Stellar Lance, and Crown Wand differ through combo cadence, reach, arc, movement
+commitment, stamina cost, damage type, and impact. Dodge grants a short invulnerability
+window. Attacks build Crown energy and weapon mastery; current XP and monotonic lifetime
+XP are tracked independently. The field-party model uses one reliable active AI companion
+with quick commands. Erynn marks targets with critical pounces, Brimble projects a
+damage-reducing bulwark, Drakkor breaks clustered threats, and Pip supplies ranged stellar
+pressure. Party formation chooses the field companion while the complete roster remains
+available in authored party systems.
+
+Each weapon also has a Crown-energy technique: Blade counters in a defensive arc, Lance
+commits to a Comet Charge, and Wand releases an omnidirectional Nova Field. Voidborn can
+fire pooled projectiles and regional creatures expose readable Slash, Pierce, and Stellar
+weakness/resistance feedback. The pause menu contains a live seeded region overview.
+
+The field menu includes a four-page character sheet covering action resources, XP,
+evolution and relationships, derived-stat sources, equipment rarity and skills, weapon
+mastery, species traits, and recognizable run-build modifiers.
+
+Each action weapon is a persistent gear instance. Forge enhancement runs from +1 through
++10, unlocking deterministic substat affixes at +3, +6, and +9. One material infusion can
+convert its reward identity toward Dark, Light, Fire, Ice, Lightning, or vitality, and a +10 weapon can
+consume a Celestial Shard to transcend. These bonuses feed real-time damage rather than
+existing only as collection metadata.
+
+Lumenwild populations are placed as habitats, not player-centered spawns. Passive wildlife
+grazes and flees when harmed; neutral wildlife retaliates only after provocation;
+territorial creatures guard a short warning radius; Voidborn pursue; and elites use lateral
+flanking pressure. Eligible non-objective creatures return through pooled, off-camera slots
+after a deterministic cooldown, capped at eighteen active bodies.
+
+Shared scores use a privacy-conscious ChatGPT identity only after the player opens the
+secure Crown Network relay from the run summary. The relay validates the current version,
+score bounds, objective consistency, duplicate run identity, and submission frequency.
+Failure never removes the local result or prevents another expedition.
+
+The presentation uses a crisp 480×270 playfield with integer scaling. The authored story,
+town, shop, dialogue, combat, and save layouts are covered by a dedicated viewport suite.
 
 ## NARRATIVE FRAMEWORK
 
@@ -221,36 +268,40 @@ Certain skill combinations trigger "Resonance" attacks:
 
 ## CONTROLS
 
-### Keyboard
-- **WASD / Arrow Keys** — Move
-- **Z / Space** — Interact / Confirm
-- **X / Escape** — Cancel / Menu
-- **C** — Open inventory
-- **Tab** — Switch party member (in combat)
-- **1-4** — Quick skill select (in combat)
+### Expedition Keyboard
+- **WASD / Arrow Keys** — Eight-direction movement and facing
+- **Z / Space / Enter** — Primary attack / confirm
+- **X / Escape** — Dodge / cancel
+- **Q / E** — Previous / next action weapon
+- **F** — Context interaction or current weapon's Crown technique
+- **R** — Active companion quick command
+- **C** — Pause and open the field menu
 
-### Gamepad (Standard Layout)
-- **Left Stick / D-Pad** — Move
-- **A / Cross** — Interact / Confirm
-- **B / Circle** — Cancel / Menu
-- **X / Square** — Inventory
-- **Y / Triangle** — Party menu
-- **LB/RB** — Cycle party member (in combat)
-- **LT/RT** — Quick skill 1/2
-- **Start** — Pause menu
-- **Back/Select** — Map
+### Standard Gamepad
+- **Left Stick / D-Pad** — Eight-direction movement and facing
+- **A / Cross** — Primary attack / confirm
+- **B / Circle** — Dodge / cancel
+- **LB / RB** — Previous / next action weapon
+- **X / Square** — Context interaction or Crown technique
+- **Y / Triangle** — Active companion quick command
+- **Start** — Pause and open the field menu
+
+The action map is data-driven in `engine/settings.js`; every keyboard and gamepad
+action is validated, including analog deadzone behavior. Authored town and legacy battle
+interfaces reuse the same confirm/cancel/navigation actions.
 
 ## TECHNICAL ARCHITECTURE
 
 ### Rendering
 - HTML5 Canvas 2D, pixel-perfect rendering
-- 320×224 internal resolution (SNES-style), scaled to 960×640
+- 480×270 internal resolution, scaled by the largest fitting integer
 - Sprite-based with palette-swapped variants for species
-- Particle system for effects (no WebGL dependency)
+- Procedural and local PNG sprite assets with bounded impact effects
 
 ### Game Loop
 - Fixed timestep (60 FPS target)
-- State machine: Title → Town → Overworld → Combat → Boss → Cutscene
+- Authored hub maps connect to deterministic continuous-action expeditions through the Stargate
+- Legacy authored battles remain available for preserved narrative content
 - Auto-save at key transitions
 
 ### Audio
@@ -312,8 +363,16 @@ Certain skill combinations trigger "Resonance" attacks:
 - [x] Evolution trigger after boss
 - [x] Evolution visual + gameplay effects
 
-### Future Steps
-- Step 4: Full party recruitment (all 4 companions)
-- Step 5: Companion evolution quests
-- Step 6: Additional zones and bosses
-- Step 7: Endgame content
+### v6 Action-RPG Vertical Slice
+- [x] Deterministic Lumenwild expedition and extraction loop
+- [x] Blade, Lance, and Wand action families with Crown techniques
+- [x] Four single-active-companion field roles
+- [x] Habitat ecology, affinities, ranged enemies, and pooled populations/projectiles
+- [x] Real-time multi-phase Void Sentinel Kael
+- [x] Level choices, mastery, gear enhancement/infusion/transcendence, and character sheet
+- [x] Crown Shard evolution, changed return hub, run summary, and shared leaderboard
+
+### Future Expansion
+- Additional procedural biomes only after Lumenwild balance feedback
+- Companion evolution quests and expanded field-command upgrades
+- Later Crown Shards, bosses, and Celestial Ascendant endgame

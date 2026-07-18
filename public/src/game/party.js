@@ -19,7 +19,8 @@ export function recruit(id) {
   if (GameState.active.length < 3) GameState.active.push(id);
   GameState.chars[id] = {
     level: 1, xp: 0, hp: base.hp, maxHp: base.hp, sp: base.sp, maxSp: base.sp,
-    equipment: {}, skillsKnown: base.skills.slice(), evolution: 0, build: {}
+    equipment: {}, skillsKnown: base.skills.slice(), evolution: 0, build: {},
+    lifetimeXp: 0, weaponMastery: { blade: 0, lance: 0, wand: 0 }
   };
   GameState.relationships[id] = { bond: 0, scenes: [] };
   return true;

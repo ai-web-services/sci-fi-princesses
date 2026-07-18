@@ -14,7 +14,7 @@ import { newGameState } from '../game/state.js';
 import { transition } from '../engine/fx.js';
 import { Settings } from '../engine/settings.js';
 
-export const VERSION = 'v5.0';
+export const VERSION = 'v6.0-alpha.5';
 
 export class TitleScene extends Phaser.Scene {
   constructor() { super({ key: 'TitleScene' }); }
@@ -23,22 +23,22 @@ export class TitleScene extends Phaser.Scene {
     this.add.image(0, 0, 'starfield').setOrigin(0, 0);
 
     // emblem + title
-    const emblem = this.add.image(GAME_W / 2, 78, 'crownEmblem').setScale(3);
+    const emblem = this.add.image(GAME_W / 2, 50, 'crownEmblem').setScale(2.4);
     if (!Settings.reducedMotion) {
-      this.tweens.add({ targets: emblem, y: 74, duration: 2200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: emblem, y: 47, duration: 2200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
-    const t1 = new PixelText(this, 0, 118, 'STELLAR', { scale: 4, color: RAMP.uiGold[3], align: 'center' });
+    const t1 = new PixelText(this, 0, 82, 'STELLAR', { scale: 3, color: RAMP.uiGold[3], align: 'center' });
     t1.x = Math.round((GAME_W - t1.textW) / 2);
-    const t2 = new PixelText(this, 0, 152, 'PRINCESSES', { scale: 4, color: RAMP.uiGold[4], align: 'center' });
+    const t2 = new PixelText(this, 0, 108, 'PRINCESSES', { scale: 3, color: RAMP.uiGold[4], align: 'center' });
     t2.x = Math.round((GAME_W - t2.textW) / 2);
-    const sub = new PixelText(this, 0, 190, '— The Shattered Crown —', { scale: 1, color: 0x9678e0, align: 'center' });
+    const sub = new PixelText(this, 0, 139, '— The Shattered Crown —', { scale: 1, color: 0x9678e0, align: 'center' });
     sub.x = Math.round((GAME_W - sub.textW) / 2);
 
     // menu
     const saves = listSaves();
     const hasAnySave = saves.some(s => !s.empty);
-    this.menu = new MenuList(this, GAME_W / 2 - 60, 230, [
+    this.menu = new MenuList(this, GAME_W / 2 - 60, 170, [
       { label: 'New Game', value: 'new' },
       { label: 'Continue', value: 'continue', disabled: !hasAnySave },
       { label: 'Options', value: 'options' }

@@ -19,13 +19,27 @@ import { RAMP } from '../art/palette.js';
 import { rng, drawGrid } from '../art/pixel.js';
 import { loadProgressionData } from '../game/progression.js';
 import { loadBattleArt } from '../art/battleArt.js';
+import { queueRigSheets, registerRigs } from '../engine/rigs.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() { super({ key: 'BootScene' }); }
 
+  preload() {
+    // Rig sheets are manifest-driven: load the manifest, then queue every sheet
+    // it lists onto the still-running loader (Phaser allows adding files while
+    // the loader is in flight).
+    this.load.json('rigManifest', 'assets/sprites/manifest.json');
+    this.load.once('filecomplete-json-rigManifest', (_key, _type, manifest) => {
+      queueRigSheets(this.load, manifest);
+    });
+    this.load.image('rig_lyra_idle_review', 'assets/sprites/reviews/lyra-idle-review-6x.png');
+    this.load.image('rig_lyra_walk_review', 'assets/sprites/reviews/lyra-walk-review-6x.png');
+  }
+
   create() {
     loadSettings();
     buildFont(this);
+    registerRigs(this);
     buildShadowTexture(this);
     buildActorTexture(this, LYRA_SPRITE);
     for (const def of [ERYNN_SPRITE, BRIMBLE_SPRITE, DRAKKOR_SPRITE, PIP_SPRITE, ...NPC_SPRITES]) {
@@ -46,6 +60,7 @@ export class BootScene extends Phaser.Scene {
 
     // data modules that load tolerantly (combat data, battle art)
     Promise.all([loadProgressionData(), loadBattleArt()]).then(() => {
+      if (window.__stellarTest) window.__stellarTest.ready = true;
       this.scene.start('TitleScene');
     });
   }

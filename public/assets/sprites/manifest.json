@@ -1,0 +1,1520 @@
+{
+  "schema": 1,
+  "generatedBy": "tools/spritegen",
+  "cell": {
+    "width": 64,
+    "height": 64
+  },
+  "layout": {
+    "columns": 8,
+    "rows": 4,
+    "directions": [
+      "front",
+      "back",
+      "side-left",
+      "side-right"
+    ],
+    "spacing": 0,
+    "margin": 0
+  },
+  "assets": [
+    {
+      "id": "lyra",
+      "stage": "base",
+      "species": "human",
+      "source": "procedural sprite-rig generator; no external pixels",
+      "spec": "ART_VISION.md §3.3 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "hairTemplates": [
+        "sweep",
+        "spikes",
+        "twin-tail"
+      ],
+      "ramps": [
+        "lyraHair",
+        "lyraDress",
+        "lyraTrim",
+        "skinFair",
+        "lyraEye",
+        "starlight",
+        "steel"
+      ],
+      "accentRamps": [
+        "starlight"
+      ],
+      "actions": {
+        "idle": {
+          "file": "lyra-idle.png",
+          "frames": 4,
+          "fps": 8,
+          "review": "reviews/lyra-idle-review-6x.png"
+        },
+        "walk": {
+          "file": "lyra-walk.png",
+          "frames": 6,
+          "fps": 10,
+          "review": "reviews/lyra-walk-review-6x.png"
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "erynn",
+      "category": "hero",
+      "stage": "base",
+      "species": "felidae",
+      "source": "procedural sprite-rig generator; no external pixels",
+      "fitScale": 0.64,
+      "spec": "ART_VISION.md §3.3 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "erynnSuit",
+        "erynnAcc",
+        "erynnFur",
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "accentRamps": [
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "actions": {
+        "idle": {
+          "file": "erynn-idle.png",
+          "frames": 4,
+          "fps": 8,
+          "review": "reviews/erynn-idle-review-6x.png"
+        },
+        "walk": {
+          "file": "erynn-walk.png",
+          "frames": 6,
+          "fps": 10,
+          "review": "reviews/erynn-walk-review-6x.png"
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "species": "felidae",
+        "body": "erynnSuit",
+        "accent": "erynnAcc",
+        "skin": "erynnFur",
+        "eye": "lyraTrim",
+        "weapon": "steel",
+        "hair": "erynnFur"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "brimble",
+      "category": "hero",
+      "stage": "base",
+      "species": "anura",
+      "source": "procedural sprite-rig generator; no external pixels",
+      "fitScale": 0.64,
+      "spec": "ART_VISION.md §3.3 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "brimbleRobe",
+        "brimbleBelly",
+        "brimbleSkin",
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "accentRamps": [
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "actions": {
+        "idle": {
+          "file": "brimble-idle.png",
+          "frames": 4,
+          "fps": 8,
+          "review": "reviews/brimble-idle-review-6x.png"
+        },
+        "walk": {
+          "file": "brimble-walk.png",
+          "frames": 6,
+          "fps": 10,
+          "review": "reviews/brimble-walk-review-6x.png"
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "species": "anura",
+        "body": "brimbleRobe",
+        "accent": "brimbleBelly",
+        "skin": "brimbleSkin",
+        "eye": "lyraTrim",
+        "weapon": "steel",
+        "hair": "brimbleSkin"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "drakkor",
+      "category": "hero",
+      "stage": "base",
+      "species": "drakonid",
+      "source": "procedural sprite-rig generator; no external pixels",
+      "fitScale": 0.64,
+      "spec": "ART_VISION.md §3.3 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "drakkorPlate",
+        "drakkorHorn",
+        "drakkorScale",
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "accentRamps": [
+        "lyraTrim",
+        "steel",
+        "starlight"
+      ],
+      "actions": {
+        "idle": {
+          "file": "drakkor-idle.png",
+          "frames": 4,
+          "fps": 8,
+          "review": "reviews/drakkor-idle-review-6x.png"
+        },
+        "walk": {
+          "file": "drakkor-walk.png",
+          "frames": 6,
+          "fps": 10,
+          "review": "reviews/drakkor-walk-review-6x.png"
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "species": "drakonid",
+        "body": "drakkorPlate",
+        "accent": "drakkorHorn",
+        "skin": "drakkorScale",
+        "eye": "lyraTrim",
+        "weapon": "steel",
+        "hair": "drakkorHorn"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "pip",
+      "category": "hero",
+      "stage": "base",
+      "species": "construct",
+      "source": "procedural sprite-rig generator; no external pixels",
+      "fitScale": 0.64,
+      "spec": "ART_VISION.md §3.3 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "pipShell",
+        "pipBrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "pipCore",
+        "pipBrass",
+        "starlight"
+      ],
+      "actions": {
+        "idle": {
+          "file": "pip-idle.png",
+          "frames": 4,
+          "fps": 8,
+          "review": "reviews/pip-idle-review-6x.png"
+        },
+        "walk": {
+          "file": "pip-walk.png",
+          "frames": 6,
+          "fps": 10,
+          "review": "reviews/pip-walk-review-6x.png"
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "species": "construct",
+        "body": "pipShell",
+        "accent": "pipBrass",
+        "skin": "pipShell",
+        "eye": "pipCore",
+        "weapon": "pipBrass",
+        "hair": "pipShell"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "voidling",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "voidling-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "voidling-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "shade",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "shade-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "shade-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "float"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "corrupted_sentry",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "corrupted_sentry-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "corrupted_sentry-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "construct"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "void_maw",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "void_maw-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "void_maw-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "gate_wisp",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "gate_wisp-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "gate_wisp-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "float"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "shard_golem",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "large",
+      "fitScale": 1.15,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "shard_golem-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "shard_golem-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "construct"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "mire_croaker",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "novaGrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "pipCore"
+      ],
+      "actions": {
+        "idle": {
+          "file": "mire_croaker-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "mire_croaker-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "mire",
+        "ramps": [
+          "novaGrass",
+          "pipCore",
+          "pipCore"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "drowned_one",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "novaGrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "pipCore"
+      ],
+      "actions": {
+        "idle": {
+          "file": "drowned_one-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "drowned_one-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "mire",
+        "ramps": [
+          "novaGrass",
+          "pipCore",
+          "pipCore"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "bog_lurker",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "novaGrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "pipCore"
+      ],
+      "actions": {
+        "idle": {
+          "file": "bog_lurker-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "bog_lurker-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "mire",
+        "ramps": [
+          "novaGrass",
+          "pipCore",
+          "pipCore"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "tide_witch",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "novaGrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "pipCore"
+      ],
+      "actions": {
+        "idle": {
+          "file": "tide_witch-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "tide_witch-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "mire",
+        "ramps": [
+          "novaGrass",
+          "pipCore",
+          "pipCore"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "coral_crab",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "novaGrass",
+        "pipCore",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "pipCore"
+      ],
+      "actions": {
+        "idle": {
+          "file": "coral_crab-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "coral_crab-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "mire",
+        "ramps": [
+          "novaGrass",
+          "pipCore",
+          "pipCore"
+        ],
+        "kind": "wide"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "void_eel",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "void_eel-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "void_eel-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "float"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "ember_hound",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidAsh",
+        "lyraTrim",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "lyraTrim"
+      ],
+      "actions": {
+        "idle": {
+          "file": "ember_hound-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "ember_hound-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "ash",
+        "ramps": [
+          "voidAsh",
+          "lyraTrim",
+          "lyraTrim"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "ash_revenant",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidAsh",
+        "lyraTrim",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "lyraTrim"
+      ],
+      "actions": {
+        "idle": {
+          "file": "ash_revenant-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "ash_revenant-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "ash",
+        "ramps": [
+          "voidAsh",
+          "lyraTrim",
+          "lyraTrim"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "magma_beetle",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidAsh",
+        "lyraTrim",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "lyraTrim"
+      ],
+      "actions": {
+        "idle": {
+          "file": "magma_beetle-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "magma_beetle-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "ash",
+        "ramps": [
+          "voidAsh",
+          "lyraTrim",
+          "lyraTrim"
+        ],
+        "kind": "wide"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "drake_whelp",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "large",
+      "fitScale": 1.15,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidAsh",
+        "lyraTrim",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "lyraTrim"
+      ],
+      "actions": {
+        "idle": {
+          "file": "drake_whelp-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "drake_whelp-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "ash",
+        "ramps": [
+          "voidAsh",
+          "lyraTrim",
+          "lyraTrim"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "dust_stalker",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "dust_stalker-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "dust_stalker-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "gutter_blade",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "gutter_blade-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "gutter_blade-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "smuggler_enforcer",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "smuggler_enforcer-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "smuggler_enforcer-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "void_hound",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "medium",
+      "fitScale": 0.88,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "voidDeep",
+        "voidGlow",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "voidGlow"
+      ],
+      "actions": {
+        "idle": {
+          "file": "void_hound-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "void_hound-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "void",
+        "ramps": [
+          "voidDeep",
+          "voidGlow",
+          "voidGlow"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    },
+    {
+      "id": "silk_assassin",
+      "category": "enemy",
+      "stage": "base",
+      "species": "enemy",
+      "size": "small",
+      "fitScale": 0.72,
+      "source": "procedural enemy family generator; no external pixels",
+      "spec": "ART_VISION.md §4 / §11 Route P",
+      "postProcessing": [
+        "auto-shade",
+        "auto-selout",
+        "nearest-neighbor cell fit",
+        "declared-ramp validation"
+      ],
+      "license": "Original generated pixels; no external source material",
+      "ramps": [
+        "leather",
+        "brass",
+        "starlight"
+      ],
+      "accentRamps": [
+        "starlight",
+        "brass"
+      ],
+      "actions": {
+        "idle": {
+          "file": "silk_assassin-idle.png",
+          "frames": 4,
+          "fps": 8
+        },
+        "attack": {
+          "file": "silk_assassin-attack.png",
+          "frames": 2,
+          "fps": 8
+        }
+      },
+      "directions": [
+        "front",
+        "back",
+        "side-left",
+        "side-right"
+      ],
+      "style": {
+        "family": "trade",
+        "ramps": [
+          "leather",
+          "brass",
+          "brass"
+        ],
+        "kind": "beast"
+      },
+      "cell": {
+        "width": 64,
+        "height": 64
+      }
+    }
+  ]
+}

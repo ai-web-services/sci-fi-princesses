@@ -1,20 +1,30 @@
 {
   "name": "stellar-princesses",
-  "version": "5.0.0",
+  "version": "6.0.0-alpha.5",
   "description": "Stellar Princesses — Sci-Fi RPG (Phaser 4)",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build --emptyOutDir",
+    "generate:sprites": "node tools/spritegen/generate.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 8090",
     "validate:sprites": "node scripts/validate_sprites.mjs",
+    "validate:battle": "node scripts/validate_battle_heroes.mjs",
     "validate:maps": "node scripts/validate_maps.mjs",
     "validate:nova": "node scripts/validate_nova_maps.mjs",
     "validate:stargate": "node scripts/validate_stargate_maps.mjs",
-    "validate:act1": "node scripts/validate_act1.mjs"
+    "validate:act1": "node scripts/validate_act1.mjs",
+    "validate:expeditions": "node scripts/validate_expeditions.mjs"
+    ,"validate:action": "node scripts/validate_action_run.mjs"
+    ,"validate:input": "node scripts/validate_input.mjs"
+    ,"test:expedition": "node tests/expedition-smoke.mjs"
+    ,"test:viewport": "node tests/viewport-smoke.mjs"
+    ,"test:performance": "node tests/performance-smoke.mjs"
+    ,"test:leaderboard": "node tests/leaderboard-client.mjs"
   },
   "devDependencies": {
+    "playwright": "^1.54.1",
     "vite": "^6.4.3"
   }
 }

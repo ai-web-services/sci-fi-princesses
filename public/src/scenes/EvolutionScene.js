@@ -35,30 +35,30 @@ export class EvolutionScene extends Phaser.Scene {
     const data = charData(this.characterId);
     const name = data ? data.name : this.characterId;
     const stage = result.stage.name;
-    const actor = this.add.image(GAME_W / 2, 210, 'actor_' + this.characterId, 'down0')
-      .setScale(4).setOrigin(0.5, 1).setDepth(DEPTH.UI + 1);
-    this.add.rectangle(GAME_W / 2, 214, 150, 12, 0xffd75e, 0.18).setDepth(DEPTH.UI);
-    const title = new PixelText(this, 0, 48, name.toUpperCase(), {
+    const actor = this.add.image(GAME_W / 2, 172, 'actor_' + this.characterId, 'down0')
+      .setScale(3).setOrigin(0.5, 1).setDepth(DEPTH.UI + 1);
+    this.add.rectangle(GAME_W / 2, 176, 126, 9, 0xffd75e, 0.18).setDepth(DEPTH.UI);
+    const title = new PixelText(this, 0, 26, name.toUpperCase(), {
       scale: 2, color: RAMP.uiGold[4], align: 'center'
     });
     title.x = Math.round((GAME_W - title.textW) / 2);
-    const form = new PixelText(this, 0, 82, stage.toUpperCase(), {
-      scale: 3, color: 0xffffff, align: 'center'
+    const form = new PixelText(this, 0, 52, stage.toUpperCase(), {
+      scale: 2, color: 0xffffff, align: 'center'
     });
     form.x = Math.round((GAME_W - form.textW) / 2);
     const learned = result.learned.length
       ? 'New ability: ' + result.learned.map(id => SKILLS[id]?.name || id).join(', ')
       : 'Stellar power answers resolve.';
-    const detail = new PixelText(this, 0, 246, learned, {
+    const detail = new PixelText(this, 0, 199, learned, {
       scale: 1, color: 0xc8b8ff, align: 'center'
     });
     detail.x = Math.round((GAME_W - detail.textW) / 2);
-    const prompt = new PixelText(this, 0, 320, 'Confirm to continue', {
+    const prompt = new PixelText(this, 0, 244, 'Confirm to continue', {
       scale: 1, color: RAMP.uiGold[3], align: 'center'
     });
     prompt.x = Math.round((GAME_W - prompt.textW) / 2);
     if (!Settings.reducedMotion) {
-      this.tweens.add({ targets: actor, scale: 4.25, duration: 900, yoyo: true, repeat: -1 });
+      this.tweens.add({ targets: actor, scale: 3.2, duration: 900, yoyo: true, repeat: -1 });
     }
     sfx('evolve');
     flash(this, 0xffffff, 300, 0.7);

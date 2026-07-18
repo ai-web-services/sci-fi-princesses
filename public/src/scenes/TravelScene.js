@@ -24,7 +24,7 @@ export class TravelScene extends Phaser.Scene {
     const shade = this.add.graphics();
     shade.fillStyle(0x060410, 0.84);
     shade.fillRect(0, 0, GAME_W, GAME_H);
-    this.win = new Win(this, 72, 42, GAME_W - 144, GAME_H - 84);
+    this.win = new Win(this, 36, 28, GAME_W - 72, GAME_H - 56);
     this.win.addText(18, 14, 'STARGATE NETWORK', { scale: 2, color: RAMP.uiGold[3] });
     this.win.addText(18, 38, 'Select a stable route. Locked signatures remain recorded.', {
       scale: 1, color: uiDimColor()
@@ -39,8 +39,8 @@ export class TravelScene extends Phaser.Scene {
     items.push({ label: 'Return to console', value: 'cancel', row: null });
     this.menu = new MenuList(this, this.win.x + 18, this.win.y + 68, items, {
       width: this.win.w - 36,
-      lineH: 24,
-      visible: 7,
+      lineH: 18,
+      visible: 4,
       onChange: item => this.showStatus(item.row),
       onSelect: item => this.choose(item),
       onCancel: () => this.close()
@@ -69,6 +69,13 @@ export class TravelScene extends Phaser.Scene {
     }
     if (!item.row || !item.row.available) {
       uiSfx('error');
+      return;
+    }
+    if (item.row.scene) {
+      uiSfx('confirm');
+      const parent = this.scene.get(this.parentScene);
+      if (parent && parent.scene) parent.scene.stop();
+      this.scene.start(item.row.scene, {});
       return;
     }
     const parent = this.scene.get(this.parentScene);

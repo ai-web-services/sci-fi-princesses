@@ -7,6 +7,7 @@
 import { npcsByMap as ACT1_NPCS, triggersByMap as ACT1_TRIGGERS, interactionsByMap as ACT1_INTERACTIONS } from './act1.js';
 import { npcsByMap as ACT2_NPCS, triggersByMap as ACT2_TRIGGERS, interactionsByMap as ACT2_INTERACTIONS } from './act2_mirelight.js';
 import { npcsByMap as ACT2_ASH_NPCS, triggersByMap as ACT2_ASH_TRIGGERS, interactionsByMap as ACT2_ASH_INTERACTIONS } from './act2_ashfall.js';
+import { npcsByMap as ACT2_KESS_NPCS, triggersByMap as ACT2_KESS_TRIGGERS, interactionsByMap as ACT2_KESS_INTERACTIONS } from './act2_kessari.js';
 
 function mergeRegistries(...registries) {
   const merged = {};

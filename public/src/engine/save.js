@@ -59,6 +59,37 @@ const MIGRATIONS = {
     }
     data.state = state;
     return data;
+  },
+  4: (data) => {
+    const state = data.state || {};
+    state.action = Object.assign({ stamina: 100, maxStamina: 100, energy: 0, maxEnergy: 48, weapon: 'blade' }, state.action || {});
+    if (!Array.isArray(state.runHistory)) state.runHistory = [];
+    if (state.expedition === undefined) state.expedition = null;
+    for (const rec of Object.values(state.chars || {})) {
+      if (typeof rec.lifetimeXp !== 'number') rec.lifetimeXp = Number(rec.xp) || 0;
+      if (!rec.weaponMastery || typeof rec.weaponMastery !== 'object') rec.weaponMastery = { blade: 0, lance: 0, wand: 0 };
+    }
+    data.state = state;
+    return data;
+  },
+  5: (data) => {
+    const state = data.state || {};
+    if (!state.actionArsenal || typeof state.actionArsenal !== 'object') {
+      state.actionArsenal = {
+        blade: { id: 'starlight_saber', enhancement: 0, infusion: null, affixes: [], transcended: false },
+        lance: { id: 'stellar_lance', enhancement: 0, infusion: null, affixes: [], transcended: false },
+        wand: { id: 'crown_wand', enhancement: 0, infusion: null, affixes: [], transcended: false }
+      };
+    }
+    for (const rec of Object.values(state.chars || {})) {
+      if (!rec.equipment || typeof rec.equipment !== 'object') rec.equipment = {};
+      for (const slot of Object.keys(rec.equipment)) {
+        const value = rec.equipment[slot];
+        if (typeof value === 'string') rec.equipment[slot] = { id: value, enhancement: 0, infusion: null, affixes: [], transcended: false };
+      }
+    }
+    data.state = state;
+    return data;
   }
 };
 

@@ -410,6 +410,10 @@ const NOVA_RETURN = [
   { quest: { id: 'q_first_claim', stage: 7, status: 'done' } },
   { flag: { key: 'act1_complete', value: true } },
   { flag: { key: 'nova_reaction_pending', value: false } },
+  // Opens the Stargate route to Mirelight Deeps — without this, the
+  // region is unreachable (Travel only ever lists a destination once
+  // it appears in GameState.unlockedDestinations).
+  { unlock: 'mirelight' },
   { autosave: 'Starfall Plaza' },
   { banner: 'Quest complete: The First Claim' }
 ];

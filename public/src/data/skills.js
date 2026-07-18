@@ -382,5 +382,61 @@ export const SKILLS = {
     desc: "Ignis's final, world-ending breath, building for several turns before it scours the field. Only Drakkor's Wyrm's Roar can call him back from it.",
     cost: 0, target: 'allEnemies', power: 2.6, kind: 'magic',
     element: 'fire', tags: ['fire', 'enemy', 'boss', 'ultimate', 'enrage']
+  },
+  sand_fling: {
+    id: 'sand_fling', name: 'Sand Fling',
+    desc: 'A blinding spray of sun-scorched grit.',
+    cost: 0, target: 'enemy', power: 0, kind: 'debuff',
+    element: null, tags: ['enemy'],
+    status: { id: 'blind', chance: 0.6, turns: 3 }
+  },
+  alley_stab: {
+    id: 'alley_stab', name: 'Alley Stab',
+    desc: 'A quick, dirty knife thrust aimed at soft tissue.',
+    cost: 0, target: 'enemy', power: 1.0, kind: 'physical',
+    element: 'slash', tags: ['enemy'],
+    status: { id: 'poison', chance: 0.6, turns: 3 }
+  },
+  pistol_whip: {
+    id: 'pistol_whip', name: 'Pistol-Whip',
+    desc: 'A brutal strike from a smuggler-issue sidearm.',
+    cost: 0, target: 'enemy', power: 1.1, kind: 'physical',
+    element: 'blunt', tags: ['enemy'],
+    status: { id: 'stun', chance: 0.2, turns: 1 }
+  },
+  void_snap: {
+    id: 'void_snap', name: 'Void Snap',
+    desc: 'A corrupted hound\'s bite, warped by rift-taint.',
+    cost: 0, target: 'enemy', power: 1.1, kind: 'physical',
+    element: 'void', tags: ['void', 'enemy']
+  },
+  garrote_line: {
+    id: 'garrote_line', name: 'Garrote Line',
+    desc: 'A thin cord finds the one gap in the armor.',
+    cost: 0, target: 'enemy', power: 1.2, kind: 'physical',
+    element: 'slash', tags: ['enemy'],
+    crit: 2.0,
+    status: { id: 'poison', chance: 0.5, turns: 3 }
+  },
+  silk_snare: {
+    id: 'silk_snare', name: 'Silk Snare',
+    desc: 'Vess opens with a thrown length of weighted silk, snagging her opponent\'s footwork.',
+    cost: 0, target: 'enemy', power: 0, kind: 'debuff',
+    element: null, tags: ['enemy', 'boss'],
+    buff: { stat: 'spd', amount: -0.25, turns: 3 }
+  },
+  veil_of_silk: {
+    id: 'veil_of_silk', name: 'Veil of Silk',
+    desc: 'Vess vanishes behind a decoy of silk and afterimage, only a scan can tell real from false.',
+    cost: 0, target: 'self', power: 0, kind: 'buff',
+    element: null, tags: ['enemy', 'boss'],
+    status: { id: 'decoy', chance: 1.0, turns: 99 }
+  },
+  clone_flurry: {
+    id: 'clone_flurry', name: 'Clone Flurry',
+    desc: 'A flurry of strikes from every decoy at once — only one of them is real.',
+    cost: 0, target: 'enemy', power: 0.6, kind: 'physical',
+    element: 'slash', tags: ['enemy', 'boss'],
+    hits: 3
   }
 };

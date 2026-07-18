@@ -6,7 +6,7 @@
 
 import { BATTLE_ENEMIES } from '../public/src/art/battle/enemies.js';
 
-const EXPECTED_COUNT = 19;
+const EXPECTED_COUNT = 25;
 
 function validateEnemy(enemy) {
   const errors = [];

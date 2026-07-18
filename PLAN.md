@@ -29,13 +29,16 @@ scaling, WSL serving), rewrite the game itself on a data-driven architecture.
 
 Recorded here per goal execution rule 3. Decisions favor coherence and keep future options open.
 
-- **D1 Resolution/presentation:** 640×360 internal, 16px tiles, integer scaling (×3 = 1080p),
+- **D1 Resolution/presentation:** 480×270 internal, 16px tiles, integer scaling (×4 = 1080p),
   widescreen-composed. Exploration sprites 32×40 hi-detail pixel art; combat sprites larger
   (≈48×64); portraits ≈80×96 authored pixel art; bosses largest. Detail hierarchy per §17.3.
-- **D2 Art pipeline:** authored procedural pixel art — pixel-string grids + palette ramps +
-  hue-shifted shading + selective dithering + outline rules, generated to textures at boot.
-  No smoothing, no primitives-as-final-art. All art authored in code (offline, no binary assets),
-  which also keeps the game fully self-contained.
+- **D2 Art pipeline:** authored procedural pixel art generated offline by the deterministic
+  Route P sprite-rig pipeline (`tools/spritegen/`) into PNG sheets under
+  `public/assets/sprites/`, with palette ramps, 64×64 anchoring, authored directions,
+  manifest metadata, and PNG validation. The legacy pixel-string baker remains during
+  migration for shipped content not yet regenerated; new character/enemy/NPC art uses
+  generated PNG sheets. Runtime-only procedural art remains appropriate for VFX, UI,
+  tiles, and palette-remap variants.
 - **D3 World structure:** hub-and-spoke — Nova Prime hub + Stargate network to regions;
   region unlock via story; fast travel via Stargate once a region's gate is restored.
 - **D4 Regions (6):** Nova Prime (capital, changing hub) · Shattered Stargate (Act 1 dungeon) ·
@@ -134,9 +137,16 @@ public/src/
 
 ## 6. Progress log
 
+- **2026-07-09 — Route P foundation + Lyra pilot started:** Added the deterministic
+  `tools/spritegen/` PNG renderer, shared idle/walk pose tables, four authored directions,
+  Lyra base descriptor, 64×64 sheet packing, manifest, PNG validator, BootScene loader
+  entries, and a Route P pilot tab in GalleryScene. `npm run generate:sprites`,
+  `npm run validate:sprites`, and `npm run build` pass; the legacy actor baker remains
+  active until each character is migrated.
+
 - **2026-07-02** — M0 complete: audit + plan written (this file). Next: M1.
 - **2026-07-02 — v4.5 / M1 complete:** Replaced the prototype foundation with a
-  640×360 Phaser 4 shell providing versioned/checksummed save slots and autosave
+  480×270 Phaser 4 shell providing versioned/checksummed save slots and autosave
   fallback, persistent settings, remappable keyboard/gamepad actions, synth audio,
   reusable UI/focus primitives, and the authored pixel-art/font/tile/actor pipeline.
   Production build and browser smoke/visual checks passed. M2 started next.

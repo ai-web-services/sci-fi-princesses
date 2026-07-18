@@ -26,7 +26,7 @@ export class TutorialScene extends Phaser.Scene {
     };
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x05030c, 0.78)
       .setDepth(DEPTH.UI);
-    this.win = new Win(this, 92, 88, GAME_W - 184, 184, { depth: DEPTH.UI + 1 });
+    this.win = new Win(this, 48, 42, GAME_W - 96, 186, { depth: DEPTH.UI + 1 });
     this.win.addText(20, 18, def.title, { scale: 2, color: RAMP.uiGold[3] });
     this.win.addText(20, 58, def.body, {
       scale: 1, color: 0xe8e8f4, maxWidth: this.win.w - 40, lineH: 12

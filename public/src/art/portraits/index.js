@@ -7,11 +7,13 @@ import { ERYNN_PORTRAIT } from './erynn.js';
 import { BRIMBLE_PORTRAIT } from './brimble.js';
 import { DRAKKOR_PORTRAIT } from './drakkor.js';
 import { PIP_PORTRAIT } from './pip.js';
+import { VESS_PORTRAIT } from './vess.js';
 
 export const PORTRAITS = {
   lyra: LYRA_PORTRAIT,
   erynn: ERYNN_PORTRAIT,
   brimble: BRIMBLE_PORTRAIT,
   drakkor: DRAKKOR_PORTRAIT,
-  pip: PIP_PORTRAIT
+  pip: PIP_PORTRAIT,
+  vess: VESS_PORTRAIT
 };

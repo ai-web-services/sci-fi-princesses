@@ -631,6 +631,160 @@ export const TILESETS = {
       if (r() < 0.3) px(g, RAMP.drakkorScale[4], 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1); // glow fleck
       px(g, 0x282320, 3, 12, 10, 1);
     }
+  },
+
+  // ── KESSARI REACH — sandstone Felidae trade colony ─────
+  kessari: {
+    // sandstone masonry wall, solid
+    kessWall: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x6b5a3e);
+      px(g, 0x4a3d2a, 0, 0, T, 2);
+      px(g, 0x403423, 0, 6, T, 1);
+      px(g, 0x403423, 0, 12, T, 1);
+      px(g, 0x2e2519, 0, 15, T, 1);
+      const vx = 3 + Math.floor(r() * 3) * 4;
+      px(g, 0x403423, vx, 3, 1, 10);
+      if (r() < 0.3) px(g, 0x8a7550, 2 + Math.floor(r() * 11), 4 + Math.floor(r() * 8), 2, 1); // sun-bleached patch
+    },
+    // pale warm sand floor
+    sand: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0xc9a875);
+      px(g, 0xb8975f, 0, 7, T, 1);
+      px(g, 0xb8975f, 0, 15, T, 1);
+      const off = (seed % 2) ? 4 : 10;
+      px(g, 0xb8975f, off, 0, 1, 7);
+      px(g, 0xb8975f, (off + 8) % 16, 8, 1, 7);
+      px(g, 0xdcbd8e, 0, 0, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.5) px(g, 0xd6b481, 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 2), 1);
+      }
+      if (r() < 0.3) px(g, 0xa8875a, 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 9), 2, 1); // wind ripple
+    },
+    // darker worn path, packed by traffic
+    packedSand: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0xa8875a);
+      px(g, 0x8f7049, 0, 0, T, 3);
+      for (let i = 0; i < 3; i++) {
+        px(g, 0x7d6140, Math.floor(r() * 10), 3 + i * 4 + Math.floor(r() * 2), 4 + Math.floor(r() * 6), 1);
+      }
+      if (r() < 0.4) px(g, 0xc4a06c, 2 + Math.floor(r() * 10), 2 + Math.floor(r() * 10), 1, 1);
+      px(g, 0x6b5238, 0, 15, T, 1);
+    },
+    // bazaar canopy shade — floor with an alternating fabric stripe overhead
+    awning: (g, seed) => {
+      TILESETS.kessari.sand(g, seed);
+      const r = rng(seed + 3);
+      const stripeColor = (seed % 2) ? 0x8a2a3a : 0x2a5a6b;
+      px(g, stripeColor, 0, 0, T, 4);
+      px(g, 0x1c1815, 0, 4, T, 1);
+      for (let i = 0; i < 4; i++) px(g, 0x000000, i * 4, 0, 1, 4); // fabric seams (alpha via dark line)
+      if (r() < 0.4) px(g, 0xffe8b8, 3 + Math.floor(r() * 9), 5, 1, 1); // sun-fleck below canopy
+    },
+    // brass lantern on a post, solid, decorative
+    lanternPost: (g) => {
+      TILESETS.kessari.sand(g, 4);
+      px(g, RAMP.wood[1], 7, 5, 2, 11); // pole
+      px(g, RAMP.wood[2], 7, 5, 1, 11);
+      px(g, RAMP.brass[2], 5, 2, 6, 4); // lantern housing
+      px(g, RAMP.brass[3], 5, 2, 6, 1);
+      px(g, 0xffd98a, 6, 3, 4, 2); // glow
+      px(g, 0xfff0c8, 7, 3, 2, 1);
+      px(g, 0x1c1815, 6, 15, 4, 1);
+    },
+    // wooden trade crate, solid
+    crate: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.kessari.packedSand(g, seed);
+      px(g, RAMP.wood[2], 2, 3, 12, 11);
+      px(g, RAMP.wood[3], 2, 3, 12, 2);
+      px(g, RAMP.wood[1], 2, 3, 2, 11);
+      px(g, RAMP.wood[1], 2, 13, 12, 1);
+      if (r() < 0.4) px(g, RAMP.brass[1], 7, 8, 2, 2); // strap buckle
+    },
+    // market stall counter, solid
+    stallCounter: (g) => {
+      TILESETS.kessari.sand(g, 6);
+      px(g, RAMP.wood[1], 1, 6, 14, 8);
+      px(g, RAMP.wood[2], 1, 6, 14, 2);
+      px(g, RAMP.wood[3], 1, 6, 14, 1);
+      px(g, 0x8a2a3a, 1, 2, 14, 4); // awning-cloth trim over the stall
+      px(g, 0x6b1e2c, 1, 2, 14, 1);
+      px(g, 0x1c1815, 1, 14, 14, 1);
+    },
+    // packed-earth tunnel floor beneath the bazaar
+    tunnelDirt: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x453728);
+      px(g, 0x362b1e, 0, 0, T, 2);
+      for (let i = 0; i < 3; i++) {
+        px(g, 0x2c2318, Math.floor(r() * 10), 3 + i * 4 + Math.floor(r() * 2), 4 + Math.floor(r() * 6), 1);
+      }
+      if (r() < 0.3) px(g, 0x5a4a35, 2 + Math.floor(r() * 10), 2 + Math.floor(r() * 10), 1, 1); // loose grit
+      px(g, 0x241c14, 0, 15, T, 1);
+    },
+    // excavated rock rubble wall/rubble, solid
+    tunnelRubble: (g, seed) => {
+      const r = rng(seed);
+      TILESETS.kessari.tunnelDirt(g, seed);
+      for (let i = 0; i < 6; i++) {
+        const c = [0x574836, 0x453728, 0x655440][Math.floor(r() * 3)];
+        px(g, c, 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 12), 2 + Math.floor(r() * 3), 2 + Math.floor(r() * 2));
+      }
+      px(g, 0x1c1712, 3, 13, 9, 1);
+    },
+    // pale marble court floor, subtle veining
+    marbleFloor: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0xd6d2c8);
+      px(g, 0xc4c0b4, 0, 7, T, 1);
+      px(g, 0xc4c0b4, 0, 15, T, 1);
+      const off = (seed % 2) ? 4 : 10;
+      px(g, 0xc4c0b4, off, 0, 1, 7);
+      px(g, 0xc4c0b4, (off + 8) % 16, 8, 1, 7);
+      px(g, 0xe8e4da, 0, 0, T, 1);
+      if (r() < 0.3) px(g, 0xa89e8a, 3 + Math.floor(r() * 9), 3 + Math.floor(r() * 9), 3, 1); // vein
+    },
+    // marble court pillar, solid
+    courtPillar: (g) => {
+      TILESETS.kessari.marbleFloor(g, 2);
+      px(g, 0xe8e4da, 4, 1, 8, 14);
+      px(g, 0xc4c0b4, 4, 1, 8, 2);
+      px(g, 0xa89e8a, 4, 13, 8, 2);
+      px(g, RAMP.novaGold[2], 4, 6, 8, 1); // gold banding
+    },
+    // dark-wood judge's dais with gold trim, solid
+    judgeBench: (g) => {
+      TILESETS.kessari.marbleFloor(g, 5);
+      px(g, RAMP.wood[1], 2, 3, 12, 11);
+      px(g, RAMP.wood[2], 2, 3, 12, 2);
+      px(g, RAMP.novaGold[2], 2, 5, 12, 1);
+      px(g, RAMP.novaGold[3], 2, 5, 12, 1);
+      px(g, 0x1c1815, 2, 13, 12, 1);
+    },
+    // Vess's spire dais — violet-tinted stone for the boss arena
+    spireStone: (g, seed) => {
+      const r = rng(seed);
+      base(g, 0x453a52);
+      px(g, 0x342a3d, 0, 0, T, 2);
+      px(g, 0x342a3d, 0, 13, T, 3);
+      px(g, 0x5c4d6b, 0, 2, T, 1);
+      for (let i = 0; i < 4; i++) {
+        if (r() < 0.6) px(g, 0x6a3d78, 1 + Math.floor(r() * 13), 1 + Math.floor(r() * 13), 2, 1); // silk-thread vein
+      }
+      if (r() < 0.3) px(g, 0xc86ad0, 6 + Math.floor(r() * 4), 6 + Math.floor(r() * 4), 1, 1); // glow fleck
+      px(g, 0x241c2b, 3, 12, 10, 1);
+    },
+    // glowing violet dais accent, walkable, decorative
+    spireGlow: (g, seed) => {
+      TILESETS.kessari.spireStone(g, seed);
+      px(g, 0x6a3d78, 3, 8, 10, 2);
+      px(g, 0x8a5a9a, 4, 8, 8, 1);
+      px(g, 0xc86ad0, 6, 7, 4, 1);
+      px(g, 0xe8b8f0, 7, 7, 2, 1);
+    }
   }
 };
 

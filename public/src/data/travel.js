@@ -6,6 +6,14 @@
 
 export const TRAVEL_DESTINATIONS = [
   {
+    id: 'lumenwild',
+    name: 'Lumenwild Fracture',
+    region: 'Procedural Frontier · Seeded Expedition',
+    scene: 'ExpeditionScene',
+    unlocked: state => !!state.flags.stargate_local_relay,
+    lockedReason: 'Stabilize the local relay first.'
+  },
+  {
     id: 'nova_plaza',
     name: 'Starfall Plaza',
     region: 'Nova Prime',
@@ -31,12 +39,30 @@ export const TRAVEL_DESTINATIONS = [
     entry: { x: 14, y: 19, dir: 'up' },
     unlocked: state => state.unlockedDestinations.includes('mirelight'),
     lockedReason: 'No stable gate signature.'
+  },
+  {
+    id: 'ashfall',
+    name: 'The Ashfall Gate',
+    region: 'Ashfall Dominion',
+    map: 'ash_gate',
+    entry: { x: 14, y: 19, dir: 'up' },
+    unlocked: state => state.unlockedDestinations.includes('ashfall'),
+    lockedReason: 'No stable gate signature.'
+  },
+  {
+    id: 'kessari',
+    name: 'Kessari Docks',
+    region: 'Kessari Reach',
+    map: 'kess_docks',
+    entry: { x: 14, y: 19, dir: 'up' },
+    unlocked: state => state.unlockedDestinations.includes('kessari'),
+    lockedReason: 'No stable gate signature.'
   }
 ];
 
 export function travelRows(state, currentMap) {
   return TRAVEL_DESTINATIONS.map(destination => {
-    const available = !!destination.map && destination.map !== currentMap && destination.unlocked(state);
+    const available = !!(destination.map || destination.scene) && destination.map !== currentMap && destination.unlocked(state);
     const current = destination.map === currentMap;
     return Object.assign({}, destination, {
       available,

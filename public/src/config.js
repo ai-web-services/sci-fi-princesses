@@ -2,9 +2,10 @@
 // CONFIG — Resolution, tiles, global constants
 // ═══════════════════════════════════════════════════════════════
 
-// Internal resolution: 640×360 (16:9). Integer-scales to 720p (×2), 1080p (×3), 4K (×6).
-export const GAME_W = 640;
-export const GAME_H = 360;
+// Shipping internal resolution: 480×270 (16:9). Integer-scales to 960×540,
+// 1440×810, and 1920×1080 while preserving crisp procedural pixel art.
+export const GAME_W = 480;
+export const GAME_H = 270;
 export const TILE = 16;
 
 // Sprite dimensions
@@ -15,7 +16,7 @@ export const SPR_H = 32;   // exploration sprite height
 export const SAVE_PREFIX = 'stellar_save_v2_slot';   // + 0..2, 'auto'
 export const LEGACY_SAVE_KEY = 'stellar_save';
 export const SETTINGS_KEY = 'stellar_settings_v2';
-export const SAVE_SCHEMA_VERSION = 4;
+export const SAVE_SCHEMA_VERSION = 6;
 
 // Depth layers (MapScene)
 export const DEPTH = {

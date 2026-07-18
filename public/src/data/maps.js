@@ -355,9 +355,11 @@ import { NOVA_MAPS, NOVA_PLAZA_EXIT_CONTRACTS } from './maps/nova.js';
 import { STARGATE_MAPS } from './maps/stargate.js';
 import { MIRELIGHT_MAPS } from './maps/mirelight.js';
 import { ASHFALL_MAPS } from './maps/ashfall.js';
+import { KESSARI_MAPS } from './maps/kessari.js';
 Object.assign(MAPS, NOVA_MAPS, STARGATE_MAPS);
 Object.assign(MAPS, MIRELIGHT_MAPS);
 Object.assign(MAPS, ASHFALL_MAPS);
+Object.assign(MAPS, KESSARI_MAPS);
 MAPS.nova_plaza.exits.push(...NOVA_PLAZA_EXIT_CONTRACTS);
 
 export function getMap(id) {

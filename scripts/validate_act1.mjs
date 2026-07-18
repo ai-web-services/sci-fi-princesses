@@ -14,7 +14,7 @@ const errors = [];
 const ALLOWED = new Set([
   'say', 'choice', 'face', 'move', 'wait', 'fade', 'flash', 'shake', 'music',
   'sfx', 'flag', 'give', 'teleport', 'quest', 'battle', 'setcell', 'tutorial',
-  'evolve', 'shop', 'rest', 'autosave', 'recruit', 'banner', 'run', 'if'
+  'evolve', 'shop', 'rest', 'autosave', 'recruit', 'unlock', 'banner', 'run', 'if'
 ]);
 
 function fail(message) { errors.push(message); }

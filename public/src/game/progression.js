@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { GameState } from './state.js';
+import { gearId, gearPassives, gearStats } from './gearProgression.js';
 
 let CHARACTERS = {}, ITEMS = {}, xpForLevelFn = null, LEVEL_CAP = 20;
 export async function loadProgressionData() {
@@ -47,7 +48,7 @@ export function effectiveStats(id) {
     def: Math.round(base.def + growth.def * (level - 1)),
     res: Math.round(base.res + growth.res * (level - 1)),
     spd: Math.round(base.spd + growth.spd * (level - 1)),
-    crit: base.crit || 5,
+    crit: base.crit === undefined ? 5 : (base.crit <= 1 ? base.crit * 100 : base.crit),
     evade: 0.03,
     passives: {}
   };
@@ -79,25 +80,75 @@ export function effectiveStats(id) {
   // equipment
   if (rec && rec.equipment) {
     for (const slot of Object.keys(rec.equipment)) {
-      const it = ITEMS[rec.equipment[slot]];
+      const equipped = rec.equipment[slot];
+      const it = ITEMS[gearId(equipped)];
       if (!it) continue;
-      const s = it.stats || {};
+      const s = gearStats(it, equipped);
       stats.atk += s.atk || 0; stats.mag += s.mag || 0;
       stats.def += s.def || 0; stats.res += s.res || 0;
-      stats.spd += s.spd || 0; stats.crit += s.crit || 0;
+      stats.spd += s.spd || 0; stats.crit += s.crit ? (s.crit <= 1 ? s.crit * 100 : s.crit) : 0;
       stats.maxHp += s.hp || 0; stats.maxSp += s.sp || 0;
-      if (it.passive) {
-        for (const k of Object.keys(it.passive)) {
-          if (k === 'evade') stats.evade += it.passive.evade;
-          else if (k === 'critBonus') stats.crit += it.passive.critBonus;
+      const passive = gearPassives(it, equipped);
+      if (Object.keys(passive).length) {
+        for (const k of Object.keys(passive)) {
+          if (k === 'evade') stats.evade += passive.evade;
+          else if (k === 'critBonus') stats.crit += passive.critBonus <= 1 ? passive.critBonus * 100 : passive.critBonus;
           else if (k === 'elementResist') {
-            stats.passives.elementResist = Object.assign(stats.passives.elementResist || {}, it.passive.elementResist);
-          } else stats.passives[k] = (stats.passives[k] || 0) + it.passive[k];
+            stats.passives.elementResist = Object.assign(stats.passives.elementResist || {}, passive.elementResist);
+          } else if (typeof passive[k] === 'number') stats.passives[k] = (stats.passives[k] || 0) + passive[k];
+          else stats.passives[k] = passive[k];
         }
       }
     }
   }
   return stats;
+}
+
+// Human-readable source model for the character sheet. The final values come
+// from effectiveStats(), while these components explain how they were formed.
+export function statBreakdown(id) {
+  const rec = GameState.chars[id];
+  const data = CHARACTERS[id];
+  if (!rec || !data) return null;
+  const level = rec.level || 1;
+  const baseAtLevel = {
+    maxHp: Math.round(data.base.hp + data.growth.hp * (level - 1)),
+    maxSp: Math.round(data.base.sp + data.growth.sp * (level - 1)),
+    atk: Math.round(data.base.atk + data.growth.atk * (level - 1)),
+    mag: Math.round(data.base.mag + data.growth.mag * (level - 1)),
+    def: Math.round(data.base.def + data.growth.def * (level - 1)),
+    res: Math.round(data.base.res + data.growth.res * (level - 1)),
+    spd: Math.round(data.base.spd + data.growth.spd * (level - 1))
+  };
+  const gear = { maxHp: 0, maxSp: 0, atk: 0, mag: 0, def: 0, res: 0, spd: 0, crit: 0 };
+  for (const equipped of Object.values(rec.equipment || {})) {
+    const item = ITEMS[gearId(equipped)];
+    const stats = gearStats(item, equipped);
+    gear.maxHp += stats.hp || 0; gear.maxSp += stats.sp || 0;
+    gear.atk += stats.atk || 0; gear.mag += stats.mag || 0;
+    gear.def += stats.def || 0; gear.res += stats.res || 0;
+    gear.spd += stats.spd || 0; gear.crit += stats.crit ? (stats.crit <= 1 ? stats.crit * 100 : stats.crit) : 0;
+  }
+  const evolutionMult = (data.evolutions || []).slice(0, rec.evolution || 0)
+    .reduce((total, stage) => total * (stage.statMult || 1), 1);
+  return {
+    final: effectiveStats(id), baseAtLevel, gear, evolutionMult,
+    speciesEffects: speciesEffectLabels(data.traits || {}),
+    evolutionName: rec.evolution > 0 ? data.evolutions?.[rec.evolution - 1]?.name : 'Base Form'
+  };
+}
+
+function speciesEffectLabels(traits) {
+  const labels = [];
+  if (traits.hpMult) labels.push(`HP ×${traits.hpMult.toFixed(2)}`);
+  if (traits.physBonus) labels.push(`Physical +${Math.round(traits.physBonus * 100)}%`);
+  if (traits.evade) labels.push(`Evade +${Math.round(traits.evade * 100)}%`);
+  if (traits.critBonus) labels.push(`Critical +${Math.round(traits.critBonus * 100)}%`);
+  if (traits.healReceived) labels.push(`Healing ${traits.healReceived > 0 ? '+' : ''}${Math.round(traits.healReceived * 100)}%`);
+  if (traits.fireResist) labels.push(`Fire resist +${Math.round(traits.fireResist * 100)}%`);
+  if (traits.buffDuration) labels.push(`Buff duration +${Math.round(traits.buffDuration * 100)}%`);
+  if (traits.immunities?.length) labels.push(`Immune: ${traits.immunities.join(', ')}`);
+  return labels.length ? labels : ['Balanced physiology'];
 }
 
 // Clamp current hp/sp to new maxima (call after level/equip changes)

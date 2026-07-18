@@ -21,12 +21,14 @@ function volBar(v) {
 }
 function onOff(b) { return b ? 'On' : 'Off'; }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function percent(v) { return Math.round(v * 100) + '%'; }
 
 export class OptionsScene extends Phaser.Scene {
   constructor() { super({ key: 'OptionsScene' }); }
 
   init(data) {
     this.backScene = (data && data.back) || 'TitleScene';
+    this.backData = (data && data.backData) || {};
   }
 
   create() {
@@ -48,6 +50,11 @@ export class OptionsScene extends Phaser.Scene {
       { label: 'Text Speed', value: 'textSpeed', right: cap(Settings.textSpeed) },
       { label: 'Reduced Motion', value: 'reducedMotion', right: onOff(Settings.reducedMotion) },
       { label: 'Reduced Flashing', value: 'reducedFlash', right: onOff(Settings.reducedFlash) },
+      { label: 'Screen Shake', value: 'screenShake', right: percent(Settings.screenShake) },
+      { label: 'Flash Intensity', value: 'flashIntensity', right: percent(Settings.flashIntensity) },
+      { label: 'Reduced Particles', value: 'reducedParticles', right: onOff(Settings.reducedParticles) },
+      { label: 'Damage Numbers', value: 'damageNumbers', right: onOff(Settings.damageNumbers) },
+      { label: 'Hit Stop', value: 'hitStop', right: onOff(Settings.hitStop) },
       { label: 'High Contrast UI', value: 'highContrast', right: onOff(Settings.highContrast) },
       { label: 'Combat Info Icons', value: 'showCombatIcons', right: onOff(Settings.showCombatIcons) },
       { label: 'Difficulty', value: 'difficulty', right: cap(Settings.difficulty) },
@@ -59,7 +66,7 @@ export class OptionsScene extends Phaser.Scene {
     if (this.menu) this.menu.destroy();
     const items = this.rows();
     this.menu = new MenuList(this, this.win.x + 14, this.win.y + 40, items, {
-      width: 350, lineH: 18, visible: 11,
+      width: 350, lineH: 16, visible: 10,
       rightTexts: items.map(i => i.right),
       onSelect: (it) => this.activate(it.value),
       onCancel: () => this.goBack()
@@ -86,8 +93,15 @@ export class OptionsScene extends Phaser.Scene {
         Settings.difficulty = DIFFICULTIES[(i + dir + DIFFICULTIES.length) % DIFFICULTIES.length];
         break;
       }
+      case 'screenShake': case 'flashIntensity': {
+        Settings[value] = Math.max(0, Math.min(1, Math.round((Settings[value] + dir * 0.25) * 4) / 4));
+        break;
+      }
       case 'reducedMotion': Settings.reducedMotion = !Settings.reducedMotion; break;
       case 'reducedFlash': Settings.reducedFlash = !Settings.reducedFlash; break;
+      case 'reducedParticles': Settings.reducedParticles = !Settings.reducedParticles; break;
+      case 'damageNumbers': Settings.damageNumbers = !Settings.damageNumbers; break;
+      case 'hitStop': Settings.hitStop = !Settings.hitStop; break;
       case 'highContrast': Settings.highContrast = !Settings.highContrast; break;
       case 'showCombatIcons': Settings.showCombatIcons = !Settings.showCombatIcons; break;
       default: return;
@@ -103,7 +117,7 @@ export class OptionsScene extends Phaser.Scene {
   }
 
   goBack() {
-    transition(this, this.backScene, {});
+    transition(this, this.backScene, this.backData);
   }
 
   update(time) {

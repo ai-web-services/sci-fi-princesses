@@ -58,6 +58,7 @@ export class MapScene extends Phaser.Scene {
     this.bannerQueue = [];
     this.bannerActive = false;
     this.buildNpcs();
+    this.buildHomeProgress();
     this.playMapSong(this.map.music || 'nova');
 
     // combat handoff: resume map music after a battle ends
@@ -211,6 +212,21 @@ export class MapScene extends Phaser.Scene {
       this.placeActor(actor, data.x, data.y);
       this.entities.set('npc:' + data.id, entity);
     }
+  }
+
+  buildHomeProgress() {
+    if (!GameState?.flags?.lumenwild_first_clear || this.mapId !== 'stargate_dock') return;
+    const worldW = this.map.grid[0].length * TILE;
+    const gateX = worldW / 2;
+    const g = this.add.graphics().setDepth(DEPTH.DECO + 4);
+    g.fillStyle(0xffd166, 0.14).fillRect(gateX - 22, 24, 44, 132);
+    g.fillStyle(0x66e8e0, 0.18).fillRect(gateX - 10, 20, 20, 140);
+    g.lineStyle(2, 0xffe7a0, 0.9).lineBetween(gateX, 20, gateX, 160);
+    for (let i = 0; i < 5; i++) {
+      g.lineStyle(1, i % 2 ? 0x66e8e0 : 0xffd166, 0.72)
+        .strokeCircle(gateX, 86, 20 + i * 8);
+    }
+    this.time.delayedCall(1600, () => this.showBanner('The Lumenwild route is stable. New signatures await.'));
   }
 
   getEntity(id) {

@@ -23,6 +23,7 @@
 //  { setcell: { x, y, ch } }
 //  { tutorial: id } | { evolve: characterId }
 //  { shop: shopId }
+//  { forge: true }                              opens ForgeScene (D22 recipes)
 //  { rest: { cost, location? } }
 //  { autosave: locationName? }
 //  { recruit: charId }
@@ -183,6 +184,14 @@ export async function runScript(scene, ops, ctx = {}) {
         await new Promise(res => {
           scene.scene.launch('ShopScene', {
             shopId: op.shop, parentScene: scene.sys.settings.key, resolve: res
+          });
+          scene.scene.pause();
+        });
+      } else if (op.forge) {
+        closeDialogue(scene);
+        await new Promise(res => {
+          scene.scene.launch('ForgeScene', {
+            parentScene: scene.sys.settings.key, resolve: res
           });
           scene.scene.pause();
         });

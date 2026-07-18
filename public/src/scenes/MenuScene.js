@@ -15,6 +15,7 @@ import { uiSfx } from '../engine/audio.js';
 import { ENEMIES } from '../data/enemies.js';
 import { RESONANCES } from '../data/resonance.js';
 import { bondStageName } from '../game/relationships.js';
+import { gearId, gearLabel, normalizeGearEntry } from '../game/gearProgression.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() { super({ key: 'MenuScene' }); }
@@ -52,17 +53,20 @@ export class MenuScene extends Phaser.Scene {
     this.clearView();
     this.title.setText('ROYAL FIELD MENU');
     this.gold.setText('Gold: ' + GameState.gold);
-    this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, [
+    const rootItems = [
+      { label: 'Character Sheet', value: 'sheet' },
       { label: 'Party', value: 'party' },
       { label: 'Equipment', value: 'equipment' },
       { label: 'Items', value: 'items' },
       { label: 'Quest Journal', value: 'quests' },
+      ...(this.parentScene === 'ExpeditionScene' ? [{ label: 'Region Overview', value: 'region' }] : []),
       { label: 'Records', value: 'records' },
       { label: 'Save', value: 'save' },
       { label: 'Options', value: 'options' },
       { label: 'Close', value: 'close' }
-    ], {
-      width: 190, lineH: 24,
+    ];
+    this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, rootItems, {
+      width: 154, lineH: 20,
       onSelect: item => this.chooseRoot(item.value),
       onCancel: () => this.close()
     });
@@ -71,30 +75,58 @@ export class MenuScene extends Phaser.Scene {
       const data = charData(id);
       return `${data ? data.name : id}  Lv${rec.level}  HP ${rec.hp}/${rec.maxHp}`;
     }).join('\n');
-    this.addText(this.win.x + 250, this.win.y + 72, party || 'No active party.', {
+    this.addText(this.win.x + 190, this.win.y + 66, party || 'No active party.', {
       scale: 1, color: 0xe8e8f4, lineH: 18
     });
-    this.addText(this.win.x + 250, this.win.y + 182,
+    this.addText(this.win.x + 190, this.win.y + 158,
       `Shards: ${GameState.shards.length}\nVisited: ${GameState.mapsVisited.length}\nPlaytime continues while exploring.`,
       { scale: 1, color: uiDimColor(), lineH: 16 });
   }
 
   chooseRoot(value) {
     if (value === 'close') return this.close();
+    if (value === 'sheet') return this.openScene('CharacterSheetScene', { parentScene: this.parentScene, backScene: 'MenuScene' });
     if (value === 'quests') return this.openScene('QuestJournalScene', { parentScene: this.parentScene });
     if (value === 'save') return this.openScene('SaveLoadScene', {
-      mode: 'save', back: 'MapScene',
-      backData: { mapId: GameState.map, entry: { x: GameState.x, y: GameState.y, dir: GameState.dir } },
+      mode: 'save', back: 'MenuScene',
+      backData: { parentScene: this.parentScene, locationName: this.locationName },
       locationName: this.locationName
     });
     if (value === 'options') return this.openScene('OptionsScene', {
-      back: 'MapScene',
-      backData: { mapId: GameState.map, entry: { x: GameState.x, y: GameState.y, dir: GameState.dir } }
+      back: 'MenuScene',
+      backData: { parentScene: this.parentScene, locationName: this.locationName }
     });
     if (value === 'party') return this.buildCharacterList('party');
     if (value === 'equipment') return this.buildCharacterList('equipment');
     if (value === 'items') return this.buildItems();
+    if (value === 'region') return this.buildRegionOverview();
     if (value === 'records') return this.buildRecords();
+  }
+
+  buildRegionOverview() {
+    this.clearView();
+    this.title.setText('LUMENWILD REGION OVERVIEW');
+    const expedition = this.scene.get('ExpeditionScene');
+    if (!expedition?.region) return this.buildRoot();
+    const mapX = this.win.x + 38, mapY = this.win.y + 58, mapW = 250, mapH = 164;
+    const graphics = this.add.graphics(); this.detailObjects.push(graphics);
+    graphics.fillStyle(0x0b1721, 1).fillRoundedRect(mapX, mapY, mapW, mapH, 5);
+    const project = anchor => ({ x: mapX + anchor.x / expedition.region.width * mapW, y: mapY + anchor.y / expedition.region.height * mapH });
+    for (const [fromId, toId] of expedition.region.edges) {
+      const from = project(expedition.region.anchors[fromId]), to = project(expedition.region.anchors[toId]);
+      graphics.lineStyle(2, 0x496a70, 0.75).lineBetween(from.x, from.y, to.x, to.y);
+    }
+    const objectiveOrder = ['landing', 'relay', 'shrine', 'miniboss', 'bossGate', 'bossArena'];
+    for (const id of objectiveOrder) {
+      const point = project(expedition.region.anchors[id]);
+      const reached = id === 'landing' || GameState.expedition.checkpoint === 'shrine' || GameState.expedition.objective !== 'relay';
+      graphics.fillStyle(reached ? 0x66e8e0 : 0x6b7184, 1).fillCircle(point.x, point.y, id === 'bossArena' ? 6 : 4);
+      this.addText(point.x + 7, point.y - 4, id.replace(/([A-Z])/g, ' $1').toUpperCase(), { scale: 1, color: reached ? 0xffffff : 0x8290a0 });
+    }
+    const player = project({ x: expedition.px / 16, y: expedition.py / 16 });
+    graphics.fillStyle(0xffd166, 1).fillStar(player.x, player.y, 4, 3, 7);
+    this.addText(this.win.x + 310, this.win.y + 72, `◆ LYRA\n\n${GameState.expedition.objective.toUpperCase()}\n${GameState.expedition.checkpoint === 'shrine' ? 'Shrine checkpoint active' : 'Landing beacon active'}\n\nSeed ${expedition.region.seed}`, { scale: 1, color: 0xe8e8f4, lineH: 16, maxWidth: 110 });
+    this.menu = new MenuList(this, this.win.x + 324, this.win.y + 202, [{ label: 'Back', value: 'back' }], { width: 90, onSelect: () => this.buildRoot(), onCancel: () => this.buildRoot() });
   }
 
   openScene(key, data) {
@@ -111,7 +143,7 @@ export class MenuScene extends Phaser.Scene {
     });
     items.push({ label: 'Back', value: 'back' });
     this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, items, {
-      width: 220, lineH: 22,
+      width: 154, lineH: 20,
       onChange: item => item.value !== 'back' && this.showCharacter(item.value),
       onSelect: item => {
         if (item.value === 'back') this.buildRoot();
@@ -128,10 +160,10 @@ export class MenuScene extends Phaser.Scene {
     this.detailObjects = [];
     const data = charData(id), rec = GameState.chars[id], stats = effectiveStats(id);
     const equipment = Object.entries(rec.equipment || {})
-      .map(([slot, item]) => `${slot}: ${itemData(item)?.name || item}`).join('\n') || 'No equipment';
-    this.addText(this.win.x + 270, this.win.y + 66,
+      .map(([slot, equipped]) => `${slot}: ${gearLabel(itemData(gearId(equipped)), equipped)}`).join('\n') || 'No equipment';
+    this.addText(this.win.x + 190, this.win.y + 62,
       `${data?.name || id}\n${data?.role || ''}\nLv${rec.level}  XP ${rec.xp}\nHP ${rec.hp}/${stats.maxHp}  SP ${rec.sp}/${stats.maxSp}\nATK ${stats.atk}  MAG ${stats.mag}\nDEF ${stats.def}  RES ${stats.res}  SPD ${stats.spd}\n\n${equipment}`,
-      { scale: 1, color: 0xe8e8f4, lineH: 16, maxWidth: 310 });
+      { scale: 1, color: 0xe8e8f4, lineH: 14, maxWidth: 226 });
   }
 
   toggleActive(id) {
@@ -160,7 +192,7 @@ export class MenuScene extends Phaser.Scene {
     const items = rows.map(row => ({ label: row.item.name + '  x' + row.stack.qty, value: row.stack.id, row }));
     items.push({ label: 'Back', value: 'back' });
     this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, items, {
-      width: 270, lineH: 20, visible: 12,
+      width: 184, lineH: 18, visible: 9,
       onSelect: entry => {
         if (entry.value === 'back') return this.buildCharacterList('equipment');
         const rec = GameState.chars[characterId], item = entry.row.item;
@@ -170,19 +202,20 @@ export class MenuScene extends Phaser.Scene {
         const old = rec.equipment[slot];
         if (!removeItem(item.id, 1)) return uiSfx('error');
         if (old) {
-          const stack = GameState.inventory.find(s => s.id === old);
-          if (stack) stack.qty++; else GameState.inventory.push({ id: old, qty: 1 });
+          const oldId = gearId(old);
+          const stack = GameState.inventory.find(s => s.id === oldId);
+          if (stack) stack.qty++; else GameState.inventory.push({ id: oldId, qty: 1 });
         }
-        rec.equipment[slot] = item.id;
+        rec.equipment[slot] = normalizeGearEntry(item.id);
         refreshVitals(characterId);
         uiSfx('confirm');
         this.buildEquipment(characterId);
       },
       onCancel: () => this.buildCharacterList('equipment')
     });
-    this.addText(this.win.x + 330, this.win.y + 72,
+    this.addText(this.win.x + 226, this.win.y + 66,
       rows.length ? 'Choose gear to equip.\nExisting gear returns to inventory.' : 'No compatible gear in inventory.',
-      { scale: 1, color: uiDimColor(), lineH: 16, maxWidth: 250 });
+      { scale: 1, color: uiDimColor(), lineH: 14, maxWidth: 190 });
   }
 
   buildItems() {
@@ -197,7 +230,7 @@ export class MenuScene extends Phaser.Scene {
     });
     items.push({ label: 'Back', value: 'back' });
     this.menu = new MenuList(this, this.win.x + 22, this.win.y + 62, items, {
-      width: 280, lineH: 20, visible: 12,
+      width: 184, lineH: 18, visible: 9,
       onChange: item => this.showItem(item.row),
       onSelect: entry => {
         if (entry.value === 'back') return this.buildRoot();
@@ -213,8 +246,8 @@ export class MenuScene extends Phaser.Scene {
     for (const object of this.detailObjects) object.destroy();
     this.detailObjects = [];
     if (!row) return;
-    this.addText(this.win.x + 330, this.win.y + 72, row.item.name + '\n\n' + row.item.desc, {
-      scale: 1, color: 0xe8e8f4, lineH: 14, maxWidth: 250
+    this.addText(this.win.x + 226, this.win.y + 66, row.item.name + '\n\n' + row.item.desc, {
+      scale: 1, color: 0xe8e8f4, lineH: 13, maxWidth: 190
     });
   }
 
@@ -244,7 +277,7 @@ export class MenuScene extends Phaser.Scene {
       { label: 'Lore', value: 'lore' },
       { label: 'Back', value: 'back' }
     ], {
-      width: 190, lineH: 24,
+      width: 154, lineH: 20,
       onChange: item => this.showRecord(item.value),
       onSelect: item => item.value === 'back' && this.buildRoot(),
       onCancel: () => this.buildRoot()
@@ -272,8 +305,8 @@ export class MenuScene extends Phaser.Scene {
       lines = GameState.lore.map(id => `◆ ${readableId(id)}`).join('\n');
     }
     else return;
-    this.addText(this.win.x + 250, this.win.y + 70, lines || 'No records discovered yet.', {
-      scale: 1, color: lines ? 0xe8e8f4 : uiDimColor(), lineH: 16, maxWidth: 330
+    this.addText(this.win.x + 190, this.win.y + 66, lines || 'No records discovered yet.', {
+      scale: 1, color: lines ? 0xe8e8f4 : uiDimColor(), lineH: 14, maxWidth: 226
     });
   }
 

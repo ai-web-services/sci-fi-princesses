@@ -19,11 +19,12 @@ import { GameState, setWorldFlag } from '../game/state.js';
 import { itemData, charData } from '../game/progression.js';
 import { flash, shake } from '../engine/fx.js';
 import { buildHeroBattleTexture, buildEnemyBattleTexture, buildBattleBackdrop, enemySpriteSize } from '../art/battleArt.js';
+import { hasRigAction, rigAnim, rigTextureKey, RIG_FOOT_ORIGIN_Y } from '../engine/rigs.js';
 import { ENEMIES } from '../data/enemies.js';
 import { MUSIC_LIBRARY } from '../data/musicLibrary.js';
 
-const CMD_Y = 250;                   // command area top
-const HERO_X = 520, ENEMY_X = 120;
+const CMD_Y = GAME_H - 82;           // command area top
+const HERO_X = GAME_W - 82, ENEMY_X = 88;
 
 export class CombatScene extends Phaser.Scene {
   constructor() { super({ key: 'CombatScene' }); }
@@ -46,8 +47,8 @@ export class CombatScene extends Phaser.Scene {
     this.add.image(0, 0, buildBattleBackdrop(this, this.backdrop)).setOrigin(0, 0);
     // command area backdrop
     this.uiGfx = this.add.graphics().setDepth(DEPTH.UI);
-    drawWindow(this.uiGfx, 4, CMD_Y, 250, GAME_H - CMD_Y - 4);
-    drawWindow(this.uiGfx, 258, CMD_Y, GAME_W - 262, GAME_H - CMD_Y - 4);
+    drawWindow(this.uiGfx, 4, CMD_Y, 180, GAME_H - CMD_Y - 4);
+    drawWindow(this.uiGfx, 188, CMD_Y, GAME_W - 192, GAME_H - CMD_Y - 4);
 
     this.buildSprites();
     this.statusGfx = this.add.graphics().setDepth(DEPTH.UI + 1);
@@ -76,29 +77,35 @@ export class CombatScene extends Phaser.Scene {
     this.heroSprites = new Map();
     this.enemySprites = new Map();
     const heroes = this.battle.heroes();
-    heroes.forEach((c, i) => {
-      const x = HERO_X + i * 26, y = 96 + i * 44;
-      let img;
-      if (buildHeroBattleTexture(this, c.id)) {
-        img = this.add.image(x, y, 'bh_' + c.id, 'idle');
-      } else {
-        img = this.add.image(x, y, 'actor_' + c.id, 'side0').setFlipX(true);
-      }
-      img.setOrigin(0.5, 1).setDepth(DEPTH.ACTOR + i);
-      this.heroSprites.set(c.key, { img, home: { x, y } });
-    });
+    heroes.forEach((c, i) => this.placeHeroSprite(c, i));
     this.battle.enemies().forEach((c, i) => {
       this.placeEnemySprite(c, i);
     });
+  }
+
+  placeHeroSprite(c, i) {
+    // 48×64 battle canvases (ART_VISION §1): wider rank spacing so heroes don't stack
+    const x = HERO_X + i * 18, y = 78 + i * 42;
+    let img;
+    if (buildHeroBattleTexture(this, c.id)) {
+      img = this.add.image(x, y, 'bh_' + c.id, 'idle');
+    } else {
+      img = this.add.image(x, y, 'actor_' + c.id, 'side0').setFlipX(true);
+    }
+    img.setOrigin(0.5, 1).setDepth(DEPTH.ACTOR + i);
+    this.heroSprites.set(c.key, { img, home: { x, y } });
   }
 
   placeEnemySprite(c, i) {
     const size = enemySpriteSize(c.id);
     const big = size.w >= 64;
     const x = big ? ENEMY_X + 20 : ENEMY_X + (i % 2) * 56;
-    const y = big ? 180 : 120 + i * 38;
+    const y = big ? 145 : 88 + i * 32;
     let img;
-    if (buildEnemyBattleTexture(this, c.id)) {
+    if (hasRigAction(c.id, 'idle')) {
+      img = this.add.sprite(x, y, rigTextureKey(c.id, 'idle'), 0);
+      img.play(rigAnim(c.id, 'idle', 'right'));
+    } else if (buildEnemyBattleTexture(this, c.id)) {
       img = this.add.image(x, y, 'be_' + c.id);
     } else {
       // fallback: generated blob silhouette
@@ -114,7 +121,7 @@ export class CombatScene extends Phaser.Scene {
       }
       img = this.add.image(x, y, key);
     }
-    img.setOrigin(0.5, 1).setDepth(DEPTH.ACTOR + 10 + i);
+    img.setOrigin(0.5, hasRigAction(c.id, 'idle') ? RIG_FOOT_ORIGIN_Y : 1).setDepth(DEPTH.ACTOR + 10 + i);
     if (!Settings.reducedMotion) {
       this.tweens.add({ targets: img, y: y - 2, duration: 900 + i * 120, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
@@ -135,6 +142,15 @@ export class CombatScene extends Phaser.Scene {
     }
   }
 
+  enemyPose(key, pose = 'attack', ms = 360) {
+    const actor = this.battle.byKey(key), sprite = this.enemySprites.get(key);
+    if (!actor || !sprite || !hasRigAction(actor.id, pose)) return;
+    sprite.img.play(rigAnim(actor.id, pose, 'right'));
+    if (ms > 0) this.time.delayedCall(ms, () => {
+      if (sprite.img.active && hasRigAction(actor.id, 'idle')) sprite.img.play(rigAnim(actor.id, 'idle', 'right'));
+    });
+  }
+
   // ── HUD panels ─────────────────────────────────────────
   refreshPartyPanel() {
     this.statusGfx.clear();
@@ -142,21 +158,21 @@ export class CombatScene extends Phaser.Scene {
     this.partyTexts = [];
     const heroes = this.battle.heroes();
     heroes.forEach((c, i) => {
-      const x = 268, y = CMD_Y + 12 + i * 24;
+      const x = 198, y = CMD_Y + 12 + i * 22;
       const active = this.turnActor && this.turnActor.key === c.key;
       const name = new PixelText(this, x, y, (active ? '▶' : ' ') + c.name, {
         scale: 1, color: c.hp <= 0 ? 0x775555 : active ? RAMP.uiGold[4] : 0xe8e8f4
       });
       name.setDepth(DEPTH.UI + 2);
       this.partyTexts.push(name);
-      drawGauge(this.statusGfx, x + 84, y + 1, 90, 5, c.hp / c.stats.maxHp, RAMP.hp);
-      drawGauge(this.statusGfx, x + 84, y + 9, 60, 3, c.sp / c.stats.maxSp, RAMP.sp);
-      const hpT = new PixelText(this, x + 182, y, c.hp + '/' + c.stats.maxHp, { scale: 1, color: c.hp / c.stats.maxHp < 0.25 ? 0xe87a5a : 0xbbbbd4 });
+      drawGauge(this.statusGfx, x + 72, y + 1, 68, 5, c.hp / c.stats.maxHp, RAMP.hp);
+      drawGauge(this.statusGfx, x + 72, y + 9, 48, 3, c.sp / c.stats.maxSp, RAMP.sp);
+      const hpT = new PixelText(this, x + 146, y, c.hp + '/' + c.stats.maxHp, { scale: 1, color: c.hp / c.stats.maxHp < 0.25 ? 0xe87a5a : 0xbbbbd4 });
       hpT.setDepth(DEPTH.UI + 2);
       this.partyTexts.push(hpT);
       // status icons (text glyphs, colorblind-safe shapes per icon class)
       const GLYPHS = { up: '↑', down: '↓', dot: '●', shield: '◆', control: '★' };
-      let sx = x + 260;
+      let sx = x + 230;
       for (const st of c.statuses.slice(0, 4)) {
         const d = STATUSES[st.id];
         const glyph = d ? (GLYPHS[d.icon] || '◆') : (st.id.endsWith('Up') ? '↑' : st.id.endsWith('Down') ? '↓' : '◆');
@@ -237,6 +253,8 @@ export class CombatScene extends Phaser.Scene {
         const actorC = this.battle.byKey(ev.actor);
         if (actorC && actorC.side === 'hero') {
           this.heroPose(ev.actor, ev.kind === 'magic' || ev.kind === 'heal' || ev.kind === 'buff' ? 'cast' : 'attack', 450);
+        } else if (actorC && actorC.side === 'enemy') {
+          this.enemyPose(ev.actor, 'attack', 360);
         }
         const s = this.spriteOf(ev.actor);
         if (s && !Settings.reducedMotion) {
@@ -440,6 +458,23 @@ export class CombatScene extends Phaser.Scene {
         await this.delay(250);
         break;
       }
+      case 'duelEnd': {
+        flash(this, 0xc86ad0, 200, 0.3);
+        this.showBigBanner('The rest of the party moves in!', 0xc86ad0);
+        sfx('boss');
+        await this.delay(700);
+        break;
+      }
+      case 'duelJoin': {
+        const c = this.battle.byKey(ev.target);
+        if (c) {
+          const i = this.battle.heroes().findIndex(h => h.key === ev.target);
+          this.placeHeroSprite(c, i < 0 ? 0 : i);
+          this.float(this.posOf(ev.target).x, this.posOf(ev.target).y, c.name + ' joins!', 0xffd75e);
+        }
+        await this.delay(300);
+        break;
+      }
       default: break;
     }
   }
@@ -530,7 +565,7 @@ export class CombatScene extends Phaser.Scene {
     const depth = this.menus.length;
     const x = 12 + depth * 8, y = CMD_Y + 10 + depth * 4;
     const menu = new MenuList(this, x, y, items, Object.assign({
-      width: 190, lineH: 14, visible: 6
+      width: 154, lineH: 12, visible: 6
     }, opts));
     menu.setDepth(DEPTH.UI + 3 + depth);
     this.menus.push({ menu });
