@@ -1,14 +1,19 @@
 // ═══════════════════════════════════════════════════════════════
 // VALIDATE BATTLE HEROES — checks authored combat sprite grid defs
-// for shape correctness: row width 32, 40 rows per pose, and every
+// for shape correctness: row width 48, 64 rows per pose, and every
 // non-'.' character present in the hero's map.
 // ═══════════════════════════════════════════════════════════════
 
 import { BATTLE_HEROES } from '../public/src/art/battle/heroes.js';
+import { HERO_POSES } from '../public/src/art/battleArt.js';
 
-const ROW_LEN = 32;
-const POSE_ROWS = 40;
-const POSES = ['idle', 'step', 'attack', 'cast', 'hit', 'ko', 'victory'];
+// ART_VISION.md §1: battle hero canvas is 48×64, facing left.
+const ROW_LEN = 48;
+const POSE_ROWS = 64;
+// Original 7 shipped poses are required; the ART_VISION.md §3.2 gap-fill poses
+// (B2/B3/B6/B8/B10/B12) are validated for shape when present but not required yet.
+const REQUIRED_POSES = ['idle', 'step', 'attack', 'cast', 'hit', 'ko', 'victory'];
+const OPTIONAL_POSES = HERO_POSES.filter(p => !REQUIRED_POSES.includes(p));
 
 function validateRow(row, label, errors) {
   if (typeof row !== 'string') {
@@ -53,14 +58,14 @@ function validateHero(hero) {
   const { id, map, w, h, poses } = hero;
   if (!id) errors.push('missing id');
   if (!map || typeof map !== 'object') errors.push('missing map');
-  if (w !== 32) errors.push(`w=${w}, expected 32`);
-  if (h !== 40) errors.push(`h=${h}, expected 40`);
+  if (w !== ROW_LEN) errors.push(`w=${w}, expected ${ROW_LEN}`);
+  if (h !== POSE_ROWS) errors.push(`h=${h}, expected ${POSE_ROWS}`);
   if (!poses || typeof poses !== 'object') {
     errors.push('missing poses');
     return errors;
   }
 
-  POSES.forEach(poseName => {
+  REQUIRED_POSES.forEach(poseName => {
     const rows = poses[poseName];
     if (!rows) {
       errors.push(`missing pose "${poseName}"`);
@@ -68,8 +73,18 @@ function validateHero(hero) {
     }
     validatePose(poseName, rows, map || {}, id || '?', errors);
   });
+  OPTIONAL_POSES.forEach(poseName => {
+    const rows = poses[poseName];
+    if (!rows) return;
+    validatePose(poseName, rows, map || {}, id || '?', errors);
+  });
 
   return errors;
+}
+
+function gapReport(hero) {
+  const missing = OPTIONAL_POSES.filter(p => !hero.poses || !hero.poses[p]);
+  if (missing.length) console.log(`     (gap-fill poses missing: ${missing.join(', ')})`);
 }
 
 function report(hero) {
@@ -77,6 +92,7 @@ function report(hero) {
   const errors = validateHero(hero);
   if (errors.length === 0) {
     console.log(`OK  ${id}`);
+    gapReport(hero);
     return true;
   }
   console.log(`FAIL ${id}`);

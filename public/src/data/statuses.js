@@ -65,5 +65,13 @@ export const STATUSES = {
   berserk: {
     id: 'berserk', name: 'Berserk', icon: 'control', color: 0xff3344,
     statMods: { atk: 0.4, def: -0.2 }, maxTurns: 3
+  },
+  // D19 Vess: a silk-clone veil that halves incoming physical/magic
+  // damage's effective armor gap. Does not expire on its own — only a
+  // Scan (see battle.js useSkill) strips it, forcing the party to use
+  // the analysis tool rather than just wait it out.
+  decoy: {
+    id: 'decoy', name: 'Silk Veil', icon: 'shield', color: 0xc86ad0,
+    statMods: { def: 0.5, res: 0.5 }, maxTurns: 99
   }
 };

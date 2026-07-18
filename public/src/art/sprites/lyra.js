@@ -1,163 +1,193 @@
 // ═══════════════════════════════════════════════════════════════
-// LYRA SOLARI — exploration sprite, authored pixel art 24×32
-// Act 1 royal dress: starlight-gold hair, tiara with astral gem,
-// violet gown with gold filigree belt and hem.
-// Grids: body rows 0–26 + leg variants rows 27–31 per direction.
+// LYRA SOLARI — exploration sprite, authored pixel art 32×40.
+// Act 1 base form (Crown Bearer) per concept sheet: blue military
+// jacket with gold trim, brown belt, dark pants, dark boots with
+// gold caps, crown-shard pendant. FFIV big-head heroic chibi.
+// Grids: body rows 0–34 (35 rows) + leg variants rows 35–39 (5
+// rows) per direction. All rows normalized to exactly 32 chars.
 // ═══════════════════════════════════════════════════════════════
 
+const W = 32;
+const norm = rows => rows.map(r => r.padEnd(W, '.').slice(0, W));
+
 export const LYRA_MAP = {
-  k: 0x241a38,                    // outline
-  h: 0xc7772a, H: 0xf2a93b, Y: 0xffd166,   // hair dark→light
-  s: 0xe8a887, S: 0xffd2ac,       // skin shadow/base
-  w: 0xf8f8ff, e: 0x3a7fd4,       // eye white / iris
-  d: 0x45327d, D: 0x6a4fb3, P: 0x9678e0,   // dress dark→light
-  g: 0xd9a92a, G: 0xffeea0,       // gold trim
-  j: 0x66e8e0,                    // tiara gem
-  b: 0x2e2255, B: 0x4a3a85        // boots
+  k: 0x1a1a2a,                              // outline (ART_VISION binding)
+  h: 0xcc8833, H: 0xffdd44,                 // hair dark→light
+  s: 0xddaa88, S: 0xffccaa,                 // skin shadow/base
+  w: 0xf8f8ff, e: 0x44ddff,                 // eye white / iris
+  d: 0x222233, D: 0x3344aa, P: 0x223388,    // jacket dark outline-shade / base / deep shade
+  g: 0x553322, G: 0xd9a92a,                 // bronze / gold trim
+  j: 0xaa44ff,                              // crown-shard pendant
+  b: 0x111111, B: 0x2e2255,                 // pants dark
+  o: 0x553322, O: 0x778899                  // boots bronze / metal cap
 };
 
-const DOWN_BODY = [
-  '........................',
-  '........................',
-  '.........kkkkkk.........',
-  '.......kkYYYYYYkk.......',
-  '......kYYYYYYYYYYk......',
-  '.....kYYHHHHHHHHYYk.....',
-  '.....kYHgGGjjGGgHYk.....',
-  '.....kHhhhhhhhhhhHk.....',
-  '.....kHsSSSSSSSSsHk.....',
-  '.....kHsSweSSweSsHk.....',
-  '.....kHsSSSSSSSSsHk.....',
-  '.....kHHSSSSSSSSHHk.....',
-  '......khsSSssSSshk......',
-  '.......kksSSSSskk.......',
-  '........kSSSSSSk........',
-  '.......kgGGGGGGgk.......',
-  '......kDDDDDDDDDDk......',
-  '.....kDkDDDDDDDDkDk.....',
-  '.....kDkdDDddDDdkDk.....',
-  '.....kskgGGGGGGgksk.....',
-  '......kdDDDDDDDDdk......',
-  '.....kdDDPPPPPPDDdk.....',
-  '....kdDDPPPPPPPPDDdk....',
-  '....kdDDPPPPPPPPDDdk....',
-  '....kddDDDDDDDDDDddk....',
-  '....kgGgGgGgGgGgGgGk....',
-  '....kddddddddddddddk....'
-];
+const DOWN_BODY = norm([
+  '................................',
+  '................................',
+  '............kkkkkkkk............',
+  '..........kkHHHHHHHHkk..........',
+  '.........kHHHHHHHHHHHHk.........',
+  '........kHHhhhhhhhhhhHHk........',
+  '........kHhhhhhhhhhhhhHk........',
+  '........khhssssssssshhk.........',
+  '........khsSSSSSSSSSshk.........',
+  '........khsSweSSSweSshk.........',
+  '........khsSSSSSSSSSshk.........',
+  '........khhSSSSSSSShhk..........',
+  '.........khsSSssSSshk...........',
+  '.........kkhSSSSShkk............',
+  '..........kSSSSSSSk.............',
+  '..........kgGGGGGGgk............',
+  '.........kDDDDDDDDDDk...........',
+  '........kDkDDDDDDDDkDk..........',
+  '........kDkdDPjPddDkDk..........',
+  '........kskgGGGGGGgksk..........',
+  '.........kdDDDDDDDDdk...........',
+  '.........kdDPPPPPPPDdk..........',
+  '........kdDPPPPPPPPPDdk.........',
+  '........kdDPPPPPPPPPDdk.........',
+  '........kddDDDDDDDDDddk.........',
+  '........kgGgGgGgGgGgGgk.........',
+  '........kdddddddddddddk.........',
+  '........kdDBBBBBBBBBDdk.........',
+  '........kdDBBBBBBBBBDdk.........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDDBBBBBBBBBDdk........',
+  '........kdDDDDDDDDDDDDdk........',
+  '........kgGgGgGgGgGgGgGk........',
+  '........kbbbbbbbbbbbbbbk........'
+]);
 
 const DOWN_LEGS = {
-  stand: [
-    '........kbBk..kbBk......',
-    '........kbBk..kbBk......',
-    '........kbbk..kbbk......',
-    '........kkkk..kkkk......',
-    '........................'
-  ],
-  a: [
-    '........kbBk..kbBk......',
-    '........kbBk..kkkk......',
-    '........kbbk............',
-    '........kkkk............',
-    '........................'
-  ],
-  b: [
-    '........kbBk..kbBk......',
-    '........kkkk..kbBk......',
-    '..............kbbk......',
-    '..............kkkk......',
-    '........................'
-  ]
+  stand: norm([
+    '..........kobOk..kobOk..........',
+    '..........kobOk..kobOk..........',
+    '..........kobbk..kobbk..........',
+    '..........kkkkk..kkkkk..........',
+    '................................'
+  ]),
+  a: norm([
+    '..........kobOk..kobOk..........',
+    '.........kobOk...kkkkk..........',
+    '.........kobbk...................',
+    '.........kkkkk...................',
+    '................................'
+  ]),
+  b: norm([
+    '..........kobOk..kobOk..........',
+    '..........kkkkk..kobOk..........',
+    '..................kobbk.........',
+    '..................kkkkk.........',
+    '................................'
+  ])
 };
 
-const UP_BODY = [
-  '........................',
-  '........................',
-  '.........kkkkkk.........',
-  '.......kkYYYYYYkk.......',
-  '......kYYYYYYYYYYk......',
-  '.....kYYYYYYYYYYYYk.....',
-  '.....kYHHHHHHHHHHYk.....',
-  '.....kYHHHHHHHHHHYk.....',
-  '.....kYHhHHhhHHhHYk.....',
-  '.....kYHHHHHHHHHHYk.....',
-  '.....kYYHHHHHHHHYYk.....',
-  '......kYHHHHHHHHYk......',
-  '.......khhHHHHhhk.......',
-  '.......kkHHHHHHkk.......',
-  '........kHHHHHHk........',
-  '.......kDDDDDDDDk.......',
-  '......kDDDDDDDDDDk......',
-  '.....kDkDDDDDDDDkDk.....',
-  '.....kDkDDDDDDDDkDk.....',
-  '.....kskgGGGGGGgksk.....',
-  '......kdDDDDDDDDdk......',
-  '.....kdDDDDDDDDDDdk.....',
-  '....kdDDDDDDDDDDDDdk....',
-  '....kdDDDDDDDDDDDDdk....',
-  '....kddDDDDDDDDDDddk....',
-  '....kgGgGgGgGgGgGgGk....',
-  '....kddddddddddddddk....'
-];
+const UP_BODY = norm([
+  '................................',
+  '................................',
+  '............kkkkkkkk............',
+  '..........kkHHHHHHHHkk..........',
+  '.........kHHHHHHHHHHHHk.........',
+  '........kHHHHHHHHHHHHHHk........',
+  '........kHHHHHHHHHHHHHHk........',
+  '........kHHhHHHHHHhHHHHk........',
+  '........kHHHHHHHHHHHHHHk........',
+  '........kHHHHHHHHHHHHHHk........',
+  '.........kHHHHHHHHHHHHk.........',
+  '.........khhHHHHHHHhhk..........',
+  '..........khhHHHHhhk............',
+  '...........khhhhhhhk............',
+  '..........khhhhhhhhhk...........',
+  '..........kgGGGGGGgk............',
+  '.........kDDDDDDDDDDk...........',
+  '........kDkDDDDDDDDkDk..........',
+  '........kDkDDDDDDDDDkDk.........',
+  '........kskgGGGGGGgksk..........',
+  '.........kdDDDDDDDDDdk..........',
+  '.........kdDDDDDDDDDDdk.........',
+  '........kdDDDDDDDDDDDDdk........',
+  '........kdDDDDDDDDDDDDdk........',
+  '........kddDDDDDDDDDddk.........',
+  '........kgGgGgGgGgGgGgk.........',
+  '........kdddddddddddddk.........',
+  '........kdDBBBBBBBBBDdk.........',
+  '........kdDBBBBBBBBBDdk.........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDDBBBBBBBBBDdk........',
+  '........kdDDDDDDDDDDDDdk........',
+  '........kgGgGgGgGgGgGgGk........',
+  '........kbbbbbbbbbbbbbbk........'
+]);
 
-const SIDE_BODY = [
-  '........................',
-  '........................',
-  '.........kkkkkk.........',
-  '.......kkYYYYYYkk.......',
-  '......kYYYYYYYYYYk......',
-  '......kYHHHHHHgGjk......',
-  '......kYHHHHHhSSsk......',
-  '......kYHHHHhSSSSk......',
-  '......kYHHHHhSweSk......',
-  '......kYHHHHhSSSSk......',
-  '......kYYHHHhsSSsk......',
-  '.......kYHHHhSSSk.......',
-  '........kkHHksSk........',
-  '.........kHHkSSk........',
-  '..........kkkSSk........',
-  '........kgGGGGgk........',
-  '........kDDDDDDk........',
-  '........kDDDDkDk........',
-  '........kdDDDkDk........',
-  '........kgGGGksk........',
-  '........kdDDDDdk........',
-  '.......kdDDPPDDdk.......',
-  '.......kdDPPPPDdk.......',
-  '......kdDPPPPPPDdk......',
-  '......kdDDDDDDDDdk......',
-  '......kgGgGgGgGgGk......',
-  '......kddddddddddk......'
-];
+const SIDE_BODY = norm([
+  '................................',
+  '................................',
+  '..........kkkkkkkk..............',
+  '........kkHHHHHHHHkk............',
+  '.......kHHHHHHHHHHHHk...........',
+  '.......kHHHHHHHHggGjk...........',
+  '.......kHHHHHHHhSSSsk...........',
+  '.......kHHHHHHhSSSSSk...........',
+  '.......kHHHHHhSSweSSk...........',
+  '.......kHHHHHhSSSSSSk...........',
+  '........kHHHHhsSSSsk............',
+  '.........kHHHhSSSSk.............',
+  '..........khhksSSSk.............',
+  '...........khhkSSSk.............',
+  '............kkkSSk..............',
+  '...........kgGGGGgk.............',
+  '...........kDDDDDDDk............',
+  '...........kDDDDkDDk............',
+  '...........kdDDDkDDk............',
+  '...........kgGGGksk.............',
+  '..........kdDDDDDDdk............',
+  '..........kdDPPPPPDdk...........',
+  '..........kdDPPPPPPDdk..........',
+  '.........kdDPPPPPPPPDdk.........',
+  '.........kdDDDDDDDDDDdk.........',
+  '.........kgGgGgGgGgGgk..........',
+  '.........kddddddddddddk.........',
+  '.........kdDBBBBBBBBDdk.........',
+  '.........kdDBBBBBBBBDdk.........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDBBBBBBBBBBDdk........',
+  '........kdDDBBBBBBBBBDdk........',
+  '........kdDDDDDDDDDDDDdk........',
+  '........kgGgGgGgGgGgGgGk........',
+  '........kbbbbbbbbbbbbbbk........'
+]);
 
 const SIDE_LEGS = {
-  stand: [
-    '..........kbBk..........',
-    '..........kbBk..........',
-    '..........kbbkk.........',
-    '..........kkkkk.........',
-    '........................'
-  ],
-  a: [
-    '.........kbBk.kbBk......',
-    '........kbBk...kbBk.....',
-    '........kbbk...kbbkk....',
-    '........kkkk...kkkkk....',
-    '........................'
-  ],
-  b: [
-    '..........kbBkbBk.......',
-    '..........kbBkbBk.......',
-    '.........kbbkkbbkk......',
-    '.........kkkk.kkkk......',
-    '........................'
-  ]
+  stand: norm([
+    '............kobOk...............',
+    '............kobOk...............',
+    '............kobbk...............',
+    '............kkkkk...............',
+    '................................'
+  ]),
+  a: norm([
+    '..........kobOk..kobOk..........',
+    '.........kobOk....kobOk.........',
+    '.........kobbk....kobbk.........',
+    '.........kkkkk....kkkkk.........',
+    '................................'
+  ]),
+  b: norm([
+    '............kobOkobOk...........',
+    '............kobOkobOk...........',
+    '...........kobbkkobbk...........',
+    '...........kkkkk.kkkkk..........',
+    '................................'
+  ])
 };
 
 export const LYRA_SPRITE = {
   id: 'lyra',
   map: LYRA_MAP,
-  w: 24, h: 32,
+  w: 32, h: 40,
   down: { body: DOWN_BODY, legs: DOWN_LEGS },
   up:   { body: UP_BODY,   legs: DOWN_LEGS },
   side: { body: SIDE_BODY, legs: SIDE_LEGS }

@@ -1,129 +1,88 @@
 // ═══════════════════════════════════════════════════════════════
-// VALIDATE SPRITES — checks authored sprite grid defs for shape
-// correctness: row width 24, body 27 rows, legs variants 5 rows
-// each, and every non-'.' character present in the sprite's map.
+// VALIDATE SPRITES — PNG sheet validator for the Route P generator.
+// Legacy text-grid validation remains available through the same command
+// when no generated manifest is present.
 // ═══════════════════════════════════════════════════════════════
 
-import { ERYNN_SPRITE } from '../public/src/art/sprites/erynn.js';
-import { BRIMBLE_SPRITE } from '../public/src/art/sprites/brimble.js';
-import { DRAKKOR_SPRITE } from '../public/src/art/sprites/drakkor.js';
-import { PIP_SPRITE } from '../public/src/art/sprites/pip.js';
-import { NPC_SPRITES } from '../public/src/art/sprites/npcs.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import { RAMP } from '../public/src/art/palette.js';
 
-const ROW_LEN = 24;
-const BODY_ROWS = 27;
-const LEGS_ROWS = 5;
+const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
+const DIR = path.join(ROOT, 'public/assets/sprites');
+const manifestPath = path.join(DIR, 'manifest.json');
 
-function validateRow(row, label, errors) {
-  if (typeof row !== 'string') {
-    errors.push(`${label}: row is not a string (${typeof row})`);
-    return;
+function readPng(file) {
+  const data = fs.readFileSync(file);
+  if (data.readUInt32BE(0) !== 0x89504e47 || data.readUInt32BE(4) !== 0x0d0a1a0a) throw new Error('bad PNG signature');
+  let offset = 8, width, height, bitDepth, colorType, interlace, compressed = [];
+  while (offset < data.length) {
+    const length = data.readUInt32BE(offset); const type = data.toString('ascii', offset + 4, offset + 8);
+    const body = data.subarray(offset + 8, offset + 8 + length); offset += 12 + length;
+    if (type === 'IHDR') { width = body.readUInt32BE(0); height = body.readUInt32BE(4); bitDepth = body[8]; colorType = body[9]; interlace = body[12]; }
+    if (type === 'IDAT') compressed.push(body);
+    if (type === 'IEND') break;
   }
-  if (row.length !== ROW_LEN) {
-    errors.push(`${label}: length ${row.length}, expected ${ROW_LEN} -> "${row}"`);
+  if (bitDepth !== 8 || colorType !== 6 || interlace !== 0) throw new Error('requires non-interlaced RGBA8 PNG');
+  const raw = zlib.inflateSync(Buffer.concat(compressed));
+  const stride = width * 4, rows = [], bpp = 4;
+  let p = 0, previous = Buffer.alloc(stride);
+  for (let y = 0; y < height; y++) {
+    const filter = raw[p++], row = Buffer.from(raw.subarray(p, p + stride)); p += stride;
+    for (let x = 0; x < stride; x++) {
+      const left = x >= bpp ? row[x - bpp] : 0, up = previous[x], upLeft = x >= bpp ? previous[x - bpp] : 0;
+      if (filter === 1) row[x] = (row[x] + left) & 255;
+      else if (filter === 2) row[x] = (row[x] + up) & 255;
+      else if (filter === 3) row[x] = (row[x] + Math.floor((left + up) / 2)) & 255;
+      else if (filter === 4) { const q = left + up - upLeft; const pa = Math.abs(q - left), pb = Math.abs(q - up), pc = Math.abs(q - upLeft); row[x] = (row[x] + (pa <= pb && pa <= pc ? left : pb <= pc ? up : upLeft)) & 255; }
+      else if (filter !== 0) throw new Error(`unsupported PNG filter ${filter}`);
+    }
+    rows.push(row); previous = row;
   }
+  return { width, height, rows };
 }
 
-function validateChars(row, map, label, errors) {
-  for (let i = 0; i < row.length; i++) {
-    const ch = row[i];
-    if (ch === '.') continue;
-    if (!(ch in map)) {
-      errors.push(`${label}: char "${ch}" at index ${i} not in map -> "${row}"`);
-    }
-  }
-}
-
-function validateDir(dirName, dirDef, map, spriteId, errors) {
-  const label = `${spriteId}.${dirName}`;
-  const body = dirDef.body;
-  if (!Array.isArray(body)) {
-    errors.push(`${label}.body: not an array`);
-  } else {
-    if (body.length !== BODY_ROWS) {
-      errors.push(`${label}.body: ${body.length} rows, expected ${BODY_ROWS}`);
-    }
-    body.forEach((row, i) => {
-      validateRow(row, `${label}.body[${i}]`, errors);
-      validateChars(row, map, `${label}.body[${i}]`, errors);
-    });
-  }
-
-  const legs = dirDef.legs;
-  if (!legs || typeof legs !== 'object') {
-    errors.push(`${label}.legs: missing`);
-    return;
-  }
-  ['stand', 'a', 'b'].forEach(variant => {
-    const rows = legs[variant];
-    const vlabel = `${label}.legs.${variant}`;
-    if (!Array.isArray(rows)) {
-      errors.push(`${vlabel}: not an array`);
-      return;
-    }
-    if (rows.length !== LEGS_ROWS) {
-      errors.push(`${vlabel}: ${rows.length} rows, expected ${LEGS_ROWS}`);
-    }
-    rows.forEach((row, i) => {
-      validateRow(row, `${vlabel}[${i}]`, errors);
-      validateChars(row, map, `${vlabel}[${i}]`, errors);
-    });
-  });
-}
-
-function validateSprite(sprite) {
+function validateSheet(file, action, expectedFrames, allowedRamps, range) {
   const errors = [];
-  if (!sprite || typeof sprite !== 'object') {
-    return ['sprite def missing or not an object'];
-  }
-  const { id, map, w, h } = sprite;
-  if (!id) errors.push('missing id');
-  if (!map || typeof map !== 'object') errors.push('missing map');
-  if (w !== 24) errors.push(`w=${w}, expected 24`);
-  if (h !== 32) errors.push(`h=${h}, expected 32`);
-
-  ['down', 'up', 'side'].forEach(dir => {
-    const dirDef = sprite[dir];
-    if (!dirDef) {
-      errors.push(`missing direction "${dir}"`);
-      return;
+  const png = readPng(file);
+  if (png.width !== 512 || png.height !== 256) errors.push(`dimensions ${png.width}×${png.height}, expected 512×256`);
+  const colors = new Set();
+  for (let row = 0; row < 4; row++) for (let col = 0; col < expectedFrames; col++) {
+    let minY = 64, maxY = -1, count = 0;
+    for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
+      const px = png.rows[row * 64 + y], o = (col * 64 + x) * 4;
+      if (px[o + 3] === 0) continue;
+      count++; minY = Math.min(minY, y); maxY = Math.max(maxY, y); colors.add(`${px[o]}-${px[o + 1]}-${px[o + 2]}`);
     }
-    validateDir(dir, dirDef, map || {}, id || '?', errors);
-  });
-
+    if (!count) errors.push(`${action} row ${row} frame ${col}: empty`);
+    const height = maxY - minY + 1;
+    if (height < range[0] || height > range[1]) errors.push(`${action} row ${row} frame ${col}: character height ${height}px (expected ${range[0]}–${range[1]}px)`);
+  }
+  if (colors.size > 32) errors.push(`${action}: ${colors.size} opaque colors (max 32)`);
+  const allowedColors = new Set(allowedRamps.flatMap(ramp => ramp.colors));
+  for (const color of colors) if (!allowedColors.has(color)) errors.push(`${action}: color ${color} is outside declared ramps`);
+  for (const ramp of allowedRamps) {
+    const visible = ramp.colors.filter(color => colors.has(color)).length;
+    if (ramp.required && visible < 3) errors.push(`${action}: ramp ${ramp.name} exposes ${visible} visible steps (minimum 3)`);
+  }
   return errors;
 }
 
-function report(sprite) {
-  const id = sprite && sprite.id ? sprite.id : '(unknown)';
-  const errors = validateSprite(sprite);
-  if (errors.length === 0) {
-    console.log(`OK  ${id}`);
-    return true;
-  }
-  console.log(`FAIL ${id}`);
-  for (const e of errors) console.log(`     - ${e}`);
-  return false;
-}
-
-let allOk = true;
-
-for (const sprite of [ERYNN_SPRITE, BRIMBLE_SPRITE, DRAKKOR_SPRITE, PIP_SPRITE]) {
-  if (!report(sprite)) allOk = false;
-}
-
-if (!Array.isArray(NPC_SPRITES)) {
-  console.log('FAIL NPC_SPRITES: not an array');
-  allOk = false;
-} else {
-  for (const sprite of NPC_SPRITES) {
-    if (!report(sprite)) allOk = false;
-  }
-}
-
-if (!allOk) {
-  console.log('\nValidation FAILED');
+if (!fs.existsSync(manifestPath)) {
+  console.error('FAIL generated manifest missing:', manifestPath);
   process.exit(1);
-} else {
-  console.log('\nAll sprites valid.');
 }
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const errors = [];
+for (const asset of manifest.assets ?? []) for (const [action, spec] of Object.entries(asset.actions ?? {})) {
+  const file = path.join(DIR, spec.file);
+  if (!fs.existsSync(file)) errors.push(`${asset.id}/${action}: missing ${spec.file}`);
+  else {
+    const allowedRamps = (asset.ramps ?? []).map(name => ({ name, required: !(asset.accentRamps ?? []).includes(name), colors: (RAMP[name] ?? []).map(color => `${color >> 16 & 255}-${color >> 8 & 255}-${color & 255}`) }));
+    const range = asset.category === 'enemy' ? ({ small: [18, 28], medium: [26, 38], large: [38, 60] }[asset.size] ?? [26, 38]) : [26, 36];
+    for (const error of validateSheet(file, action, spec.frames, allowedRamps, range)) errors.push(`${asset.id}/${error}`);
+  }
+}
+if (errors.length) { console.error('Sprite validation FAILED\n' + errors.map(e => `- ${e}`).join('\n')); process.exit(1); }
+console.log(`Sprite validation OK: ${manifest.assets.length} asset(s), PNG sheets pass.`);

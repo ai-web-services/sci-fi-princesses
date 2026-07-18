@@ -405,7 +405,11 @@ export const npcsByMap = {
             portrait: 'lyra',
             text: 'Then help me find out what the Crown was forged to carry. I think it was never meant to be carried alone.'
           } },
-          { flag: { key: 'ashfall_debrief_seen', value: true } }
+          { flag: { key: 'ashfall_debrief_seen', value: true } },
+          // Opens the Stargate route to Kessari Reach — otherwise
+          // unreachable, same gap mirelight/ashfall had before their
+          // predecessor region's debrief scene.
+          { unlock: 'kessari' }
         ], else: [
           { say: {
             speaker: 'Commander Reyes',
@@ -422,7 +426,11 @@ export const triggersByMap = {
   ash_gate: [
     {
       id: 'am6_arrival',
-      cells: [{ x: 14, y: 1 }, { x: 15, y: 1 }, { x: 14, y: 2 }, { x: 15, y: 2 }],
+      // Matches ash_gate's own spawn cell exactly: Travel's ash_gate
+      // entry lands the player at {14,19}, and the only exit here is
+      // south at y21 — cells anywhere north of spawn would never be
+      // stepped on, leaving Drakkor's recruitment unreachable.
+      cells: [{ x: 14, y: 19 }, { x: 15, y: 19 }],
       onceFlag: 'ashfall_arrival_seen',
       if: state => !state.flags.ashfall_arrival_seen,
       script: ASHFALL_ARRIVAL

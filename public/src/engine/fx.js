@@ -30,8 +30,8 @@ export function fadeIn(scene, ms = 400, cb = null, color = 0x000000) {
 
 // Camera shake — suppressed by reducedMotion.
 export function shake(scene, intensity = 0.008, ms = 200) {
-  if (Settings.reducedMotion) return;
-  scene.cameras.main.shake(ms, intensity);
+  if (Settings.reducedMotion || Settings.screenShake <= 0) return;
+  scene.cameras.main.shake(ms, intensity * Settings.screenShake);
 }
 
 // Brief flash — softened/removed by reducedFlash.
@@ -43,8 +43,9 @@ export function flash(scene, color = 0xffffff, ms = 120, alpha = 0.8) {
     scene.tweens.add({ targets: r, alpha: 0, duration: ms * 2, onComplete: () => r.destroy() });
     return;
   }
+  if (Settings.flashIntensity <= 0) return;
   const r = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, color)
-    .setAlpha(alpha).setDepth(DEPTH.FADE).setScrollFactor(0);
+    .setAlpha(alpha * Settings.flashIntensity).setDepth(DEPTH.FADE).setScrollFactor(0);
   scene.tweens.add({ targets: r, alpha: 0, duration: ms, onComplete: () => r.destroy() });
 }
 

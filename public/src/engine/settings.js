@@ -9,11 +9,13 @@ export const DEFAULT_BINDINGS = {
   keyboard: {
     up: ['W', 'UP'], down: ['S', 'DOWN'], left: ['A', 'LEFT'], right: ['D', 'RIGHT'],
     confirm: ['Z', 'SPACE', 'ENTER'], cancel: ['X', 'ESC'],
-    menu: ['C'], pageL: ['Q'], pageR: ['E']
+    menu: ['C'], pageL: ['Q'], pageR: ['E'],
+    actionSkill: ['F'], companion: ['R']
   },
   gamepad: {
     up: [12], down: [13], left: [14], right: [15],
-    confirm: [0], cancel: [1], menu: [3], pageL: [4], pageR: [5]
+    confirm: [0], cancel: [1], menu: [9], pageL: [4], pageR: [5],
+    actionSkill: [2], companion: [3]
   }
 };
 
@@ -26,6 +28,11 @@ export const Settings = {
   // visual accessibility
   reducedMotion: false,       // dampens shake/parallax/idle bobbing
   reducedFlash: false,        // removes full-screen flashes, dims bursts
+  screenShake: 1,            // 0..1 intensity multiplier
+  flashIntensity: 1,         // 0..1 alpha multiplier
+  reducedParticles: false,   // lower transient effect budgets
+  damageNumbers: true,       // combat damage flyouts
+  hitStop: true,             // brief impact pauses on critical hits
   highContrast: false,        // stronger UI contrast + selection markers
   showCombatIcons: true,      // element/status icons beside colors (colorblind-safe)
   // difficulty

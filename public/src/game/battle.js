@@ -32,6 +32,28 @@ export class Battle {
     this.usedRevive = false;
     this.buildHeroes();
     this.buildEnemies(enemies);
+    // D19 Vess duel-opening: the named companion fights alone until
+    // `ticks` of their own turns pass, then the rest of the active
+    // party is admitted mid-battle (see admitDuelBench/startTurn).
+    this.duel = null;
+    this.duelBench = [];
+    const duelDef = isBoss && enemies[0] && enemies[0].duel;
+    if (duelDef) {
+      this.duel = { char: duelDef.char, ticksLeft: duelDef.ticks || 3, joined: false };
+      this.duelBench = this.combatants.filter(c => c.side === 'hero' && c.id !== this.duel.char);
+      this.combatants = this.combatants.filter(c => c.side !== 'hero' || c.id === this.duel.char);
+    }
+  }
+
+  admitDuelBench() {
+    const events = [];
+    for (const c of this.duelBench) {
+      c.next = BASE_TURN / Math.max(1, c.stats.spd) * (0.9 + rand() * 0.2);
+      this.combatants.push(c);
+      events.push({ type: 'duelJoin', target: c.key });
+    }
+    this.duelBench = [];
+    return events;
   }
 
   buildHeroes() {
@@ -128,6 +150,14 @@ export class Battle {
   // ── Turn-start effects. Returns events. ───────────────
   startTurn(actor) {
     const events = [];
+    if (this.duel && !this.duel.joined && actor.side === 'hero' && actor.id === this.duel.char) {
+      this.duel.ticksLeft--;
+      if (this.duel.ticksLeft <= 0) {
+        this.duel.joined = true;
+        events.push({ type: 'duelEnd' });
+        events.push(...this.admitDuelBench());
+      }
+    }
     // decay primed tags
     for (const [tag, turns] of [...actor.primed]) {
       if (turns <= 1) actor.primed.delete(tag);
@@ -385,7 +415,15 @@ export class Battle {
           }
         } else if (skill.kind === 'utility') {
           if (skill.id === 'scan') {
-            for (const foe of this.alive('enemy')) this.recordBestiary(foe.id, 'scanned');
+            for (const foe of this.alive('enemy')) {
+              this.recordBestiary(foe.id, 'scanned');
+              // D19 Vess: her "clone" decoy status only comes off under a scan.
+              const decoy = foe.statuses.find(s => s.id === 'decoy');
+              if (decoy) {
+                foe.statuses.splice(foe.statuses.indexOf(decoy), 1);
+                events.push({ type: 'cleanse', target: foe.key });
+              }
+            }
             events.push({ type: 'scan' });
           }
           if (skill.summonId) {

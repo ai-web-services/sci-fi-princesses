@@ -1,517 +1,317 @@
 # ═══════════════════════════════════════════════════════════════
-# STELLAR PRINCESSES — ARTISTIC VISION v2.0 ("FFIV Remaster Grammar")
+# STELLAR PRINCESSES — ARTISTIC VISION v3.0 ("Reference-Anchored Chibi")
 # ═══════════════════════════════════════════════════════════════
 
-**Status:** Binding art bible. Supersedes `prompts/art-direction.md` for all NEW art.
-Every produced asset is tested against §12 (Acceptance Criteria) before it ships.
-Aligned with PLAN.md decisions D1 (resolution/sizing), D2 (authored procedural pixel
-art pipeline), D14–D24 (content scope). Source concept art:
-`assets/sprites/{lyra-solari,erynn-vexx,brimble-toadsworth,darkkor-ashveil}-concept.png`.
+**Status:** Binding art bible. Supersedes ART_VISION v2.0 ("FFIV Remaster Grammar")
+entirely. v2.0's technical canon (≤16 colors, uniform 1px `#1a1a2a` outline, 4-frame
+walks, 32×40 canvases) is retired — audits showed it cannot produce the target look.
+
+**Canonical reference:** the Craftpix "Free Swordsman 1–3 Level Pixel Top-Down Sprite
+Character" pack (`C:\Users\jrhol\Downloads\craftpix-net-180537-free-swordsman-*.zip`).
+Every stylistic rule in §1 was measured from that pack's actual pixels. When this doc
+is ambiguous, open the pack in the Gallery comparison view and match the reference.
+A proven Lyra pilot frame in this style exists (see ART_PRODUCTION_PLAN.md Phase B).
+
+Carried forward unchanged from v2.0: story palette identities (§2), element colors
+(§2.2), region atmospheres (§2.3), VFX choreography language (§5), icon grammar (§6),
+UI direction (§8), species silhouette rules (§9). What changed is *how characters are
+drawn and animated* (§1, §3) and the acceptance criteria (§12).
 
 ---
 
 ## 0. The Vision in One Paragraph
 
-Stellar Princesses looks like a lost SNES-era Square RPG — **Final Fantasy IV's visual
-grammar transplanted to a sci-fi fairytale**: small, big-headed heroes with enormous
-expressive dignity; side-view battles where the party stands in a right-side rank facing
-left toward enemies; bosses that dwarf the party and fill the left half of the screen;
-spells that are choreographed light-shows built from simple layered primitives (flashes,
-rings, bolts, palette cycling); and a world rendered in jewel-toned 16-color character
-palettes over darker, desaturated environments so characters always pop. Everything is
-crisp, outlined, integer-scaled pixel art. Nothing is smooth, nothing is gradient,
-nothing is "programmer art." The emotional register is *wonder with an undertow of
-grief* — golden light against void-purple darkness, mirroring Lyra's arc from sheltered
-princess to Celestial Ascendant.
+Stellar Princesses looks like a modern premium top-down pixel RPG: small, two-heads-tall
+chibi heroes with enormous expressive eyes and identity-defining hair/ear/horn
+silhouettes, drawn with soft hue-shifted color ramps and *selout* edges (each material
+outlined in a dark version of its own hue — never a uniform black line), animated at
+6–8 frames per action so movement feels fluid, with translucent smear-arcs on every
+melee swing and a soft alpha shadow grounding every actor. The world keeps the v2.0
+color story — jewel-toned characters over desaturated environments, gold/cyan hope
+against void-purple grief — but renders it in this warmer, rounder, higher-frame-count
+grammar. The emotional register is unchanged: *wonder with an undertow of grief*.
 
 ### Art Pillars (test every asset against these)
 
-1. **FFIV Grammar** — side-view battle staging, fixed pose vocabularies, boss scale
-   hierarchy, flash-and-palette spell language.
-2. **Characters Are Jewels** — saturated 16-color character palettes on desaturated
-   environments; the eye finds the party instantly on any screen.
-3. **Light vs. Void** — the global color story: golds/cyans (Crown, hope) vs.
-   purple-blacks (Voidborn, grief). Every region palette sits somewhere on this axis.
-4. **Readable at a Glance** — every mechanic has a distinct visual (element colors,
-   status icons, telegraph language). A muted-audio player can play by sight alone.
-5. **Authored, Not Approximated** — per D2, all art is authored pixel data generated to
-   textures at boot. No AI-noise, no blur, no rect-primitive placeholders in shipped art.
+1. **Match the Reference** — the Craftpix pack is ground truth for proportion, ramp
+   depth, edge treatment, and animation feel. Side-by-side comparison is part of
+   acceptance, not a suggestion.
+2. **Selout, Never Coloring-Book** — no uniform exterior outline. Each material edges
+   itself in its own darkest ramp step. This one rule is most of the style.
+3. **Silhouette Is Identity** — hair mass, ears, horns, dome, chassis: exaggerated to
+   half the sprite. A player names the character from a black silhouette at 1×.
+4. **Fluidity Over Frame Thrift** — 6–8 frames per action, smear frames on attacks,
+   1px secondary motion (hair bob, tail sway) on idles. Frame count is the budget we
+   protect, not the one we cut.
+5. **Characters Are Jewels / Light vs. Void** — retained from v2.0: saturated character
+   palettes over environments 20–30% less saturated; the gold-vs-void color story.
+6. **Layered, Not Monolithic** — every character is authored as composited part layers
+   (body/head/weapon/swing/shadow) so stages, gear, and species variants are layer and
+   palette swaps, not redraws.
 
 ---
 
-## 1. Global Technical Canon
+## 1. Global Technical Canon (measured from the reference pack)
 
 | Property | Value | Notes |
 |---|---|---|
-| Internal resolution | 640×360 | D1; integer scale ×3 → 1080p |
-| Tile size | 16×16 px | exploration maps |
-| Exploration character canvas | 32×40 px (Lyra, Brimble, Pip, NPCs), 32×48 px (Erynn, Drakkor — tall silhouettes per concept sheets) | feet anchored to bottom-center; sorted by y |
-| Battle hero canvas | 48×64 px | side-view, faces LEFT |
-| Battle enemy canvas (standard) | 48×48 px | faces RIGHT |
-| Battle enemy canvas (large) | 80×80 px | mini-boss tier |
-| Battle boss canvas | 128×128 px (arena bosses), 192×160 px (final boss P2/P3) | FFIV boss presence: boss height ≥ 2× hero height |
-| Portraits | 80×96 px | bust, 3/4 view, per-expression |
-| Chibi/UI icon | 32×32 px | per concept sheets |
-| Item/skill icons | 16×16 px | drawn on 16 grid, 1px outline |
-| Element/status glyphs | 8×8 px | shape-coded AND color-coded (D24 colorblind rule) |
-| Colors per character sprite | ≤16 (incl. transparent) | palettes defined in §2 |
-| Outline | 1px, `#1a1a2a`, all exterior edges | interior "selout" (darker local color) allowed |
-| Shading | 2-step hue-shifted ramps (shadow shifts toward purple, highlight toward warm) | never pure black/white shading |
-| Light source | upper-left, always | exploration AND battle |
-| Anti-aliasing | none; nearest-neighbor scaling only | |
-| Animation timing | frames specified in ticks of 1/60s; all animation delta-driven | |
-
-**Facing convention (battle):** heroes stand on the RIGHT third of the screen in a
-vertical rank (up to 3 active), sprites face LEFT. Enemies occupy the LEFT half, facing
-RIGHT. All hero battle art is authored facing LEFT only — no mirroring needed. All enemy
-battle art is authored facing RIGHT only.
+| Internal resolution | 480×270 | shipping viewport; integer scale ×4 → 1080p |
+| Tile size | 16×16 px | unchanged |
+| Character cell | **64×64 px, all characters** | uniform; char occupies ~26–34px height inside it; feet anchored 4px above cell bottom; generous margin so swings/hair never clip |
+| On-screen character height | ~26–34 px (≈2 tiles) | heroes ~30px; tall heroes (Erynn, Drakkor) 32–34px; small (Pip) ~24px |
+| Proportions | **2 heads tall**; head+hair = ~50% of height | limbs are 2–3px stubs; hands are 2×2 blobs |
+| Battle rendering | same 64×64 rigs rendered at ×2 integer | one rig serves exploration AND battle (see §3.4) |
+| Boss canvases | 128×128 / 192×160 | unchanged from v2.0 §4 |
+| Portraits | 80×96 px | unchanged spec, but redrawn faces must match §3.2 eye construction |
+| Colors per character | **≤32** | measured ~28 on reference; every material gets a ramp |
+| Ramps | **3–4 steps per material, hue-shifted** | shadows shift toward purple/red-brown, highlights toward warm; never straight darkening |
+| Edges | **selout only** — darkest ramp step of each material forms its edge | NO uniform black outline anywhere on sprites; uniform dark outline permitted only on 16×16 UI icons |
+| Drop shadow | soft alpha ellipse (~25% black), separate engine layer | the ONE permitted alpha-blend; anchored per-frame under feet |
+| Eyes | 3–4px tall: dark lash/brow pixel row, 1px white sclera, 2px saturated iris | no nose; mouth only on portraits and emotes |
+| Light source | upper-left, always | unchanged |
+| Anti-aliasing | none in sprite pixels (shadow layer excepted) | nearest-neighbor scaling only |
+| Animation rate | ~10–12 fps (5–6 ticks/frame) | delta-driven |
+| Sheet layout | 8 frame columns × 4 direction rows (front/back/side-L/side-R) | sides authored separately, never mirrored — weapons stay in the correct hand |
 
 ---
 
 ## 2. Color Bible
 
-### 2.1 Master character palettes (from concept sheets — canonical)
+### 2.1 Master character palettes
 
-Each character has a locked 16-color palette. Producers must use these hexes exactly.
+Character color *identities* carry over from v2.0 §2.1 (they match the concept sheets),
+but each named color now expands into a 3–4 step hue-shifted ramp within the 32-color
+budget. Ramps are defined once in `art/palette.js` and referenced by name.
 
-**Lyra** — skin `#ffccaa`/`#ddaa88`, hair `#ffdd44`/`#cc8833`, eyes `#44ddff`, outfit
-`#3344aa`/`#223388`, accent `#aa44ff`, metal `#778899`, bronze `#553322`, energy
-`#ffcc33`/`#ffffff`, darks `#222233`/`#111111`/`#1a1a2a`, outline `#1a1a2a`.
+Ramp construction rule, using Lyra's hair as the worked example:
+`hairEdge #5a3512 → hairShade #cc8833 → hairBase #ffdd44 → hairLight #ffcc33/#fff0a0`.
+Shadow steps rotate hue toward purple/red-brown; highlight steps rotate toward warm
+yellow. Apply the same construction to every v2.0 material color:
 
-**Erynn** — fur warm brown `#cc7744`/`#853322`, suit near-black `#2a2233`/`#3a3344` with
-crimson straps `#cc3333`, eyes amber `#ffcc33`, ember accents `#ff8604`/`#ff4400`
-(Act 2+), phantom purple `#aa44ff`/`#c9a0ff` (Act 3), plus shared darks/outline.
+- **Lyra** — skin `#ffccaa` ramp, gold hair ramp above, jacket `#3344aa`/`#223388` ramp
+  with edge `#141a44`, gold trim `#ffcc33`, iris `#44ddff`, accent `#aa44ff`.
+- **Erynn** — fur `#cc7744`/`#853322` ramp, near-black suit `#2a2233`/`#3a3344`, crimson
+  straps `#cc3333`, amber eyes `#ffcc33`, ember `#ff8604`/`#ff4400` (Act 2+), phantom
+  purple `#aa44ff`/`#c9a0ff` (Act 3).
+- **Brimble** — skin greens `#c4aa66`→`#44ff44` throat, steel `#778899`, water blues
+  `#44ddff`/`#3344aa`, leather browns.
+- **Drakkor** — scale reds `#cc3333`/`#853322`, charcoal armor `#3a3340`/`#222233`,
+  fire ramp `#ffcc33`/`#ff8604`/`#ff4400`, amber eyes.
+- **Pip** — white-steel `#ccd4e0`/`#778899`, cyan eye `#44ddff` (gold when Omega Core),
+  violet ring `#aa44ff`, thruster gold.
 
-**Brimble** — skin greens `#c4aa66`→`#44ff44` throat glow, armor steels
-`#778899`/`#553322`, water blues `#44ddff`/`#3344aa`, leather browns, shared darks.
+### 2.2 Element colors — unchanged from v2.0 (core/glow/8×8 glyph shapes):
+Slash `#ccd4e0`, Pierce `#aabbcc`, Blunt `#cc9966`, Fire `#ff4400`, Ice `#44ddff`,
+Lightning `#ffdd44`, Water `#3388ff`, Dark/Void `#aa44ff`, Light `#ffcc33`,
+Heal `#44ff88` — with the same glyph shape-coding (colorblind rule D24).
 
-**Drakkor** — scale reds `#cc3333`/`#853322`, armor charcoals `#3a3340`/`#222233`, fire
-`#ffa0d4`→ use `#ffcc33`/`#ff8604`/`#ff4400` ramp, eyes `#ffcc33`, shared darks.
-
-**Pip** (no concept sheet yet — fill-the-gap design, §13): chassis white-steel
-`#ccd4e0`/`#778899`, single eye `#44ddff` (shifts `#ffcc33` when Omega Core), accent ring
-`#aa44ff`, thruster glow `#ffcc33`, shared darks.
-
-### 2.2 Element colors (never deviate — used by spells, icons, damage text, weakness UI)
-
-| Element | Core | Glow | Glyph shape (8×8) |
-|---|---|---|---|
-| Slash | `#ccd4e0` | `#ffffff` | diagonal blade |
-| Pierce | `#aabbcc` | `#ffffff` | arrow tip |
-| Blunt | `#cc9966` | `#ffcc33` | starburst |
-| Fire | `#ff4400` | `#ffcc33` | flame teardrop |
-| Ice | `#44ddff` | `#ffffff` | hex crystal |
-| Lightning | `#ffdd44` | `#ffffff` | zigzag bolt |
-| Water | `#3388ff` | `#44ddff` | wave crest |
-| Dark/Void | `#aa44ff` | `#1a0a2a` | hollow circle |
-| Light | `#ffcc33` | `#ffffff` | 4-point star |
-| Heal | `#44ff88` | `#ffffff` | plus sign |
-
-### 2.3 Region atmosphere palettes (environments sit 20–30% below character saturation)
-
-| Region | Base tones | Accent | Sky/void backdrop |
-|---|---|---|---|
-| Nova Prime | cool blue-gray stone, warm window golds | crown gold | deep indigo starfield |
-| Shattered Stargate | violet-black voidstone | cyan crystal | rift purple, drifting motes |
-| Mirelight Deeps | murky teal-greens | bioluminescent cyan/green | fog banks |
-| Ashfall Dominion | charcoal + rust | lava orange ramp | ember-lit smoke sky |
-| Kessari Reach | sandstone ochre | awning crimson + lantern gold | dusty amber dusk |
-| Silent Archive | slate blue-gray | hologram cyan, data-pulse white | sterile darkness |
-| Void Threshold | desaturating everything | glitch magenta/cyan fringe | reality tears (white noise pixels) |
+### 2.3 Region atmosphere palettes — unchanged from v2.0 §2.3 (Nova Prime blue-gray/
+gold, Stargate voidstone/cyan, Mirelight teal/biolume, Ashfall charcoal/lava, Kessari
+ochre/crimson, Archive slate/holo-cyan, Void Threshold desaturation/glitch).
+Environments stay 20–30% below character saturation.
 
 ---
 
-## 3. Playable Characters — Full Sprite Specification
+## 3. Characters — Sprite Specification
 
-Every hero requires **three visual stages** (Base / Partial / Evolved) per the concept
-sheets. Stage swaps are palette + overlay changes on the same silhouette where possible
-(Erynn and Drakkor Act-3 forms are full redraws — see sheets).
+### 3.1 Layered part construction (preferred, not required — see §11.3)
 
-### 3.1 Exploration sheets (per character, per stage)
+Where the source (asset pack or generator) provides them, characters keep **separate
+part layers**, composited at load time:
 
-4 directions × 4 frames (idle, step1, idle, step2) = 16 frames, plus:
-
-| Extra pose | Frames | Use |
-|---|---|---|
-| Interact/reach | 1 per direction (4) | chests, levers, NPCs |
-| Surprised | 1 (down) | encounter start, story beats |
-| Sad/kneel | 1 (down) | grief scenes (Brimble homestead, Fracture) |
-| Sleep/rest | 1 | inn, campfire scenes |
-| Victory wave | 1 (down) | quest completion beat |
-
-Walk cycle timing: 8 ticks/frame at normal speed (7.5 fps), classic FFIV cadence.
-
-### 3.2 Battle sheets — the FFIV pose vocabulary (per character, per stage)
-
-48×64 canvas, facing left. **This is the heart of the redesign.** Every hero implements
-this exact pose set:
-
-| # | Pose | Frames | Timing (ticks/frame) | Description |
-|---|---|---|---|---|
-| B1 | Idle/ready | 2 | 30/30 | weight shift breathing loop, weapon held |
-| B2 | Step-forward | 2 | 8/8 | advance one body-length before acting (FFIV walk-up) |
-| B3 | Attack windup | 1 | 10 | weapon raised |
-| B4 | Attack strike | 2 | 6/6 | swing + follow-through; contact flash on frame 2 |
-| B5 | Cast/chant | 2 | 20/20 loop | arms raised, palm glow (element-tinted overlay) |
-| B6 | Skill signature | 2 | character-specific | see per-character table below |
-| B7 | Hurt/flinch | 1 | 12 | knocked back 4px, eyes shut |
-| B8 | Critical (HP<25%) | 2 | 40/40 loop | hunched, slow breathing — replaces B1 |
-| B9 | KO | 1 | — | collapsed on ground (FFIV: face-down, weapon dropped) |
-| B10 | Defend | 1 | held | guard stance, shield/arms up |
-| B11 | Victory | 2 | 20/20, then hold | signature flourish, plays once at fanfare |
-| B12 | Item use | 1 | 20 | kneel-and-raise-item |
-
-Total: 17 frames/stage. With 3 stages × 5 heroes ≈ 255 battle frames (Erynn/Drakkor Act-3
-redraws included; Partial stages may reuse Base frames with palette/overlay deltas —
-producers must document which frames are deltas).
-
-### 3.3 Per-character signature reads
-
-| Character | Silhouette key | B4 attack | B6 signature skill pose | B11 victory |
-|---|---|---|---|---|
-| **Lyra** | long golden hair mass, saber + off-hand shard glow | saber diagonal slash | Crown raised overhead, halo ring appears (Stellar Command) | saber spun, sheathed, hair settle |
-| **Erynn** | tall ears + low crouch + tail counterbalance | double claw rake (X-cross) | vanish crouch → afterimage silhouette (Shadow Pounce) | flips knife, smirks, tail flick |
-| **Brimble** | round dome + tower shield held FORWARD (tank reads as wall) | shield bash | throat sac inflates + water ring rises (Tidal Shield) | belly laugh, shield planted |
-| **Drakkor** | horns + cape + tail; tallest hero | two-hand greataxe overhead chop | rears back, chest glows, breath cone (Inferno Breath) | roars, small flame puff |
-| **Pip** | hovering sphere, bob animation is its idle (±2px sine) | eye-laser zap | opens panels, nano-swarm particles orbit (Nano Swarm) | happy spin + sparkle |
-
-Pip exception: all Pip poses are hover variants; no step-forward (glides), KO = powered
-down on ground with dim eye.
-
-### 3.4 Portraits (80×96)
-
-Per character: **base + 6 expressions** (neutral, happy, angry, sad, shocked, resolute)
-× each visual stage where the face changes (Lyra ×3, Erynn ×2, Drakkor ×2, Brimble ×2,
-Pip ×2 via eye-iconography). Expressions change eyes/brows/mouth only — hair, lighting,
-costume identical within a stage. Existing v4.8 portrait set is retained where it passes
-§12; the M12 backlog faces (Erynn/Drakkor/Lyra) are redrawn under this spec.
-
----
-
-## 4. Enemies — Roster Art Specification
-
-All enemies: single authored side-view sprite facing RIGHT + a 3-frame animation budget:
-**idle loop (2 frames, 30 ticks each)** + **attack accent (1 frame)**. Hurt = 2-tick
-white-palette flash + 4px knockback (engine effect, no frame). Death = dissolve (§7.4).
-FFIV precedent: enemies are mostly static portraits with palette life — we add one idle
-alternate frame for modern feel.
-
-### 4.1 Size tiers
-
-| Tier | Canvas | Examples |
-|---|---|---|
-| Small | 32×32 | voidling, gate_wisp, mire_croaker, custodian_drone |
-| Standard | 48×48 | shade, corrupted_sentry, bog_lurker, ember_hound, dust_stalker, null_walker |
-| Large | 80×80 | void_maw, shard_golem, tide_witch, archive_titan, unmade_knight |
-| Boss | 128×128 | Kael, Matriarch, Ignis, Vess, Archivist Prime |
-| Final | 192×160 | The Unbound Crown (P2 Void Amalgam, P3 The Wound) |
-
-### 4.2 Palette-swap discipline (FFIV tradition, used deliberately)
-
-Each region may reuse ≤2 silhouettes from earlier regions with full palette re-ramps and
-one silhouette edit (new head/weapon/appendage). Swaps must be documented in the asset
-manifest (`art/manifest.md`, §11). Never palette-swap a boss.
-
-### 4.3 The five bosses — art + animation contracts
-
-Bosses get the **FFIV boss treatment**: dominating scale, mostly stationary, animated
-through sub-part motion, palette cycling, and screen effects rather than full redraws.
-
-Per boss, required frames/parts:
-
-| Asset | Count | Notes |
-|---|---|---|
-| Idle composite | body + 2–4 animated sub-parts (2 frames each) | e.g. breathing chest, drifting tendrils |
-| Attack accents | 1 frame per named attack (see below) | |
-| Phase-shift state | 1 palette re-ramp + 1 overlay per phase | phase banner accompanies |
-| Hurt | palette flash (engine) | |
-| Death sequence | dissolve + core-collapse (§7.4 boss variant) | |
-
-**Void Sentinel Kael (Shattered Stargate)** — 128×128. Corrupted knight fused into gate
-debris; cyan gate-glass shards embedded in void-black armor, one arm a blade of rift
-energy. Sub-parts: cape drift, rift-arm flicker. Attacks: *Void Slash* (rift-arm raise
-accent + red telegraph line), *Dark Pulse* (crouch accent + expanding void ring),
-*Annihilation Beam* (3s charge glow accent → full-width beam). Phase 2: armor cracks
-overlay, purple veins palette-cycle.
-
-**Drowned Matriarch (Mirelight)** — 128×128. Bloated regal amphibian queen, coral crown,
-lantern lure. Sub-parts: lure sway, gill pulse, water-line shimmer at her base. Attacks:
-*Summon* (mouth-open accent), *Undertow* (rears up; arena water-rise overlay is an
-environment effect layer). Mercy state: lure dims, posture slumps (1 accent frame — the
-"Talk" prompt visual cue).
-
-**Ash Tyrant Ignis (Ashfall)** — 128×128 wide-format dragon. Armor plates are separate
-overlay sprites (3 plates) that visibly shatter when `sunder` breaks them — each plate
-has intact/cracked/gone states. Sub-parts: wing ember drift, molten chest glow cycle.
-Attacks: breath cone accent, tail sweep accent, P3 enrage = full-body fire palette cycle
-+ countdown numerals over head.
-
-**Silk Baroness Vess (Kessari)** — 96×112 (duelist boss — closer to hero scale ×2,
-elegance over bulk). Felidae noble, blade-fan, silk veils (2 drift sub-parts). Clone
-decoys = 40%-opacity palette ghosts of the same sprite. Attacks: fan-flick accent,
-duel-lunge accent.
-
-**Archivist Prime (Archive)** — 128×128. Monolithic construct of rotating data-slabs
-around a core eye; firewall = orbiting elemental glyph ring (uses §2.2 glyphs, currently
-active element enlarged). Attacks: slab-slam accent, beam-array accent. Revelation
-interleave: core eye shifts from cyan → gold as dialogue lands.
-
-**The Unbound Crown (Void Threshold)** — three bodies:
-P1 *Crown Sovereign* 64×80 — dark mirror of Ascendant Lyra (reuses her silhouette
-language, inverted palette: gold→void purple). P2 *Void Amalgam* 192×160 — fused echoes
-of all four prior bosses (recognizable parts: Kael's blade-arm, Matriarch's lure, Ignis
-plate, Vess veil) orbiting a wound-core. P3 *The Wound* 192×160 — abstract: a torn
-hole in reality, edge pixels glitch-cycling, inside is the starfield inverted; the four
-ending choices render as four orbiting light-motes (gold/cyan/green/violet).
-
----
-
-## 5. Spell, Skill & Resonance VFX — Choreography Specification
-
-FFIV spell language = **layered primitives**: (1) caster glow, (2) projectile/shape,
-(3) impact flash, (4) screen effect, (5) damage number. All VFX are built from these
-five layers in `art/vfx.js`. Standard cast flow (total ≈ 60–90 ticks):
-
-```
-[B5 chant 20t] → [element glow swells on caster 10t] → [shape travels/appears 15–30t]
-→ [impact: 2t white flash on target + effect burst 10t] → [damage number rises 30t]
-```
-
-### 5.1 Core effect library (build once, parameterize by element color)
-
-| Effect | Visual | Frames/lifetime | Used by |
-|---|---|---|---|
-| `bolt` | 3-segment jagged bolt from sky | 8t strike + 6t linger | lightning skills |
-| `projectile` | 12×12 elemental orb + 3-dot trail | 15–25t travel | fire/ice/dark casts |
-| `cone` | expanding wedge from caster mouth/hand, 3 growth frames | 18t | Inferno Breath |
-| `ring` | expanding circle outline, 4 radii | 16t | Dark Pulse, AoE bursts |
-| `rain` | 6–10 falling shards | 30t | ice/light multi-target |
-| `beam` | full-width horizontal beam, 2-frame flicker | 20t | Annihilation Beam, laser |
-| `shield_dome` | translucent half-dome, 2-frame shimmer loop | until consumed | Tidal Shield, barriers |
-| `sparkle_rise` | 8 pixels floating up + fade | 24t | heals, buffs |
-| `swarm` | 12 orbiting motes converging | 30t | Nano Swarm |
-| `afterimage` | caster silhouette at 50%→25%→0% opacity, 3 ghosts | 18t | Shadow Pounce, evasion |
-| `slash_arc` | white crescent, 3 frames | 9t | physical crits |
-| `screen_flash` | full-screen element-tint at 30% | 4t | big spells (reduced-flash mode: border pulse instead) |
-| `screen_shake` | ±3px, 8t decay | — | blunt/boss hits |
-| `palette_cycle` | target palette rotates through ramp | variable | burns, enrage, void corruption |
-
-### 5.2 Signature skill choreography (hero ultimates — each must feel like an FFIV summon-lite, 90–150 ticks)
-
-| Skill | Choreography |
+| Layer | Contents |
 |---|---|
-| **Stellar Command** (Lyra) | screen dims 20% → gold halo `ring` over party → `sparkle_rise` on each ally → stat-up arrows |
-| **Nova Burst** (Lyra) | chant → screen_flash gold → `rain` of 4-point stars across all enemies → triple impact flashes |
-| **Divine Judgment** (Lyra ult) | full letterbox → star backdrop overlay → descending `beam` pillar per enemy → white-out → damage |
-| **Shadow Pounce / Queen's Gambit** (Erynn) | `afterimage` dash across screen → appear behind target → `slash_arc` ×2 (Gambit: 3 ghosts each strike independently) |
-| **Tidal Shield / Sovereign Tide** (Brimble) | `shield_dome` water-tint over party (Tide: + `sparkle_rise` green regen ticks each turn) |
-| **Inferno Breath / Extinction Flare** (Drakkor) | B6 rear-back → `cone` fire, 3 growth stages (Flare: cone + `screen_flash` + lingering `palette_cycle` molten on targets) |
-| **Nano Swarm / Genesis Loop** (Pip) | `swarm` cyan motes to all allies → green plus-glyphs (Genesis: KO ally silhouette re-lights frame by frame — the resurrection read) |
+| `body` | torso, limbs, costume |
+| `head` | face, hair/ears/horns — the identity mass |
+| `weapon_front` | weapon when in front of the body this frame |
+| `weapon_back` | weapon when behind the body this frame |
+| `swing` | translucent smear-arc frames (attack actions only) |
+| `shadow` | engine-generated alpha ellipse (not hand-drawn) |
 
-### 5.3 Resonance combos (discovery moments — must feel celebratory)
+Why: evolution stages (Base/Partial/Evolved) become layer + palette swaps on the same
+body animation; NPC archetypes become head/palette swaps; the swing layer doubles as
+melee VFX, tinted per element.
 
-Trigger visual: both contributors' element glows arc toward mid-screen, collide in a
-2-tick white flash, then the combo effect plays bigger than either component. First-ever
-discovery adds: time-stop 30t, "RESONANCE — <name>" banner in gold UI script, record
-scratch SFX hook. E.g. *Steam Explosion* = fire cone + water ring → white steam billows
-(6-frame cloud) + blind glyphs on enemies.
+### 3.2 Construction rules (per §1, restated as a checklist for authors)
 
-### 5.4 Telegraph language (bosses; D19/v5.1 system)
+- 2 heads tall; head+hair ≥ 45% of total height.
+- Hair/ears/horns exaggerated into THE silhouette read (Lyra: huge gold hair mass with
+  side-swept bangs; Erynn: tall ears + tail; Brimble: dome + wide stance; Drakkor:
+  horns + bulk; Pip: hovering sphere).
+- Eyes per §1: lash row, white pixel, 2px iris in character eye color. Eyes and hair
+  carry all personality; no nose/mouth on sprites.
+- Selout edges per material; interior detail via ramp steps, not lines.
+- Costume detail budget: 2–3 read-at-1× elements max (Lyra: gold center trim + belt).
 
-- **Line AoE:** pulsing red 2px line on arena floor, 1.5s, 2-frame blink accelerating.
-- **Arena-wide:** screen edge pulses element color + countdown pips over boss head.
-- **Add summon:** purple portal swirls (16t) before minion fade-in.
-Telegraphs always render UNDER sprites, are shape+color coded, and respect reduced-flash.
+### 3.3 Animation contract (per character, per stage)
 
----
+All actions × **4 authored directions** (front, back, side-left, side-right):
 
-## 6. Items, Equipment & Icon Art
+| Action | Frames | Notes |
+|---|---|---|
+| Idle | 4–6 | 1px torso/hair bob; tail/ear secondary motion |
+| Walk | 6 | full stride cycle |
+| Run | 8 | lean-forward pose, hair whip |
+| Attack | 6–8 | 1–2 **smear frames** where the weapon becomes a translucent arc (swing layer), element-tintable |
+| Cast/chant | 6 | palm glow overlay, element-tinted |
+| Hurt | 3–4 | 4px knockback, eyes shut |
+| KO/death | 6 | collapse; Pip = power-down, dim eye |
+| Victory | 6 | signature flourish (plays once) |
+| Interact | 2 | reach pose |
 
-### 6.1 Icon grammar (16×16, 1px outline, 3-color + shine convention)
+≈ 45–50 frames × 4 directions per stage, but layered authoring + the engine shadow +
+palette-swap stages mean the *drawn* pixel volume is far lower than the frame count
+implies. Partial stages reuse Base body animation with gear-layer deltas (document
+deltas in the manifest).
 
-| Family | Silhouette rule |
-|---|---|
-| Weapons | diagonal, blade/muzzle pointing up-right; type readable (saber, claw, shield, axe, emitter) |
-| Armor | frontal torso shape; weight class by bulk |
-| Accessories | ring = circle, amulet = drop on chain, implant = chip with pins |
-| Consumables | flask silhouettes; contents = element color |
-| Materials | scrap = plate stack, gel = blob, essence = wisp in vial, crystal = shard, scale = fan shape |
-| Key/story | unique per item; Crown Shards = 6 distinct crystal cuts, one per shard name |
+### 3.4 Battle presentation (replaces v2.0's separate 48×64 battle sheets)
 
-### 6.2 Rarity rendering (D22/GDD)
+**One rig per character.** Battle scenes render the same 64×64 exploration rigs at ×2
+integer scale, using the side-facing rows (heroes use side-left = facing left; enemies
+side-right). The v2.0 FFIV staging survives — heroes in a right-side rank, enemies
+left, bosses at dominating scale — but there is no separate battle sprite production
+line. Battle-only actions (cast, victory, KO) are part of the single rig's contract
+(§3.3). This halves hero production and guarantees exploration/battle art can never
+drift apart.
 
-Rarity = **border + corner glint** on the icon slot (not the icon itself):
-white / green / blue / purple / gold frames; Crown Relic = animated 4-color prismatic
-border cycle (8t/step). Epic+ items get a 2-frame idle sparkle in inventory.
+### 3.5 Signature reads (unchanged intent from v2.0 §3.3, now expressed in-rig)
 
-### 6.3 In-world pickups
+| Character | Attack read | Signature/cast read | Victory |
+|---|---|---|---|
+| Lyra | saber smear-arc slash | crown raised, gold halo ring | saber spin, hair settle |
+| Erynn | double claw smear (X) | vanish + afterimages | knife flip, tail flick |
+| Brimble | shield bash | throat inflate + water ring | belly laugh, shield plant |
+| Drakkor | greataxe overhead smear | rear back, breath cone | roar, flame puff |
+| Pip | eye-laser zap | panels open, nano-swarm | happy spin + sparkle |
 
-Chest (closed/opening/open, 3 frames + gold light `sparkle_rise`), floating item glint
-(2-frame twinkle), material nodes per region (crystal cluster, gel pod, scrap pile —
-2-frame shimmer). Item-get: icon rises 12px above hero + `sparkle_rise` + jingle hook.
+### 3.6 Portraits (80×96)
 
----
-
-## 7. Game-Flow Choreography (mechanics → art moments)
-
-### 7.1 Encounter transition
-FFIV-style shatter: screen freezes → splits into 8×8 tile shards that scatter outward
-(12t) → battle backdrop slides in → heroes slide in from right in rank order → boss
-battles instead: fade to black 20t → boss name banner → boss fades in first, alone.
-
-### 7.2 Battle backdrop spec
-Per region: 640×200 painted-pixel backdrop (parallax-free, FFIV flat stage), floor band
-where combatants stand, 1 ambient animation layer (drifting motes / heat shimmer /
-water caustics / data pulses, 2–4 frame loop).
-
-### 7.3 Turn flow reads
-Active hero steps forward (B2) + white selection corner-brackets; timeline strip icons
-use the 32×32 chibis; target selection = blinking hand cursor (2 frames, FFIV homage).
-
-### 7.4 Death/dissolve
-Standard enemy: 20t vertical scanline dissolve into element-colored pixels that fall.
-Boss: 60t sequence — palette cycles to white → cracks overlay → core flash →
-`screen_flash` → shards + `ring`. Never reuse standard dissolve on a boss.
-
-### 7.5 Victory
-Fanfare → heroes play B11 in stagger (0/10/20t offsets) → results panel slides up:
-XP ticks up numerically, level-up = gold `ring` on chibi + "LEVEL UP!" script,
-loot icons pop in one by one (6t apart).
-
-### 7.6 Evolution scenes (EvolutionScene — the biggest art moments in the game)
-90–150 ticks, letterboxed: character alone on void-black → old-form sprite rises,
-palette drains to white → shard/sigil orbits in (`swarm`) → white-out `screen_flash` →
-new-form sprite descends with new palette + 3 `ring` bursts → name reveal
-("STARFORGED") in gold script → return. Each of the 8 evolutions (Lyra ×3, companions
-×1 each… Lyra Crown Bearer already shipped) uses this template with per-character
-sigil, element tint, and silhouette morph (2 in-between frames old→new).
-
-### 7.7 Shard "Memory of the Crown" cutscenes (D14)
-Distinct visual treatment: sepia-void palette (all colors remapped to gold/purple duotone),
-film-grain pixel flicker layer, letterbox, portraits rendered as silhouettes with glowing
-eyes. This treatment is a shader-free palette remap — build once in fx.js, reuse ×6.
-
-### 7.8 Exploration ambience (M12 contract)
-Per region, minimum: 1 water/fluid shimmer OR heat/particle drift, 1 flag/banner/foliage
-sway (2-frame), 1 light pulse (windows, crystals, holograms). Nova Prime adds stage 0–3
-growth deltas (D20): rubble → scaffolds → banners → restored spire glow.
-
-### 7.9 Void corruption motif (global)
-Anything void-touched gets: purple `palette_cycle` on its outline pixels only + 1–2
-glitch frames (row displacement ±1px) every ~3s. Applies to corrupted NPCs, tiles,
-Void Threshold terrain, and the Fracture scene UI itself.
+Spec unchanged from v2.0 §3.4 (6 expressions × stages where the face changes), but
+all NEW/redrawn portraits use §1 ramp + selout rules and the big-eye construction so
+portraits and sprites read as the same person.
 
 ---
 
-## 8. UI Art Direction
+## 4. Enemies & Bosses
 
-- **Window frames:** FFIV blue — deep `#223388`→`#3344aa` vertical dither gradient fill,
-  double border (outer `#ffffff` 1px, inner `#778899` 1px), rounded 2px corners. 9-slice.
-- **Font:** existing crisp pixel font; gold `#ffcc33` for emphasis/names, white body text.
-- **Gauges:** HP green→amber→red stepped (not gradient); SP cyan; CTB timeline strip
-  with chibi tokens; boss HP = wide top bar with phase notches.
-- **Damage numbers:** white (normal), gold+larger (crit), purple (weakness hit — with
-  "WEAK!" tag), gray (resist), green (heal); arc up-and-fall like FFIV.
-- **Menus:** portrait-led layouts; equipment compare arrows (green up/red down);
-  bestiary/records use enemy sprites at 1× with scan-fill silhouettes for unknowns.
-- **Title screen:** logo (pixel wordmark, crown-over-star sigil), starfield with
-  slow parallax, Crown Shard glints cycling; menu in standard windows.
+- **Standard enemies** move to the same 64×64 rig grammar: idle 4 frames + attack
+  accent 2 frames + hurt flash (engine) + death dissolve (engine), side-right facing
+  authored (exploration-visible enemies also get front/back rows). Size tiers within
+  the cell: Small ~20px, Standard ~30px, Large gets a 96×96 cell (~56px).
+- **Palette-swap discipline** unchanged (≤2 silhouette reuses per region, documented,
+  never bosses).
+- **Bosses** — v2.0 §4.3 contracts carry over intact (Kael, Matriarch, Ignis shipped;
+  Vess, Archivist Prime, Unbound Crown designs as previously specified), with one
+  amendment: redraw/patch passes apply §1 ramp + selout rules. Boss sub-part animation,
+  phase overlays, telegraph language (§5.4 of v2.0) all still binding.
 
 ---
+
+## 5. VFX
+
+v2.0 §5 remains binding in full (14-primitive library, cast-flow choreography,
+signature-skill choreographies, resonance celebration, telegraph language) with two
+additions:
+
+- **`smear_arc`** joins the primitive library: 3–4 crescent frames, white core +
+  element-glow edge, translucent; used by all melee attacks via the swing layer.
+- All impact/glow primitives may use alpha translucency (the reference pack does);
+  the "no gradients" rule applies to *sprite* pixels, not VFX overlays.
+
+## 6. Items & Icons — unchanged from v2.0 §6 (16×16, uniform dark outline permitted
+here, rarity borders, pickup treatments).
+
+## 7. Game-Flow Choreography — unchanged from v2.0 §7 (encounter shatter, backdrop
+spec, turn-flow reads, death/dissolve, victory stagger, evolution template, shard
+duotone, region ambience, void corruption motif).
+
+## 8. UI — unchanged from v2.0 §8.
 
 ## 9. NPC & World Cast
 
-- **Named NPCs** (Reyes, Zara, Torvin, Elara, Corvus, + regional named cast): unique
-  32×40 sheets, 4-dir × 2-frame idle-shuffle minimum (walk cycles only for NPCs that
-  patrol), 1 portrait each (neutral only; ±1 extra expression for story-heavy NPCs).
-- **Ambient citizens:** 6 body archetypes × region palette swaps (documented), including
-  Felidae/Anura/Drakonid/Construct civilians so regions read as their species' home.
-- **Species silhouette rules:** Felidae = ears+tail+digitigrade; Anura = dome+wide stance;
-  Drakonid = horns+tail+bulk; Construct = geometric, glow accents. A player must identify
-  species from silhouette alone at 1×.
+Unchanged rules (named NPCs, 6 civilian archetypes × region palettes, species
+silhouette identification at 1×) — but NPCs now use the same 64×64 layered rigs, which
+makes archetype × palette × head-swap variants nearly free. Named NPC minimum: idle
+4 frames × 4 directions; walk cycles only for patrollers.
 
 ---
 
-## 10. Production Sizing Summary (the full shopping list)
+## 10. Production Sizing Summary
 
-| Category | Count (approx) | Spec section |
+| Category | Volume | Spec |
 |---|---|---|
-| Hero exploration sheets | 5 chars × 3 stages × (16 walk + 8 extra) | §3.1 |
-| Hero battle sheets | 5 × 3 stages × 17 poses | §3.2 |
-| Portraits | ~5 × 2–3 stages × 7 expressions | §3.4 |
-| Chibi icons | 5 × 3 stages | §1 |
-| Standard enemies | ~30 existing + 15 new (D18) × 3 frames | §4 |
-| Bosses | 5 arena + 3-body final × contracts | §4.3 |
-| VFX library | 14 core effects + 7 signatures + resonances | §5 |
-| Icons | ~120 items/skills/statuses/elements | §6 |
-| Battle backdrops | 7 regions + arenas | §7.2 |
-| Tilesets | 7 regions (4 exist, refresh pass) + ambience layers | §7.8 |
-| UI kit | frames, gauges, cursors, banners, title | §8 |
-| NPCs | ~12 named + 6 archetypes × palettes | §9 |
-| Cinematic templates | evolution, shard memory, encounter, death, victory | §7 |
+| Hero rigs | 5 chars × 3 stages (stages are mostly layer/palette deltas) | §3.1–3.4 |
+| Portraits | gap-fill + redraw to §1 rules | §3.6 |
+| Standard enemies | ~30 existing re-ramped + 15 new | §4 |
+| Bosses | 2 shipped-boss conformance passes + Vess, Archivist Prime, Unbound Crown | §4 |
+| VFX | 14 primitives + `smear_arc` + 7 signatures | §5 |
+| Icons | ~120 | §6 |
+| Backdrops/tilesets/UI/NPCs | per v2.0 counts | §7–9 |
 
-Priority order: **(1)** hero battle sheets Base stage → **(2)** VFX core library →
-**(3)** boss contracts for shipped bosses (Kael, Matriarch) → **(4)** UI kit refresh →
-**(5)** remaining per-milestone (M6–M9 regions bring their own rosters) →
-**(6)** evolution/cinematic templates → **(7)** ambience & polish (M12).
+Priority order: **(1)** pipeline tooling (grid↔PNG converters, Gallery comparison
+view) → **(2)** Lyra full rig (the pilot proving the whole grammar) → **(3)** remaining
+4 heroes → **(4)** VFX library → **(5)** enemies re-ramp + bosses → **(6)** UI/portraits
+→ **(7)** cinematics & ambience.
 
 ---
 
-## 11. Handoff Protocol for Content-Author Agents
+## 11. Pipeline & Generation (how art gets made)
 
-1. Every asset is authored as pixel-string grids in `public/src/art/` per D2 (no binary
-   assets), palette refs by name from `art/palette.js` — never inline hexes.
-2. Before starting a packet, the author reads THIS file §1–2 + the relevant section,
-   and the concept PNG for the character (if any).
-3. Each packet ships with a manifest entry in `art/manifest.md`: asset id → spec section
-   → frame list → palette used → any documented reuse/swap.
-4. Validators (`scripts/`): frame dimensions match §1 canon; palette ≤16 and ⊆ declared
-   palette; outline color present on silhouette perimeter; animation registries complete
-   (every pose id in §3.2 exists per hero stage).
-5. Authors own new files only; integrator wires scenes/registries (PLAN.md §9 rules).
+**Decision (2026-07-09, supersedes D2 for character/enemy/NPC art):** shipped sprites
+are **PNG spritesheet assets** under `public/assets/sprites/`, loaded via Phaser's
+loader (`this.load.spritesheet` / atlas JSON). Text pixel-grids are retired for
+sprites — hand-typing pixel data is not a viable production method. Procedural
+generation at boot remains only where code is genuinely the better tool: VFX
+primitives, UI frames/gauges, tile effects, palette-remap variants.
+
+1. **No human artists, no paid art — ever.** The Craftpix pack is *reference only*
+   (style ground truth for §12.C comparison); its files are never used as source
+   material. All sprites are produced by the zero-cost generation pipeline in
+   ART_PRODUCTION_PLAN.md: a **procedural sprite-rig generator** (code that composes
+   parametric parts and poses them per animation tables — not hand-typed pixel data)
+   as the primary route, optionally augmented by free/local AI image generation and
+   CC0 assets, all through scripted post-processing (palette conforming to
+   `art/palette.js` ramps, 64×64 cell anchoring, sheet packing).
+2. **Sheet convention:** one PNG per character per action group, 8 frame columns × 4
+   direction rows (front/back/side-L/side-R), 64×64 cells, plus an atlas JSON manifest
+   (`public/assets/sprites/manifest.json`) mapping character → action → sheet/frames/
+   fps. Bosses/large enemies use their §4 cell sizes.
+3. **Layers are optional:** where a generator or pack provides part layers
+   (body/head/weapon/swing), keep them for cheap stage/gear swaps; where it outputs
+   whole frames, stage variants are produced by regenerating or palette-remapping
+   whole sheets instead. §3.1 is a preference, not a gate.
+4. Every asset ships with a manifest entry: id → spec section → source (pack name /
+   generator + prompt ref) → post-processing applied → license note.
+5. Validators run on the PNGs directly (`scripts/validate_sprites.mjs` rewritten):
+   cell size/grid alignment, color count ≤32 after conforming, ramp depth, selout
+   heuristic (exterior edge not one uniform color), character height range, all
+   manifest-declared actions/directions present.
 
 ---
 
-## 12. Acceptance Criteria (test every asset — this is the "definition of done")
+## 12. Acceptance Criteria (definition of done)
 
-**A. Technical** — canvas size per §1; ≤16 colors from declared palette; 1px `#1a1a2a`
-outline; transparent background; no AA/gradients; nearest-neighbor clean at ×3.
+**A. Technical** — 64×64 cell; char height 26–34px (tier-appropriate); ≤32 colors, all
+from declared ramps; every material ramp ≥3 hue-shifted steps; selout edges (no
+uniform exterior outline color); transparent background; no AA in sprite pixels;
+nearest-neighbor clean at ×3.
 
-**B. Grammar** — heroes face left / enemies face right in battle; light from upper-left;
-all §3.2 poses present; walk cycles 4-frame with return-to-idle; boss ≥2× hero height on
-screen; element colors match §2.2 exactly.
+**B. Grammar** — 2-heads-tall proportion; eyes per §1 construction; 4 authored
+directions (sides not mirrored); frame counts per §3.3; attacks include smear frames;
+feet on the standard anchor; light upper-left.
 
-**C. Readability** — character identifiable from silhouette at 1× on darkest region
-backdrop; species readable per §9; every mechanic state (weakness, status, telegraph,
-rarity) distinguishable with color removed (shape coding).
+**C. Reference match** — rendered side-by-side with the Craftpix reference in the
+Gallery comparison view at ×6: comparable ramp depth, edge softness, proportion, and
+animation fluidity. A reviewer seeing both should say they're from the same game.
 
-**D. Choreography** — every skill resolves through the §5 cast flow; timings within ±20%
-of spec; reduced-flash mode has a defined fallback for every `screen_flash` use;
-evolution/shard/death sequences use their templates, never ad-hoc.
+**D. Readability** — identity from silhouette at 1× on the darkest region backdrop;
+species readable per §9; mechanic states distinguishable with color removed.
 
-**E. Cohesion** — asset uses region atmosphere palette (§2.3); characters read more
-saturated than their environment; no shipped rect-primitive or unoutlined art.
+**E. Cohesion** — region atmosphere palettes respected; characters more saturated than
+environments; no shipped rect-primitive art.
 
-**F. Verification evidence** — screenshot at ×3 in-engine on the target scene, attached
-to the commit; validators pass; manifest entry exists.
+**F. Verification evidence** — Gallery screenshot at ×3 in-engine INCLUDING the
+side-by-side reference panel, attached to the commit; validators pass; manifest entry
+exists.
 
 An asset failing any category returns to its author with the failing criterion cited.
-
----
-
-## 13. Gaps Filled (visionary additions beyond the ask)
-
-- **Pip concept design** (§2.1) — no concept sheet existed; palette + silhouette defined
-  here. A Pip concept sheet matching the other four should be produced first.
-- **Vess & Archivist Prime & Unbound Crown visual designs** (§4.3) — bosses had names
-  and mechanics but no look; now specified, including the P2 "fused echoes" callback
-  which rewards the whole campaign visually.
-- **Ending motes motif** (§4.3 final boss) — the four endings get colors (Restore=gold,
-  Reform=cyan, Share=green, Release=violet) reused in EndingScene slides for coherence.
-- **Void corruption motif** (§7.9) — one reusable treatment unifies the antagonist's
-  visual identity across all seven regions.
-- **Shard-memory duotone** (§7.7) — gives the six Crown memories a signature look that
-  players will recognize instantly (and it's cheap: one palette remap).
-- **Colorblind shape-coding** (§2.2, §12.C) — extends D24 into the art spec itself.
-- **Talk/mercy visual cue** (§4.3 Matriarch) — the mercy mechanic gets a readable
-  "boss is yielding" pose so the Talk command discovery is fair.

@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { writeSave, readSave, AUTO_SLOT } from '../engine/save.js';
+import { normalizeGearEntry } from './gearProgression.js';
 
 export let GameState = null;
 
@@ -21,9 +22,10 @@ export function newGameState() {
     chars: {
       lyra: {
         level: 1, xp: 0, hp: 110, maxHp: 110, sp: 48, maxSp: 48,
-        equipment: { weapon: 'starlight_saber', armor: 'traveler_weave' },
+        equipment: { weapon: normalizeGearEntry('starlight_saber'), armor: normalizeGearEntry('traveler_weave') },
         skillsKnown: ['lyra_strike', 'stellar_slash', 'guiding_light'],
         evolution: 0, build: {}
+        ,lifetimeXp: 0, weaponMastery: { blade: 0, lance: 0, wand: 0 }
       }
     },                        // id → persistent character progression
     // resources
@@ -54,6 +56,14 @@ export function newGameState() {
     unlockedDestinations: ['nova_plaza'],
     trackedQuestId: null,
     mapChanges: {}
+    ,action: { stamina: 100, maxStamina: 100, energy: 0, maxEnergy: 48, weapon: 'blade' }
+    ,actionArsenal: {
+      blade: normalizeGearEntry('starlight_saber'),
+      lance: normalizeGearEntry('stellar_lance'),
+      wand: normalizeGearEntry('crown_wand')
+    }
+    ,expedition: null
+    ,runHistory: []
   };
   return GameState;
 }
@@ -67,6 +77,19 @@ export function normalizeGameState(s) {
   if (!s.flags) s.flags = {};
   if (!s.mapChanges || typeof s.mapChanges !== 'object') s.mapChanges = {};
   if (!Array.isArray(s.tutorialsSeen)) s.tutorialsSeen = Object.keys(s.tutorialsSeen || {});
+  if (!s.action || typeof s.action !== 'object') s.action = { stamina: 100, maxStamina: 100, energy: 0, maxEnergy: 48, weapon: 'blade' };
+  if (!s.actionArsenal || typeof s.actionArsenal !== 'object') s.actionArsenal = {};
+  for (const [family, fallback] of Object.entries({ blade: 'starlight_saber', lance: 'stellar_lance', wand: 'crown_wand' })) {
+    s.actionArsenal[family] = normalizeGearEntry(s.actionArsenal[family] || fallback);
+  }
+  if (!Array.isArray(s.runHistory)) s.runHistory = [];
+  if (s.expedition === undefined) s.expedition = null;
+  for (const rec of Object.values(s.chars || {})) {
+    if (typeof rec.lifetimeXp !== 'number') rec.lifetimeXp = Number(rec.xp) || 0;
+    if (!rec.weaponMastery || typeof rec.weaponMastery !== 'object') rec.weaponMastery = { blade: 0, lance: 0, wand: 0 };
+    if (!rec.equipment || typeof rec.equipment !== 'object') rec.equipment = {};
+    for (const slot of Object.keys(rec.equipment)) rec.equipment[slot] = normalizeGearEntry(rec.equipment[slot]);
+  }
   if (!s.world || typeof s.world !== 'object') s.world = {};
   if (!s.relationships || typeof s.relationships !== 'object') s.relationships = {};
   for (const id of Object.keys(s.relationships)) {

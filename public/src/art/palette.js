@@ -11,10 +11,13 @@ export const RAMP = {
   skinDeep:   [0x3d2531, 0x6a4038, 0x91604a, 0xb8845f, 0xd9a878],
 
   // ── Lyra ──────────────────────────────────────────────
-  lyraHair:   [0x8a4a1f, 0xc7772a, 0xf2a93b, 0xffd166, 0xffefa8],  // starlight gold
-  lyraDress:  [0x2a1d4d, 0x45327d, 0x6a4fb3, 0x9678e0, 0xc7b2ff],  // royal violet
+  // Route P canon: Lyra's hair is warm solar gold; her outfit is a blue
+  // military jacket. These replace the retired royal-violet v2 ramps.
+  lyraHair:   [0x5a3512, 0xcc8833, 0xffdd44, 0xffcc33, 0xfff0a0],
+  lyraDress:  [0x141a44, 0x223388, 0x3344aa, 0x5f73d0, 0xa8b8ff],
   lyraTrim:   [0x9a6a1a, 0xd9a92a, 0xffd75e, 0xffeea0, 0xfffce0],  // gold trim
   lyraCape:   [0x1a1230, 0x2e2255, 0x4a3a85, 0x6a58b5, 0x9a8ae0],
+  lyraEye:    [0x14203d, 0x23527d, 0x44ddff, 0x8ceeff, 0xe7fdff],
 
   // ── Companions ────────────────────────────────────────
   erynnFur:   [0x2d2438, 0x4d3d55, 0x6f5a78, 0x93789c, 0xb99cc0],  // dusk-violet fur

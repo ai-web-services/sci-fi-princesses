@@ -93,7 +93,7 @@ export class ShopScene extends Phaser.Scene {
     if (!items.length) items.push({ label: mode === 'buy' ? 'No stock' : 'Nothing to sell', value: null, disabled: true });
     items.push({ label: 'Back', value: 'back' });
     this.menu = new MenuList(this, this.win.x + 22, this.win.y + 74, items, {
-      width: 250, lineH: 19, visible: 10,
+      width: 184, lineH: 19, visible: 8,
       rightTexts: items.map(item => item.row ? item.row.price + 'g' : ''),
       onChange: item => this.showDetail(item.row),
       onSelect: item => item.value === 'back' ? this.buildRoot() : item.row && this.askConfirm(item.row),
@@ -105,12 +105,12 @@ export class ShopScene extends Phaser.Scene {
   showDetail(row) {
     if (this.detail) this.detail.destroy();
     if (!row) return;
-    this.detail = new Win(this, this.win.x + 300, this.win.y + 72, this.win.w - 324, 190);
+    this.detail = new Win(this, this.win.x + 216, this.win.y + 68, this.win.w - 232, 146);
     this.detail.addText(14, 14, row.data.name, { scale: 1, color: RAMP.uiGold[4] });
     this.detail.addText(14, 38, row.data.desc, {
       scale: 1, color: 0xe8e8f4, maxWidth: this.detail.w - 28, lineH: 11
     });
-    this.detail.addText(14, 136, (this.mode === 'buy' ? 'Cost: ' : 'Sell: ') + row.price + ' gold', {
+    this.detail.addText(14, 112, (this.mode === 'buy' ? 'Cost: ' : 'Sell: ') + row.price + ' gold', {
       scale: 1, color: uiDimColor()
     });
   }

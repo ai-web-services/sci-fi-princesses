@@ -20,6 +20,7 @@ import { ERYNN_SPRITE } from '../art/sprites/erynn.js';
 import { BRIMBLE_SPRITE } from '../art/sprites/brimble.js';
 import { DRAKKOR_SPRITE } from '../art/sprites/drakkor.js';
 import { PIP_SPRITE } from '../art/sprites/pip.js';
+import { ENEMIES } from '../data/enemies.js';
 
 const HERO_SPRITES = { lyra: LYRA_SPRITE, erynn: ERYNN_SPRITE, brimble: BRIMBLE_SPRITE, drakkor: DRAKKOR_SPRITE, pip: PIP_SPRITE };
 const BOSS_IDS = ['kael', 'matriarch', 'ignis'];
@@ -37,6 +38,44 @@ function items() {
         return scene.add.image(0, 0, 'actor_' + id, 'down0').setOrigin(0.5, 0.5);
       }
     }))
+  });
+
+  cats.push({
+    name: 'Route P Rig Pilot',
+    entries: [
+      { label: 'Lyra / idle / front', build: (scene) => scene.add.image(0, 0, 'rig_lyra_idle', 0).setOrigin(0.5, 0.5) },
+      { label: 'Lyra / idle / back', build: (scene) => scene.add.image(0, 0, 'rig_lyra_idle', 8).setOrigin(0.5, 0.5) },
+      { label: 'Lyra / idle / side-left', build: (scene) => scene.add.image(0, 0, 'rig_lyra_idle', 16).setOrigin(0.5, 0.5) },
+      { label: 'Lyra / idle / side-right', build: (scene) => scene.add.image(0, 0, 'rig_lyra_idle', 24).setOrigin(0.5, 0.5) },
+      { label: 'Lyra / walk / front', build: (scene) => scene.add.image(0, 0, 'rig_lyra_walk', 0).setOrigin(0.5, 0.5) }
+    ],
+    note: '64px rig · 4 authored directions · generated PNG'
+  });
+
+  cats.push({
+    name: 'Reference Compare',
+    entries: [
+      { label: 'Lyra / idle / ×6 review strip', build: (scene) => ({ image: scene.add.image(0, 0, 'rig_lyra_idle_review').setOrigin(0.5, 0.5), displayScale: 0.15, note: 'Generated strip; run compare_ref.mjs with a local reference plate' }) },
+      { label: 'Lyra / walk / ×6 review strip', build: (scene) => ({ image: scene.add.image(0, 0, 'rig_lyra_walk_review').setOrigin(0.5, 0.5), displayScale: 0.15, note: 'Generated strip; reference inputs remain local-only' }) }
+    ]
+  });
+
+  cats.push({
+    name: 'Route P Hero Cast',
+    entries: ['erynn', 'brimble', 'drakkor', 'pip'].map(id => ({
+      label: `${id} / idle / front`,
+      build: (scene) => scene.add.image(0, 0, `rig_${id}_idle`, 0).setOrigin(0.5, 0.5)
+    })),
+    note: '64px rig · descriptor-driven species family'
+  });
+
+  cats.push({
+    name: 'Route P Enemy Cast',
+    entries: Object.values(ENEMIES).filter(def => !def.boss).map(def => ({
+      label: `${def.id} / idle / front`,
+      build: (scene) => scene.add.image(0, 0, `rig_${def.id}_idle`, 0).setOrigin(0.5, 0.5)
+    })),
+    note: '64px rig · generated family descriptor'
   });
 
   cats.push({
@@ -125,7 +164,7 @@ export class GalleryScene extends Phaser.Scene {
       const result = entry.build(this);
       const img = result && result.image ? result.image : result;
       if (result && result.note) note = result.note;
-      img.setScale(ZOOM);
+      img.setScale(result && result.displayScale ? result.displayScale : ZOOM);
       this.stage.add(img);
     }
     this.title.setText(`${cat.name}  [${this.catIdx + 1}/${this.cats.length}]`);

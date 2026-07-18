@@ -145,7 +145,6 @@ export class PixelText extends Phaser.GameObjects.Container {
   }
 
   setText(text) {
-    this.removeAll(true);
     this._text = String(text == null ? '' : text);
     const o = this.opts;
     const lines = o.maxWidth ? wrapText(this._text, o.maxWidth, o.scale) : this._text.split('\n');
@@ -154,6 +153,16 @@ export class PixelText extends Phaser.GameObjects.Container {
     lines.forEach(l => { widest = Math.max(widest, textWidth(l, o.scale)); });
     this.textW = widest;
     this.textH = lines.length * o.lineH * o.scale;
+    let glyphIndex = 0;
+    const placeGlyph = (frame, x, y, tint, scale) => {
+      let image = this.list[glyphIndex];
+      if (!image) {
+        image = this.scene.add.image(x, y, 'font', frame).setOrigin(0, 0);
+        this.add(image);
+      }
+      image.setTexture('font', frame).setPosition(x, y).setTint(tint).setScale(scale).setAlpha(1).setVisible(true);
+      glyphIndex++;
+    };
     lines.forEach((line, li) => {
       const lw = textWidth(line, o.scale);
       let ox = 0;
@@ -165,15 +174,12 @@ export class PixelText extends Phaser.GameObjects.Container {
         const fx = ox + i * ADV * o.scale;
         const fy = li * o.lineH * o.scale;
         if (o.shadow) {
-          const sh = this.scene.add.image(fx + o.scale, fy + o.scale, 'font', frameFor(ch))
-            .setOrigin(0, 0).setTint(o.shadowColor).setScale(o.scale);
-          this.add(sh);
+          placeGlyph(frameFor(ch), fx + o.scale, fy + o.scale, o.shadowColor, o.scale);
         }
-        const img = this.scene.add.image(fx, fy, 'font', frameFor(ch))
-          .setOrigin(0, 0).setTint(o.color).setScale(o.scale);
-        this.add(img);
+        placeGlyph(frameFor(ch), fx, fy, o.color, o.scale);
       }
     });
+    for (let i = glyphIndex; i < this.list.length; i++) this.list[i].setVisible(false);
     return this;
   }
 

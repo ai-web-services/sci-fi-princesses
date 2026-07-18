@@ -32,6 +32,16 @@ export const SHOPS = {
     id: 'ash_goods', name: 'CINDER MARKET',
     keeper: 'Drakonid Trader',
     items: ['potion', 'hi_potion', 'antidote', 'clarity_herb', 'smoke_bomb', 'emberbrand_axe', 'dragonhide_plate']
+  },
+  kess_bazaar: {
+    id: 'kess_bazaar', name: 'THE GILDED SOUK',
+    keeper: 'Bazaar Broker Nyssa',
+    items: [
+      'hi_potion', 'sp_elixir', 'revive_spark', 'smoke_bomb',
+      'astral_edge', 'shadowlace_talons', 'coralheart_rod', 'emberbrand_axe', 'pulse_array',
+      'scoutmesh', 'sovereign_mail',
+      'swift_anklet', 'crit_earring', 'sp_regen_ring', 'evade_charm'
+    ]
   }
 };
 

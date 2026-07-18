@@ -221,6 +221,72 @@ export const ENEMIES = {
   },
 
   // ─────────────────────────────────────────────────────────
+  // KESSARI REACH — levels 12-15. Lesson: evasion/debuffs — these
+  // foes lean on blind/poison/stun/spd-down rather than raw power,
+  // teaching the party to value cleanse/accuracy over brute force.
+  // ─────────────────────────────────────────────────────────
+  dust_stalker: {
+    id: 'dust_stalker', name: 'Dust Stalker',
+    desc: 'A sand-camouflaged hunter that stalks the dunes outside Kessari, near-invisible until it strikes.',
+    level: 12, hp: 165, atk: 24, mag: 8, def: 13, res: 11, spd: 17,
+    weak: ['water'], resist: [], immune: [],
+    skills: ['sand_fling'],
+    ai: 'wild',
+    xp: 96, gold: 44,
+    drops: [{ item: 'scrap_metal', chance: 0.3 }, { item: 'silk_thread', chance: 0.1 }],
+    size: 'small',
+    palette: { primary: 0x9a8256, glow: 0xd6c290 }
+  },
+  gutter_blade: {
+    id: 'gutter_blade', name: 'Gutter Blade',
+    desc: 'A back-alley knife-fighter working the smuggling lanes beneath Kessari\'s bazaar.',
+    level: 12, hp: 158, atk: 22, mag: 6, def: 12, res: 9, spd: 14,
+    weak: ['blunt'], resist: [], immune: [],
+    skills: ['alley_stab'],
+    ai: 'aggressive',
+    xp: 92, gold: 42,
+    drops: [{ item: 'scrap_metal', chance: 0.35 }, { item: 'void_essence', chance: 0.15 }],
+    size: 'small',
+    palette: { primary: 0x6b4a2e, glow: 0xb08050 }
+  },
+  smuggler_enforcer: {
+    id: 'smuggler_enforcer', name: 'Smuggler Enforcer',
+    desc: 'Muscle for Vess\'s silk-and-relic trade, armed and unbothered by court law.',
+    level: 13, hp: 205, atk: 26, mag: 5, def: 18, res: 12, spd: 9,
+    weak: ['stellar'], resist: ['blunt'], immune: [],
+    skills: ['pistol_whip'],
+    ai: 'defensive',
+    xp: 104, gold: 48,
+    drops: [{ item: 'scrap_metal', chance: 0.45 }, { item: 'bio_gel', chance: 0.2 }],
+    size: 'medium',
+    palette: { primary: 0x3a3028, glow: 0xc9a132 }
+  },
+  void_hound: {
+    id: 'void_hound', name: 'Void Hound',
+    desc: 'A desert hound whose bloodline was warped by void-touched relics smuggled through Kessari.',
+    level: 13, hp: 178, atk: 25, mag: 12, def: 12, res: 14, spd: 18,
+    weak: ['stellar'], resist: ['void'], immune: [],
+    skills: ['void_snap'],
+    ai: 'aggressive',
+    xp: 108, gold: 46,
+    drops: [{ item: 'void_essence', chance: 0.3 }, { item: 'silk_thread', chance: 0.12 }],
+    size: 'medium',
+    palette: { primary: 0x3d2a55, glow: 0xa844c2 }
+  },
+  silk_assassin: {
+    id: 'silk_assassin', name: 'Silk Assassin',
+    desc: 'A veiled killer trained in Vess\'s own guard, striking from wherever the light does not reach.',
+    level: 14, hp: 172, atk: 29, mag: 8, def: 13, res: 13, spd: 20,
+    weak: ['stellar'], resist: [], immune: [],
+    skills: ['garrote_line'],
+    ai: 'wild',
+    xp: 116, gold: 50,
+    drops: [{ item: 'silk_thread', chance: 0.25 }, { item: 'void_essence', chance: 0.15 }],
+    size: 'small',
+    palette: { primary: 0x241a2c, glow: 0xc86ad0 }
+  },
+
+  // ─────────────────────────────────────────────────────────
   // BOSSES
   // ─────────────────────────────────────────────────────────
   kael: {
@@ -295,5 +361,29 @@ export const ENEMIES = {
     ],
     size: 'boss',
     palette: { primary: 0x661a0a, glow: 0xffaa22 }
+  },
+  vess: {
+    id: 'vess', name: 'Silk Baroness Vess',
+    desc: 'Kessari\'s smuggling queen, trading Void-touched relics under the cover of silk and court favor. Erynn\'s exile made her rule possible.',
+    level: 14, hp: 1380, atk: 27, mag: 20, def: 15, res: 16, spd: 19,
+    weak: ['stellar'], resist: [], immune: [],
+    skills: ['silk_snare', 'garrote_line'],
+    ai: 'aggressive',
+    xp: 520, gold: 380,
+    drops: [
+      { item: 'silk_thread', chance: 1.0 },
+      { item: 'void_essence', chance: 0.5 }
+    ],
+    boss: true,
+    // D19: Erynn opens the fight alone for 3 of her own turns — a
+    // formal duel Vess demanded — before the rest of the party wades
+    // in (see battle.js Battle.duel / admitDuelBench).
+    duel: { char: 'erynn', ticks: 3 },
+    phases: [
+      { hpFrac: 0.6, addSkills: ['veil_of_silk'], say: 'A baroness never duels without an advantage. Let\'s see you find the real me.' },
+      { hpFrac: 0.3, addSkills: ['clone_flurry'], say: 'Every one of my shadows knows how to cut just as deep as I do.' }
+    ],
+    size: 'boss',
+    palette: { primary: 0x3d1a45, glow: 0xc86ad0 }
   }
 };

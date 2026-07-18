@@ -6,6 +6,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { drawGrid } from './pixel.js';
+import { hasRig, rigAnim, rigTextureKey, RIG_FOOT_ORIGIN_Y } from '../engine/rigs.js';
 
 export const WALK_CYCLE = [1, 0, 2, 0];
 export const WALK_FRAME_MS = 130;
@@ -55,14 +56,21 @@ export function buildShadowTexture(scene) {
 // ── ActorSprite ────────────────────────────────────────
 // Wraps a Phaser image + shadow, handles facing and walk animation.
 export class ActorSprite {
-  constructor(scene, actorId, x, y) {
+  constructor(scene, actorId, x, y, options = {}) {
     this.scene = scene;
-    this.key = 'actor_' + actorId;
+    this.id = actorId;
+    this.rig = options.useRig !== false && hasRig(actorId); // generated PNG rig takes priority unless a scene requests stable grid art
+    this.key = this.rig ? rigTextureKey(actorId, 'idle') : 'actor_' + actorId;
     this.shadow = scene.add.image(x, y, 'actorShadow').setOrigin(0.5, 0.5);
-    this.img = scene.add.image(x, y, this.key, 'down0').setOrigin(0.5, 1);
     this.dir = 'down';
     this.animT = 0;
     this.moving = false;
+    if (this.rig) {
+      this.img = scene.add.sprite(x, y, this.key, 0).setOrigin(0.5, RIG_FOOT_ORIGIN_Y);
+      this.img.play(rigAnim(actorId, 'idle', 'down'));
+    } else {
+      this.img = scene.add.image(x, y, this.key, 'down0').setOrigin(0.5, 1);
+    }
     this.setPos(x, y);
   }
 
@@ -82,8 +90,15 @@ export class ActorSprite {
 
   face(dir) {
     this.dir = dir;
+    if (this.rig) { this.playRig(); return; } // rigs author left/right rows — no flipX
     this.img.setFlipX(dir === 'left');
     this.updateFrame();
+  }
+
+  playRig() {
+    const key = rigAnim(this.id, this.moving ? 'walk' : 'idle', this.dir);
+    const current = this.img.anims.currentAnim;
+    if (!current || current.key !== key) this.img.play(key);
   }
 
   updateFrame() {
@@ -99,6 +114,7 @@ export class ActorSprite {
   // delta ms; moving: bool
   update(delta, moving) {
     this.moving = moving;
+    if (this.rig) { this.playRig(); return; } // Phaser anims advance themselves
     if (moving) this.animT += delta;
     else this.animT = 0;
     this.updateFrame();

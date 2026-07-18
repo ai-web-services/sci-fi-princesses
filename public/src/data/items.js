@@ -10,7 +10,7 @@
 //   stats?: { atk?, mag?, def?, res?, spd?, hp?, sp?, crit? },
 //   effect?: { heal?, healFrac?, sp?, revive?, cure?, escape? },
 //   passive?: { spRegen?, critBonus?, elementResist?: {fire:0.5}, thorns?, evade? },
-//   rarity: 'common'|'uncommon'|'rare'|'epic',
+//   rarity: 'common'|'uncommon'|'rare'|'epic'|'legendary' (transcended gear becomes a Crown Relic),
 //   tier: 1|2|3
 // }
 // ═══════════════════════════════════════════════════════════════
@@ -118,6 +118,11 @@ export const ITEMS = {
     type: 'material', price: 50, sell: 20,
     rarity: 'uncommon', tier: 2
   },
+  silk_thread: {
+    id: 'silk_thread', name: 'Silk Thread', desc: 'Unnaturally strong thread unraveled from a smuggler-baroness\'s veil.',
+    type: 'material', price: 60, sell: 24,
+    rarity: 'uncommon', tier: 2
+  },
 
   // ─────────────────────────────────────────────────────────
   // WEAPONS — Lyra (blades)
@@ -127,6 +132,20 @@ export const ITEMS = {
     type: 'weapon', price: 120, sell: 48,
     usableBy: ['lyra'], slot: 'weapon',
     stats: { atk: 8 },
+    rarity: 'common', tier: 1
+  },
+  stellar_lance: {
+    id: 'stellar_lance', name: 'Stellar Lance', desc: 'A collapsible Crown-guard lance tuned for committed piercing thrusts.',
+    type: 'weapon', price: 140, sell: 56,
+    usableBy: ['lyra'], slot: 'weapon', actionFamily: 'lance',
+    stats: { atk: 7, def: 2 },
+    rarity: 'common', tier: 1
+  },
+  crown_wand: {
+    id: 'crown_wand', name: 'Crown Wand', desc: 'A royal stellar focus that shapes Crown energy into ranged bolts.',
+    type: 'weapon', price: 140, sell: 56,
+    usableBy: ['lyra'], slot: 'weapon', actionFamily: 'wand',
+    stats: { mag: 8, sp: 4 },
     rarity: 'common', tier: 1
   },
   astral_edge: {
@@ -141,7 +160,7 @@ export const ITEMS = {
     type: 'weapon', price: 1400, sell: 560,
     usableBy: ['lyra'], slot: 'weapon',
     stats: { atk: 38, mag: 14, crit: 0.05 },
-    rarity: 'epic', tier: 3
+    rarity: 'legendary', tier: 3
   },
 
   // ─────────────────────────────────────────────────────────

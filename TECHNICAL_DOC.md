@@ -1,4 +1,87 @@
 # STELLAR PRINCESSES — Technical Documentation
+## v6.0-alpha.5 — Action-RPG Release Candidate
+
+- `expedition/rng.js` provides stable 32-bit seeds and independent named streams for
+  layout, terrain, ecology, encounters, loot, and cosmetic effects.
+- `expedition/generator.js` creates 64×64 Lumenwild regions from an anchor graph, carves
+  three-tile corridors, adds terrain only after routes are locked, places bounded habitat
+  populations, and validates every required objective and safe footprint.
+- `ExpeditionScene` is intentionally separate from `MapScene`: the hub retains its
+  authored grid/script contracts while expeditions use frame-rate-independent continuous
+  movement, manual radius collision, action resources, telegraphed ecology, and camera
+  follow. Phaser physics are not enabled for this milestone.
+- `actionModel.js` owns weapon timings, combos, stamina, dodge invulnerability, facing,
+  three energy-spending Crown techniques, and resource regeneration as testable state transitions.
+  Blade and Lance resolve spatial arcs directly; Wand primary attacks allocate from a fixed
+  ten-bolt player pool and share the same seeded damage, affinity, gear, mastery, and Crown-energy
+  resolution path as melee. The browser smoke test asserts an actual bolt enters the active pool.
+- `runModel.js` owns the ordered relay → Gatebound → gate → Kael → shard → return
+  objective contract, duplicate-safe cache rewards, checkpoints, and carried/secured loot.
+- `buildChoices.js` provides deterministic three-choice level rewards; `LevelUpScene`
+  applies weapon, movement, survivability, Crown, and Erynn upgrades without leaving the run.
+- `fieldCompanion.js` implements the single-active-companion contract for Erynn, Brimble,
+  Drakkor, and Pip with distinct command profiles, follow/flank/evade logic, ranged spacing,
+  marks, area attacks, and projectile guarding. Expedition enemies carry explicit affinities;
+  ranged Voidborn draw aim warnings and reuse a fixed 12-shot projectile pool. The region
+  overview projects the generated anchor graph and player position without duplicating map state.
+  `kaelController.js` owns Kael's phase director, breakable armor,
+  telegraphs, shade/rift caps, cover-aware beam, transition, and enrage behavior.
+- `RunSummaryScene` and `LeaderboardScene` present run evidence and rank by lifetime XP,
+  final level, bosses, then duration. `sites/leaderboard` is a separately buildable Sites
+  service with D1 persistence and ChatGPT-authenticated submissions; the game keeps a
+  privacy-safe local/offline fallback.
+- Accessibility settings now independently control shake, flash intensity, particle
+  reduction, damage numbers, and hit stop while preserving the existing remappable input.
+- `CharacterSheetScene` provides four controller-navigable pages for overview, transparent
+  derived-stat formulas, rarity-colored loadout/skills, and action build/mastery/species/bond
+  state. `statBreakdown()` shares the authoritative effective-stat calculation and fixes
+  fractional critical-chance content so combat and presentation consistently use percent.
+- Save schema 6 migrates legacy equipment strings into instance records and initializes a
+  persistent Blade/Lance/Wand action arsenal. `gearProgression.js` owns +1–+10 scaling,
+  deterministic affixes at +3/+6/+9, mutually exclusive material infusions, +10 Celestial
+  transcendence, labels, costs, and derived stats. The Forge exposes these paths with
+  material/gold previews and confirmation, and enhanced action gear changes expedition
+  damage across Dark, Light, Fire, Ice, and Lightning infusions. Critical hits now use the seeded combat stream and drive
+  accessible damage numbers, impact flash/shake, and bounded hit stop.
+- Generator version 2 splits the basin into passive and neutral populations.
+  `ecologyModel.js` owns provocation, flee/retaliate state, home-bounded wandering,
+  passive sleep/gather/graze activity cycling,
+  off-screen despawn, cooldown-based invisible respawn, and the 18-body active budget;
+  `ExpeditionScene` reuses the original Phaser bodies rather than allocating replacements.
+  Territorial detection is local, elites flank, and relay/miniboss objectives never
+  repopulate. `npm run test:performance` measures the 480×270 renderer with the full
+  creature budget plus 85 simultaneous reward flyouts.
+- `PixelText` reuses its glyph images when content changes. Expedition feedback is bounded by
+  a 32-entry damage/XP flyout pool and a 48-entry, camera-culled impact-particle pool; reduced
+  particles lowers each burst before allocation. Enemy shots use 12 pooled bodies and Wand
+  attacks use 10, so the stress path creates no unbounded combat feedback objects.
+- The expedition HUD exposes health, stamina, Crown energy, current XP/next-level progress,
+  weapon, full action controls, and active-companion cooldown at the 480×270 shipping viewport.
+- The Sites score contract now requires a UUIDv4 run id, the current game version,
+  bounded level/XP/mastery/duration/boss counts, a coherent Victory result, and a
+  sanitized build/objective. D1 enforces per-user run uniqueness and indexes a 12/hour
+  authenticated rate limit. Legacy rows migrate through a table-copy migration without
+  inventing public identity. The client has explicit success, sign-in, duplicate,
+  rate-limited, and offline outcomes; cross-origin static play hands the score to an
+  authenticated top-level `/submit` relay while keeping local history authoritative.
+- Sites access is public for leaderboard reads (`GET /api/runs`), while score writes remain
+  gated by the platform-provided ChatGPT identity headers. The production probe verifies an
+  anonymous 200 JSON ranking response and an unauthenticated 401 JSON submission response.
+- Save schema 5 migrates existing slots with action resources, lifetime XP, mastery,
+  expedition records, and local run history without discarding old fields.
+- `npm run validate:expeditions` exercises 1,000 seeds for determinism, reachability,
+  anchor footprints, population caps, and variation. `npm run test:expedition` drives
+  movement, all three weapons, dodge, Erynn commands, ordered objectives, build selection,
+  Kael phase two, Crown Shard evolution, return-state mutation, run summaries, local/shared
+  leaderboard presentation, console-error capture, and screenshots in Chromium.
+- `npm run validate:input` exercises every mapped standard-gamepad action, D-pad buttons,
+  analog movement, and stick deadzone without accessing Phaser globals at module load time.
+
+The application now runs at the 480×270 shipping resolution with integer CSS scaling.
+Title, exploration, action combat, turn-based combat, dialogue, travel, commerce, journal,
+save/options, tutorial, gallery, level-up, evolution, summary, and leaderboard layouts are
+covered by the browser viewport suite and captured under `screenshots/viewport/`.
+
 ## v5.0 — Act I Vertical Slice
 
 > The detailed v4.0 prototype inventory later in this document is retained as
@@ -7,7 +90,7 @@
 
 ### Current Runtime
 
-- 640×360 internal resolution with integer CSS scaling and crisp pixel rendering.
+- 480×270 internal resolution with integer CSS scaling and crisp pixel rendering.
 - Phaser 4.2.0 from the pinned CDN, loaded before the Vite-built ES module.
 - Scene flow: `BootScene → TitleScene → MapScene`, with combat, dialogue, travel,
   quest journal, tutorial, evolution, shop, unified menu, options, and save/load

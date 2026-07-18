@@ -35,6 +35,7 @@ const MIRELIGHT_ARRIVAL = [
   { wait: 300 },
   { fade: 'in' },
   { music: 'mirelight' },
+  { recruit: 'brimble' },
   { say: {
     speaker: 'Lyra',
     portrait: 'lyra',
@@ -332,7 +333,10 @@ export const npcsByMap = {
             text: 'Then stop, and help me figure out what the Crown was built to hold shut.'
           } },
           { flag: { key: 'mirelight_debrief_seen', value: true } },
-          { run: scene => { GameState.novaStage = 1; } }
+          { run: scene => { GameState.novaStage = 1; } },
+          // Opens the Stargate route to Ashfall Dominion — otherwise
+          // unreachable, same gap as mirelight had before Act 1's ending.
+          { unlock: 'ashfall' }
         ], else: [
           { say: {
             speaker: 'Commander Reyes',
@@ -349,10 +353,11 @@ export const triggersByMap = {
   mire_landing: [
     {
       id: 'am5_arrival',
-      cells: [
-        { x: 12, y: 14 }, { x: 13, y: 14 }, { x: 14, y: 14 }, { x: 15, y: 14 }, { x: 16, y: 14 },
-        { x: 12, y: 15 }, { x: 13, y: 15 }, { x: 14, y: 15 }, { x: 15, y: 15 }, { x: 16, y: 15 }
-      ],
+      // Matches mire_landing's own spawn cell exactly: Travel's
+      // mirelight entry lands the player at {14,19}, and the only
+      // exit here is south at y21 — cells further north would never
+      // be stepped on, leaving Brimble's recruitment unreachable.
+      cells: [{ x: 14, y: 19 }, { x: 15, y: 19 }],
       onceFlag: 'mirelight_arrival_seen',
       if: state => !state.flags.mirelight_arrival_seen,
       script: MIRELIGHT_ARRIVAL

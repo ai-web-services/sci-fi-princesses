@@ -110,7 +110,9 @@ sci-fi-princesses/
 - **Top-level Phaser access**: Never access `Phaser.Input.Keyboard.KeyCodes` at module top level — the CDN may not have loaded yet when the module parses. Use lazy access via functions (see `input.js` `KC()` helper).
 
 ### Scene Architecture
-- 8 scenes total: BootScene → TitleScene → TownScene ↔ [DialogueScene, ShopScene, InventoryScene, CombatScene, DungeonScene]
+- `BootScene → TitleScene → MapScene` preserves the authored hub/story path.
+- `TravelScene → ExpeditionScene` provides the continuous-action Lumenwild run, with `LevelUpScene`, `CharacterSheetScene`, `RunSummaryScene`, and `LeaderboardScene` supporting progression and results.
+- Dialogue, shops, forge, inventory/party field menu, quest journal, options, saves, evolution, gallery, and legacy combat remain separate overlay/workflow scenes.
 - No Arcade/Matter physics used — manual tile-based collision via `isTownSolid()` / `isDungeonSolid()`
 - Camera: manual repositioning each frame (not Phaser camera system)
 - Tile-based maps: 16px tiles, 60×40 town map, 30×20 dungeon map
@@ -153,10 +155,11 @@ The project references `~/agency-agents/` which contains ~220 agent personas acr
 
 ## Current Version
 
-See the version string in `TitleScene.js`. Bump when making changes.
+See the version string in `TitleScene.js`. Current action vertical-slice milestone:
+`v6.0-alpha.5`. Bump when making changes.
 
 ## Known Issues
 
 - `CombatScene` enemy sprites drawn via `this.add.graphics()` (not textured sprites)
-- `DungeonScene` enemies use graphics primitives, no sprite textures
-- Inventory `itemAction` mode has a bug: "Drop" sets `this.mode = 'list'` instead of `'inventory'`
+- Some legacy companion battle sheets still use gap-fill poses for windup, signature, critical, defend, and item-use animations.
+- The main worktree includes pre-existing uncommitted art and content changes; preserve them when preparing the v6 release commit.

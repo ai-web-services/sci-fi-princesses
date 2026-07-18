@@ -1,149 +1,240 @@
 # ═══════════════════════════════════════════════════════════════
-# ART PRODUCTION PLAN — execution plan for ART_VISION.md v2.0
+# ART PRODUCTION PLAN — execution plan for ART_VISION.md v3.0
 # ═══════════════════════════════════════════════════════════════
 
-**Status:** Working plan. Operationalizes ART_VISION.md §10's priority order into
-concrete, sequenced, delegatable steps. Update this file's checkboxes/notes as phases
-land — it is the durable record of what's shipped vs. pending, so a future session can
-resume without re-deriving the whole survey.
-
-**Relationship to other docs:** ART_VISION.md is the binding spec (what "done" looks
-like, §12 Acceptance Criteria). ART_ASSET_INVENTORY.md is the raw inventory. This file
-is the *how and in what order*.
-
----
-
-## Baseline (surveyed 2026-07-05)
-
-Pipeline is stable — pixel-string grids, `art/palette.js` named ramps, render-to-texture
-at boot, validator scripts (`validate:sprites`, `validate:maps`, region validators). No
-toolchain changes needed. Confirmed gaps vs. ART_VISION.md:
-
-| Category | State |
-|---|---|
-| Exploration walk cycles (4-dir) | 5/5 heroes complete |
-| Battle poses per hero (spec: 12, §3.2 B1–B12) | 7/12 present (idle/step/attack/cast/hit/ko/victory). Missing: B2 step-forward-windup, B3 attack windup, B6 signature skill, B8 critical, B10 defend, B12 item use |
-| Portraits (spec: 6 expressions) | 5/6 present per character (neutral/happy/sad/angry/surprised). Missing: resolute |
-| Standard enemies (16) | Complete, single static pose (per §4 that's spec-correct; idle-alt-frame animation is a §4 upgrade, not required) |
-| Bosses (spec: 5 arena + final) | 3/5: Kael, Matriarch, Ignis done. Missing: Vess, Archivist Prime, Unbound Crown (3-body) |
-| VFX library (§5.1, 14 primitives) | Not yet built — `art/vfx.js` doesn't exist |
-| In-engine preview/screenshot pipeline | Does not exist — required to produce §12.F evidence |
+**Status:** Working plan, rewritten 2026-07-09 (third revision). Standing decisions:
+1. VISION v3.0 style ("Reference-Anchored Chibi"); the Craftpix swordsman pack is
+   **reference only** — style ground truth for side-by-side acceptance, never a source
+   of shipped pixels.
+2. Sprites are **PNG spritesheet assets** (`public/assets/sprites/`), not text grids.
+3. **Zero art budget, no human artists, forever.** Nothing in this pipeline may cost
+   money: no asset purchases, no AI subscriptions, no commissions.
 
 ---
 
-## Phase 0 — Infrastructure (blocks all screenshot verification)
+## Strategy decision: procedural sprite-rig generator is the PRIMARY route
 
-- [x] Build `public/src/scenes/GalleryScene.js`: tabs/categories for exploration walks,
-      battle poses, portraits, enemies, bosses, VFX; renders at ×3 via existing
-      `buildActorTexture` / `buildHeroBattleTexture` / `buildEnemyBattleTexture` helpers.
-- [x] Wire a debug entry point (key or query param) from TitleScene. Press `G` on the
-      title screen.
-- [x] Verify against *existing* assets first (sanity check the viewer before trusting it
-      to validate new content). Confirmed 2026-07-05: all 6 tabs (Exploration Walks 5,
-      Battle Poses 5, Portraits 25, Standard Enemies 16, Bosses 3, VFX Library 0) render
-      without error; screenshotted Lyra exploration sprite, Lyra battle idle pose, and
-      Kael boss at ×3.
+Two candidate routes were evaluated against "free forever + no artists":
 
-**Delegation:** Serial, done directly (single new file, needs full pipeline context). DONE.
+- **AI image generation** fails as a primary route at zero cost: free/local models
+  (Stable Diffusion + pixel-art LoRAs) cannot reliably hold a character consistent
+  across 30+ frames × 4 directions at 64px, and the tools that can (PixelLab etc.)
+  are paid. AI is retained only as an optional *secondary* route for single images
+  (portraits, concept exploration) where consistency across frames doesn't apply —
+  and only via free/local tooling (Route F below).
+- **Procedural generation** (Route P) — a code-based character generator that
+  composes parametric body parts over a skeleton and poses them from shared animation
+  tables — is deterministic, gives 4-direction and frame-to-frame consistency *by
+  construction*, makes every new character inherit every animation for free, and
+  costs nothing. This is NOT hand-typed pixel grids: no human ever places individual
+  pixels; parts are drawn by parameterized code and all frames are computed.
 
----
-
-## Phase 1 — Hero battle sheets, Base stage (ART_VISION §10 priority 1)
-
-- [ ] Draft missing poses B2/B3/B6/B8/B10/B12 for all 5 heroes, per each hero's §3.3
-      signature-read row (e.g. Lyra B6 = Crown raised + halo ring; Erynn B6 = vanish
-      crouch → afterimage silhouette).
-- [ ] Splice drafts into `public/src/art/battle/heroes.js` (shared file — serialize
-      writes), run `validate:sprites`, screenshot each hero's full 12-pose sheet.
-- [ ] Manifest entries in `art/manifest.md` (create if absent) per ART_VISION §11.
-
-**Delegation:** 3 agents draft in parallel, split by hero group (no shared-file edits —
-return grids as text): {Lyra, Erynn}, {Brimble, Drakkor}, {Pip (hover-variant rules)}.
-Splice/validate/screenshot is serial (me).
+**Route P builds the game's sprites. Route F is garnish.**
 
 ---
 
-## Phase 2 — VFX core library (§10 priority 2)
+## Route P — The procedural sprite-rig generator (`tools/spritegen/`)
 
-- [ ] Build the 14 primitives from §5.1 in new `public/src/art/vfx.js`: `bolt`,
-      `projectile`, `cone`, `ring`, `rain`, `beam`, `shield_dome`, `sparkle_rise`,
-      `swarm`, `afterimage`, `slash_arc`, `screen_flash`, `screen_shake`,
-      `palette_cycle`.
-- [ ] Wire the 7 signature-skill choreographies (§5.2) on top of the primitives.
-- [ ] Screenshot/record each effect via Gallery's VFX tab.
+An offline Node project (never shipped to the browser) that renders finished PNG
+sheets into `public/assets/sprites/`. Five layers, bottom to top:
 
-**Delegation:** 2 agents in parallel on genuinely independent new files (no shared-file
-conflict since `vfx.js` doesn't exist yet): {shape primitives: bolt/projectile/cone/
-ring/rain/beam}, {caster/status primitives: shield_dome/sparkle_rise/swarm/afterimage/
-slash_arc/screen_flash/screen_shake/palette_cycle}. I merge exports + wire choreography.
+### P1. Drawing kernel
+Tiny pixel-canvas library: set/fill/line/ellipse/arc/polygon on an RGBA buffer,
+palette-indexed (draw with ramp *names*, resolve hexes from `art/palette.js` at
+render). Includes the two automatic style passes that implement VISION §1:
+- **Auto-shade:** light from upper-left — for each material region, pixels near
+  lower/right boundaries step down the ramp (shade), a 1px upper-left rim steps up
+  (highlight). Parameterized per part (round parts get curved shade boundaries).
+- **Auto-selout:** after compositing, every exterior edge pixel is replaced with the
+  darkest ramp step of *its own* material. This mechanically guarantees the single
+  most important style rule (no uniform outline) on every frame ever generated.
+
+### P2. Part library
+Parametric part functions, each returning a small pixel buffer + anchor points:
+- `head(species, size)` — face shape per species (human oval, Felidae wedge, Anura
+  dome, Drakonid heavy jaw, Construct geometry), with eye placement per VISION §1
+  (lash row / white / 2px iris) as a parameterized sub-function.
+- `hairOrCrest(template, params)` — the identity mass: template shapes (sweep, spikes,
+  twin-tail, mane, dome-crest…) with volume/length/asymmetry parameters. Ears, horns,
+  antennae are parts in the same slot family.
+- `torso(costume, params)`, `limb(kind, length)`, `weapon(kind)`, `accessory(kind)`.
+- Parts declare their material ramps, so shading/selout/palette-swaps are automatic.
+
+### P3. Skeleton + directions
+A character is a JSON **descriptor**: species, part choices + params, ramp bindings.
+The skeleton defines anchor sockets (head, shoulders, hips, grip, tail-root…) with
+per-direction (front/back/side-L/side-R) socket positions and part z-order. Side
+views are authored socket layouts, not mirrors — weapons stay in the correct hand
+(VISION §1). Direction consistency is therefore structural, not hoped-for.
+
+**Direction readability requirement (added 2026-07-09):** each direction row must
+look like the character is actually facing that way — a shared drawing path with
+x-offset tweaks is not sufficient. Per direction, part functions must change what is
+*drawn*, not just where: **front** = full face (both eyes, bangs); **back** = no face
+at all, hair/back-of-costume detail dominates (hair fall, jacket back seam/belt);
+**side** = true profile — one eye at the profile edge, visible nose/brow step in the
+head outline, torso narrowed with one arm mostly occluding the body, near leg in
+front of far leg, hair mass swept behind the face. Review test: crop any single
+frame with the row label hidden — the facing must be identifiable instantly. This is
+checked in the ×6 review strip for every action before a rig ships.
+
+### P4. Animation tables (written ONCE, shared by every character)
+Each action (idle 4–6f, walk 6f, run 8f, attack 6–8f, cast 6f, hurt 3–4f, KO 6f,
+victory 6f, interact 2f — VISION §3.3) is a keyframe table: per-frame socket offsets,
+part rotations/swaps (e.g. leg part `stride_fwd` vs `stride_back`), squash/stretch
+pixels, and secondary-motion rules (hair/tail lag 1 frame behind torso, ±1px bob).
+Attack tables include the smear frames — weapon part swapped for the element-tinted
+`smear_arc` crescent. New characters get the entire animation set for zero marginal
+work; character-specific tables (Pip's hover set, victory flourishes) override per
+descriptor.
+
+### P5. Renderer + packer
+For each descriptor × action × direction × frame: pose parts on skeleton → composite
+in z-order → auto-shade → quantize to declared ramps → auto-selout → anchor into
+64×64 cell (feet 4px above bottom) → pack 8-col × 4-row sheets → write PNG +
+`manifest.json` entry. Also emits ×6 review strips and the side-by-side
+reference-compare image for §12.C/F.
+
+### Why this scales
+- 5 heroes × 3 stages = 15 descriptors, not 15 art projects. Stages are descriptor
+  deltas (costume/palette/part swaps).
+- The 6 NPC archetypes × region palettes × species = descriptor combinatorics; the
+  whole world population falls out of the same part library.
+- Quality lives in ~30 part functions + ~10 animation tables — small, reviewable,
+  iteratively improvable code. Improving `hair()` once upgrades every character
+  retroactively. The review loop (me, at ×6, against the Craftpix reference) iterates
+  on part functions instead of on individual images.
+- Enemies: same kernel/renderer with their own part families (VISION §4 tiers);
+  bosses are bespoke descriptor + custom parts, animated engine-side via sub-part
+  motion as already specced.
+
+## Engine wiring (how rigs reach the game — implemented 2026-07-09)
+
+Rigs flow into the game through three pieces, and adding a future rig requires ZERO
+engine changes — regenerate, and the manifest drives everything:
+
+1. **Manifest-driven loading (BootScene):** `preload()` loads
+   `assets/sprites/manifest.json`, then queues every sheet the manifest lists onto the
+   in-flight loader (`queueRigSheets`). No hardcoded sheet paths.
+2. **Rig registry (`public/src/engine/rigs.js`):** after load, `registerRigs()`
+   creates one Phaser animation per asset × action × direction
+   (`rig_<id>_<action>_<row>`, frame range = directionRow × 8 columns, fps from the
+   manifest; idle/walk/run loop, others play once). An id counts as rigged when it
+   has at least idle + walk. Game directions map down/up/left/right →
+   front/back/side-left/side-right; no flipX (sides are authored).
+3. **`ActorSprite` (art/actors.js) prefers rigs:** if `hasRig(id)`, it becomes an
+   animated Phaser sprite (origin y = 60/64 so feet sit on the same ground point as
+   legacy art) and face()/update() switch animations; otherwise it falls back to the
+   legacy baked-grid texture unchanged. MapScene needed no changes — player and every
+   NPC construct ActorSprite, so each character upgrades automatically the moment its
+   sheets + manifest entry exist.
+
+Rollout order per rig: generate sheets → manifest entry appears → engine picks it up.
+Legacy grid art for a character is deleted only when its rig covers ALL uses
+(exploration + battle + gallery); until then both coexist and the rig wins wherever
+it applies. Battle (CombatScene ×2 rendering, VISION §3.4) is wired the same way once
+rigs gain battle actions (attack/cast/hurt/KO/victory).
+
+## Route F — Free/local AI (secondary; single images only)
+
+Use only where frame-consistency doesn't matter, and only at zero cost (local
+Stable Diffusion + pixel-art LoRA via ComfyUI if a capable GPU is available;
+otherwise skip — no paid fallback):
+- **Portraits (80×96):** generate at ~640×768, downscale 8:1 nearest, quantize to
+  ramps, hand-off to conform/validate like any asset.
+- **Concept exploration** for part-function design (hair shapes, costume ideas).
+- **Never for animation frames.**
+
+If used, every generation records this prompt block in the manifest so results are
+reproducible:
+
+```
+SUBJECT: <character id> — <species, silhouette keys from VISION §3.2/§3.5>
+IMAGE: <portrait expression | concept>, facing <dir/angle>
+STYLE: SNES-era pixel art portrait, soft hue-shifted ramps, dark same-hue edge
+       (selout), no black outline, no anti-aliasing, no gradient, flat transparent bg
+PALETTE (exact, exclusive): <hex list from art/palette.js ramps>
+COMPOSITION: subject fills ~85% of frame, centered, light from upper-left
+NEGATIVE: uniform black outline, gradients, extra limbs, background scenery, text
+POST: downscale to <target> nearest-neighbor, quantize to declared ramps
+```
+
+CC0/public-domain assets (OpenGameArt etc.) may be mined for *tiles and props* if
+they pass §12 after conforming — free ≠ paid — but characters stay Route P so the
+cast is unique and consistent.
 
 ---
 
-## Phase 3 — Boss contracts for missing roster (§10 priority 3)
+## Phases
 
-- [ ] Draft Vess (Silk Baroness, 96×112 duelist boss, §4.3), Archivist Prime (128×128
-      construct + orbiting glyph ring), Unbound Crown (3-body final: P1 64×80, P2/P3
-      192×160).
-- [ ] Splice into `public/src/art/battle/enemies.js` (shared file — serialize writes),
-      validate, screenshot each including sub-part animation + phase-shift overlays.
-- [ ] Manifest entries; note per §4.2 that bosses are never palette-swapped.
+### Phase A — spritegen foundation (gates everything)
+- [x] `tools/spritegen/` scaffold: drawing kernel (P1) incl. auto-shade + auto-selout;
+      ramp definitions in `art/palette.js` (VISION §2.1).
+- [x] Skeleton/direction system (P3) + renderer/packer (P5) + `manifest.json` schema;
+      Phaser loader path in BootScene (coexists with legacy procedural bake during
+      transition).
+- [x] Rewritten `scripts/validate_sprites.mjs` (PNG-based, VISION §12.A/B).
+- [x] `scripts/compare_ref.mjs` (×6 side-by-side vs local reference extraction) +
+      GalleryScene Reference-Compare tab. Reference pixels remain local-only.
+- [x] Smoke test: Lyra descriptor with parametric humanoid parts and idle/walk sheets,
+      end-to-end to an in-engine Gallery render.
 
-**Delegation:** 3 agents draft fully independent bosses in parallel (return grids as
-text). Splice/validate/screenshot serial (me).
+### Phase B — part library + animation tables to "Lyra idle/walk" quality
+- [x] Core humanoid parts (P2): head+eyes, 3 hair templates (`sweep`, `spikes`,
+      `twin-tail`), torso/costume, limbs, and saber. Lyra currently exercises the
+      `sweep` template; the other templates are descriptor-ready for companion rigs.
+- [x] Idle + walk animation tables (P4) with secondary motion.
+- [x] **Per-direction reads (P3 requirement above):** `drawLyra` uses distinct
+      front/back/profile details (profile nose/brow step + single eye, occluding arm
+      on sides, face-free back with jacket seam/belt). Blind-crop test remains part of
+      the pending reference-strip review.
+- [ ] **Lyra pilot:** descriptor → idle+walk ×4 directions in-engine, past §12.
+      The generated pilot and validator are in place; reference comparison remains
+      pending with `compare_ref.mjs`.
 
----
+### Phase C — full action set + full hero cast
+- [ ] Remaining animation tables: run, attack (+`smear_arc` part), cast, hurt, KO,
+      victory, interact; Pip hover override set.
+- [x] Species part families: Felidae (Erynn), Anura (Brimble), Drakonid (Drakkor),
+      Construct (Pip).
+- [x] 5 hero Base descriptors complete; Partial/Evolved as descriptor deltas
+      (Erynn/Drakkor Act-3 = larger deltas + new parts).
+- [ ] Delete legacy grid hero art as each rig ships (swap+delete same commit).
 
-## Phase 4 — UI kit refresh (§10 priority 4)
+### Phase D — VFX library (independent; can run parallel with B/C)
+- [ ] `public/src/art/vfx.js`: 14 primitives + `smear_arc` + 7 signature
+      choreographies (VISION §5); Gallery VFX tab evidence.
 
-- [ ] Audit current window frames/gauges/damage-number colors/CTB timeline against §8;
-      patch deltas only (don't rebuild what already passes).
+### Phase E — world cast
+- [ ] NPC archetype descriptors × species × region palettes (the cheapest big win —
+      pure descriptor combinatorics).
+- [x] Existing non-boss enemy roster regenerated via descriptor-driven family
+      renderers (21 current entries); 15 new D18 enemies remain pending.
+- [ ] Bosses: bespoke descriptors + custom parts at §4 canvases (Kael/Matriarch/Ignis
+      regenerated; Vess, Archivist Prime, Unbound Crown per v2.0 §4.3 designs);
+      sub-part animation stays engine-side.
 
-**Delegation:** Single agent audit + patch; low parallelism value (small, interdependent
-visual system).
+### Phase F — portraits & UI
+- [ ] Portraits: Route F if local GPU available, else procedural portrait parts
+      (bigger canvas, same kernel — decide after a Route F feasibility check).
+- [ ] UI kit audit vs. §8 (stays procedural; patch deltas only).
 
----
-
-## Phase 5 — Remaining per-milestone content (§10 priority 5)
-
-- [ ] Exploration extra-poses (interact/surprised/sad/sleep/victory, §3.1) × 5 heroes.
-- [ ] Portrait "resolute" expression × 5 heroes (only gap — rest exist).
-- [ ] Enemy idle-alternate-frame animation upgrade for 16 standard enemies (optional
-      polish per §4, not required for spec compliance).
-
-**Delegation:** 2–3 agents split by character for extra-poses; 1 agent for the portrait
-gap (small, uniform task across all 5).
-
----
-
-## Phase 6 — Cinematic templates (§10 priority 6)
-
-- [ ] Encounter transition (shatter/slide-in), death/dissolve (standard §7.4 + boss
-      variant), victory stagger (§7.5), evolution scene (§7.6), shard-memory duotone
-      (§7.7) — each a reusable sequence function built on Phase 2's VFX primitives.
-
-**Delegation:** Depends entirely on Phase 2 landing first. Then splits cleanly per
-template (5 largely independent sequence functions) — parallelizable once primitives
-exist.
-
----
-
-## Phase 7 — Ambience & polish (§10 priority 7)
-
-- [ ] Per-region exploration ambience (§7.8), void corruption motif (§7.9).
-
-**Delegation:** Deferred until M6+ regions actually ship content (per PLAN.md
-milestone status). Not scoped further here.
+### Phase G — cinematics & ambience
+- [ ] Cinematic templates on Phase D primitives; region ambience + void corruption
+      motif deferred until M6+ regions ship.
 
 ---
 
 ## Execution notes
 
-- `battle/heroes.js` and `battle/enemies.js` are single shared files covering all
-  characters/enemies — parallel agents must never `Edit` them directly. Agents draft
-  content as text; the orchestrating session splices serially and re-validates after
-  each splice.
-- Every phase ends with: run relevant `validate:*` script → Gallery screenshot → manifest
-  entry. No phase is "done" without the screenshot per ART_VISION §12.F.
-- Phase 0 gates everything — no new content should be authored before the viewer exists,
-  since there'd be no way to catch silhouette/color/grammar violations before they're
-  baked into shared files.
+- Repo accepts binaries under `public/assets/` (generated outputs are committed;
+  `tools/spritegen` is the source of truth — regenerating must be deterministic, so
+  descriptors + tables are versioned and any RNG is seeded).
+- Update PLAN.md D2 to record this supersession.
+- Delegation: part functions and animation tables parallelize cleanly across agents
+  (independent files, integrator reviews renders); descriptor authoring is cheap and
+  serial.
+- Every phase ends with validators → Gallery screenshot (with reference panel for
+  characters) → manifest entry → sequential vN.N commit. Never commit failing
+  validators.
+- Craftpix extraction stays local-only, used exclusively by `compare_ref.mjs`.

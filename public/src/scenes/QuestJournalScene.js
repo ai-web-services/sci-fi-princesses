@@ -95,7 +95,7 @@ export class QuestJournalScene extends Phaser.Scene {
     this.menu = new MenuList(this, this.win.x + 16, this.win.y + 50, items, {
       width: 194,
       lineH: 18,
-      visible: 13,
+      visible: 8,
       onChange: item => this.showDetail(item.row),
       onSelect: item => this.toggleTracked(item.row),
       onCancel: () => this.close()

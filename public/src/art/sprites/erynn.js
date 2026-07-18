@@ -1,163 +1,217 @@
 // ═══════════════════════════════════════════════════════════════
-// ERYNN "ERYX" VEXX — Felidae scout, authored pixel art 24×32
-// Tall large cat ears, dusk-violet fur, slim athletic build,
-// blue-steel scout bodysuit, red accent scarf, visible tail,
-// digitigrade bent-leg stance. Sleeker/narrower than Lyra.
-// Grids: body rows 0–26 + leg variants rows 27–31 per direction.
+// ERYNN VEXX — Felidae scout, authored pixel art 32×48 (taller
+// silhouette per concept sheet / ART_VISION §1). Act 1 base form
+// (Shadow Scout): dark charcoal bodysuit, crimson chest straps,
+// tall pointed ears, digitigrade bent-leg stance, tail. FFIV
+// big-head heroic chibi, low-crouch readiness in the silhouette.
+// Grids: body rows 0–42 (43 rows) + leg variants rows 43–47 (5
+// rows) per direction. All rows normalized to exactly 32 chars.
 // ═══════════════════════════════════════════════════════════════
 
+const W = 32;
+const norm = rows => rows.map(r => r.padEnd(W, '.').slice(0, W));
+
 export const ERYNN_MAP = {
-  k: 0x201828,                    // outline (species-dark)
-  f: 0x2d2438, F: 0x4d3d55, m: 0x6f5a78, M: 0x93789c, l: 0xb99cc0, // fur dark→light
-  w: 0xf8f8ff, e: 0x9a5ac0,        // eye white / sharp iris
-  n: 0x1a2230,                     // nose/inner ear dark
-  u: 0x1a2230, U: 0x2a3a4d, s: 0x3d5468, S: 0x567088, x: 0x7a92a8,  // suit dark→light
-  X: 0x1a2230,                     // boot dark (reuses suit-dark tone)
-  r: 0x8a2a3a, R: 0xc24352, a: 0xe86a6a                             // scarf accent
+  k: 0x1a1a2a,                              // outline (ART_VISION binding)
+  f: 0x853322, F: 0xcc7744,                 // fur dark→light
+  w: 0xf8f8ff, e: 0xffcc33,                 // eye white / amber iris
+  n: 0x111111,                              // nose/inner-ear dark
+  u: 0x222233, U: 0x2a2233, s: 0x3a3344, S: 0x4a4358, // suit dark outline / base / lighter
+  r: 0x8a2233, R: 0xcc3333,                 // crimson straps dark/light
+  t: 0x853322,                              // tail (fur tone)
+  l: 0xcc7744, M: 0xcc7744                  // ear-tuft highlight (fur light, alias)
 };
 
-const DOWN_BODY = [
-  '.......f........f......',
-  '......ff.f....f.ff.....',
-  '.....fFF..f..f..FFf....',
-  '.....fFll..ff..llFf....',
-  '......fMMl.ff.lMMf.....',
-  '.......kkkkkkkk........',
-  '......kFllllllFk.......',
-  '.....kFMMMMMMMMFk......',
-  '.....kFMnMMMMnMFk......',
-  '.....kFMMMMMMMMFk......',
-  '.....kMMweMMMMweMk.....',
-  '.....kMMMMMMMMMMMk.....',
-  '......kFMMMMMMMFk......',
-  '.......kkFMMMFkk.......',
-  '........kFMMFk.........',
-  '.......kUUUUUUk........',
-  '......kUsssssssUk......',
-  '.....kUsSSSSSSSsUk.....',
-  '.....kUsSraaaarSsUk....',
-  '.....kUsSSaaaaSSsUk....',
-  '......kUsSSSSSsUk......',
-  '.....kUUsSSSSSsUUk.....',
-  '....kUUUsSSSSsUUUk.....',
-  '....kUUUsSSSSsUUUk.....',
-  '....kUUUUsSSsUUUUk.....',
-  '....kxXXxxxxxxXXxk.....',
-  '....kuuuuuuuuuuuuk.....'
-].map(r => r.padEnd(24, '.').slice(0, 24));
+const DOWN_BODY = norm([
+  '................................',
+  '........f..............f.......',
+  '.......ff.f...........f.ff.....',
+  '......fFF..f.........f..FFf....',
+  '......fFll..f.......f..llFf....',
+  '.......fFMl.f......f.lMFf......',
+  '........kkkkkkkkkkkk...........',
+  '.......kFFFFFFFFFFFFk..........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFnFFFFFFFFnFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFweFFFFFFweFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '.......kFFFFFFFFFFFFk..........',
+  '........kkFFFFFFFFkk...........',
+  '.........kFFFFFFFFk............',
+  '.........kFFFFFFFFk............',
+  '..........kUUUUUUk.............',
+  '.........kUsssssssUk...........',
+  '........kUsSSSSSSSSsUk.........',
+  '........kUsSrRRRRRrSsUk........',
+  '........kUsSSrRRRrSSsUk........',
+  '........kUsSSSSSSSSsUk.........',
+  '.........kUsSSSSSSSsUk.........',
+  '.........kUUsSSSSSsUUk.........',
+  '........kUUUsSSSSsUUUk.........',
+  '........kUUUsSSSSsUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kSsSssssssSsSk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '........kUUUUUUUUUUUUk.........',
+  '........kuUUUUUUUUUUuk.........',
+  '........kuUUUUUUUUUUuk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '........kUUUUUUUUUUUUk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '................................',
+  '................................'
+]);
 
 const DOWN_LEGS = {
-  stand: [
-    '........kuUk..kuUk......',
-    '........kuUk..kuUk......',
-    '........kuuk..kuuk......',
-    '........kkkk..kkkk......',
-    '........................'
-  ],
-  a: [
-    '........kuUk..kuUk......',
-    '.......kuUk...kkkk......',
-    '.......kuuk.............',
-    '.......kkkk.............',
-    '........................'
-  ],
-  b: [
-    '........kuUk..kuUk......',
-    '........kkkk..kuUk......',
-    '..............kuUk......',
-    '..............kkkk......',
-    '........................'
-  ]
+  stand: norm([
+    '..........kuUk..kuUk............',
+    '..........kuUk..kuUk............',
+    '..........kuuk..kuuk............',
+    '..........kkkk..kkkk............',
+    '................................'
+  ]),
+  a: norm([
+    '..........kuUk..kuUk............',
+    '.........kuUk...kkkk............',
+    '.........kuuk....................',
+    '.........kkkk....................',
+    '................................'
+  ]),
+  b: norm([
+    '..........kuUk..kuUk............',
+    '..........kkkk..kuUk............',
+    '..................kuuk...........',
+    '..................kkkk...........',
+    '................................'
+  ])
 };
 
-const UP_BODY = [
-  '.......f........f......',
-  '......ff.f....f.ff.....',
-  '.....fFF..f..f..FFf....',
-  '.....fFll..ff..llFf....',
-  '......fMMl.ff.lMMf.....',
-  '.......kkkkkkkk.........',
-  '......kFllllllFk.......',
-  '......kFMMMMMMFk.......',
-  '......kFMMMMMMFk.......',
-  '......kFMMMMMMFk.......',
-  '.......kFMMMMFk........',
-  '........kFMMFk.........',
-  '.......kkFMMFkk........',
-  '........kFMMFk.........',
-  '........kFMMFk.........',
-  '.......kUUUUUUk........',
-  '......kUsssssssUk......',
-  '.....kUsSSSSSSSsUk.....',
-  '.....kUsSSSSSSSsUk.....',
-  '.....kUsSSaaaaSsUk.....',
-  '......kUsSSSSSsUk......',
-  '.....kUUsSSSSSsUUk.....',
-  '....kUUUsSSSSsUUUk.....',
-  '....kUUUsSSSSsUUUk.....',
-  '....kUUUUsSSsUUUUk.....',
-  '....kxXXxxxxxxXXxk.....',
-  '....kuuuuuuuuuuuuk.....'
-].map(r => r.padEnd(24, '.').slice(0, 24));
+const UP_BODY = norm([
+  '................................',
+  '........f..............f.......',
+  '.......ff.f...........f.ff.....',
+  '......fFF..f.........f..FFf....',
+  '......fFll..f.......f..llFf....',
+  '.......fFMl.f......f.lMFf......',
+  '........kkkkkkkkkkkk...........',
+  '.......kFFFFFFFFFFFFk..........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '......kFFFFFFFFFFFFFFk.........',
+  '.......kFFFFFFFFFFFFk..........',
+  '........kkFFFFFFFFkk...........',
+  '.........kFFFFFFFFk............',
+  '.........kFFFFFFFFk............',
+  '..........kUUUUUUk.............',
+  '.........kUsssssssUk...........',
+  '........kUsSSSSSSSSsUk.........',
+  '........kUsSSSSSSSSsUk.........',
+  '........kUsSSSSSSSSsUk.........',
+  '........kUsSSSSSSSSsUk.........',
+  '.........kUsSSSSSSSsUk.........',
+  '.........kUUsSSSSSsUUk.........',
+  '........kUUUsSSSSsUUUk.........',
+  '........kUUUsSSSSsUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kUUUUsSSsUUUUk.........',
+  '........kSsSssssssSsSk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '........kUUUUUUUUUUUUk.........',
+  '........kuUUUUUUUUUUuk.........',
+  '........kuUUUUUUUUUUuk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '........kUUUUUUUUUUUUk.........',
+  '........kuuuuuuuuuuuuk.........',
+  '................................',
+  '................................'
+]);
 
-const SIDE_BODY = [
-  '.......ff...............',
-  '......fFf..f............',
-  '.....fFF..ff............',
-  '.....fFll.ff............',
-  '......fMMlf.............',
-  '......kkkkkk............',
-  '.....kFllllFk...........',
-  '.....kFMMMMMFk..........',
-  '.....kFMMMMMnFk.........',
-  '.....kFMMMMMMFk.........',
-  '.....kMMMMweMMk.........',
-  '......kMMMMMMk..........',
-  '.......kkMMkFk..........',
-  '........kMMkFk.........m',
-  '.........kkkFk........mM',
-  '........kUUUUk.......mMl',
-  '.......kUsssUk......fMl.',
-  '......kUsSSSsUk....fFl..',
-  '......kUsSraSsUk..fFl...',
-  '......kUsSaaSsUk.fFl....',
-  '.......kUsSSsUk.kk......',
-  '......kUUsSSsUUk........',
-  '.....kUUUsSSsUUUk.......',
-  '.....kUUUsSSsUUUk.......',
-  '.....kUUUUsSsUUUUk......',
-  '.....kxXXxxxxXXxk......',
-  '.....kuuuuuuuuuuk.......'
-].map(r => r.padEnd(24, '.').slice(0, 24));
+const SIDE_BODY = norm([
+  '................................',
+  '......f.....................f..',
+  '.....ff.f...................f.f',
+  '....fFF..f.................f..F',
+  '....fFll..f................f..l',
+  '.....fFMl.f................f.lM',
+  '......kkkkkkkkkkkk..............',
+  '.....kFFFFFFFFFFFFk.............',
+  '....kFFFFFFFFFFFFFFk............',
+  '....kFFFFFFFFFFFFnFFk...........',
+  '....kFFFFFFFFFFFFFFk............',
+  '....kFFweFFFFFFFFFFk............',
+  '....kFFFFFFFFFFFFFFk............',
+  '.....kFFFFFFFFFFFFk.............',
+  '......kkFFFFFFFFkk..............',
+  '.......kFFFFFFFFk...............',
+  '.......kFFFFFFFFk...............',
+  '........kUUUUUUk................',
+  '.......kUsssssssUk..............',
+  '......kUsSSSSSSSSsUk............',
+  '......kUsSrRRRRRrSsUk...........',
+  '......kUsSSrRRRrSSsUk...........',
+  '......kUsSSSSSSSSsUk............',
+  '.......kUsSSSSSSSsUk............',
+  '.......kUUsSSSSSsUUk............',
+  '......kUUUsSSSSsUUUk............',
+  '......kUUUsSSSSsUUUk............',
+  '......kUUUUsSSsUUUUk...........t',
+  '......kUUUUsSSsUUUUk..........tt',
+  '......kUUUUsSSsUUUUk.........tFt',
+  '......kUUUUsSSsUUUUk........tFFt',
+  '......kUUUUsSSsUUUUk.......tFFf.',
+  '......kUUUUsSSsUUUUk......tFFf..',
+  '......kSsSssssssSsSk....ttFFf...',
+  '......kuuuuuuuuuuuuk...tFFf.....',
+  '......kUUUUUUUUUUUUk..fFf.......',
+  '......kuUUUUUUUUUUuk.fFf........',
+  '......kuUUUUUUUUUUuk.ff.........',
+  '......kuuuuuuuuuuuuk............',
+  '......kUUUUUUUUUUUUk............',
+  '......kuuuuuuuuuuuuk............',
+  '................................',
+  '................................'
+]);
 
 const SIDE_LEGS = {
-  stand: [
-    '..........kuUk..........',
-    '..........kuUk..........',
-    '..........kuukk.........',
-    '..........kkkkk.........',
-    '........................'
-  ],
-  a: [
-    '.........kuUk.kuUk......',
-    '........kuUk...kuUk.....',
-    '........kuuk...kuukk....',
-    '........kkkk...kkkkk....',
-    '........................'
-  ],
-  b: [
-    '..........kuUkuUk.......',
-    '..........kuUkuUk.......',
-    '.........kuukkuukk......',
-    '.........kkkk.kkkk......',
-    '........................'
-  ]
+  stand: norm([
+    '..........kuUk...................',
+    '..........kuUk...................',
+    '..........kuuk...................',
+    '..........kkkk...................',
+    '................................'
+  ]),
+  a: norm([
+    '.........kuUk.kuUk...............',
+    '........kuUk...kuUk..............',
+    '........kuuk...kuukk.............',
+    '........kkkk...kkkkk.............',
+    '................................'
+  ]),
+  b: norm([
+    '..........kuUkuUk................',
+    '..........kuUkuUk................',
+    '.........kuukkuukk...............',
+    '.........kkkk.kkkk...............',
+    '................................'
+  ])
 };
 
 export const ERYNN_SPRITE = {
   id: 'erynn',
   map: ERYNN_MAP,
-  w: 24, h: 32,
+  w: 32, h: 48,
   down: { body: DOWN_BODY, legs: DOWN_LEGS },
   up:   { body: UP_BODY,   legs: DOWN_LEGS },
   side: { body: SIDE_BODY, legs: SIDE_LEGS }

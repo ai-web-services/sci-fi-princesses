@@ -14,7 +14,13 @@ import { BATTLE_ENEMIES } from './battle/enemies.js';
 
 export async function loadBattleArt() { /* art is statically imported now */ }
 
-export const HERO_POSES = ['idle', 'step', 'attack', 'cast', 'hit', 'ko', 'victory'];
+// Base 7 (shipped) + ART_VISION.md §3.2 B2/B3/B6/B8/B10/B12 gap-fill poses.
+// Missing per-hero entries fall back to 'idle' (see buildHeroBattleTexture) so this
+// list can grow ahead of full per-hero authoring without breaking existing heroes.
+export const HERO_POSES = [
+  'idle', 'step', 'attack', 'cast', 'hit', 'ko', 'victory',
+  'windup', 'signature', 'critical', 'defend', 'itemUse'
+];
 
 // Bake hero battle textures: bh_<id> with pose frames. Returns true if authored art used.
 export function buildHeroBattleTexture(scene, id) {
@@ -159,6 +165,55 @@ const BACKDROPS = {
     for (let i = 0; i < 24; i++) {
       g.fillStyle(r() < 0.25 ? 0xa8422a : 0x16121d, 1);
       g.fillRect(Math.floor(r() * GAME_W), BG_H - 52 + Math.floor(r() * 46), 10 + Math.floor(r() * 18), 1);
+    }
+  },
+  kessari: (g, r) => {
+    // warm sandstone trade-port skyline at dusk
+    for (let i = 0; i < 6; i++) {
+      g.fillStyle(blend(0x3a1a2a, 0xe8a04a, i / 6), 1);
+      g.fillRect(0, Math.floor(BG_H * i / 6) - 30, GAME_W, Math.ceil(BG_H / 6) + 1);
+    }
+    // low dusk sun
+    g.fillStyle(0xffd166, 0.9);
+    g.fillRect(300, 70, 40, 40);
+    g.fillStyle(0xffe89a, 0.9);
+    g.fillRect(310, 80, 20, 20);
+    // sandstone bazaar skyline silhouettes with domed roofs and awnings
+    for (let x = 0; x < GAME_W;) {
+      const w = 26 + Math.floor(r() * 46);
+      const h = 34 + Math.floor(r() * 60);
+      g.fillStyle(0x6b4a2a, 1);
+      g.fillRect(x, BG_H - 58 - h, w, h);
+      g.fillStyle(0x8c6b3c, 1);
+      g.fillRect(x, BG_H - 58 - h, 3, h);
+      // domed roof cap
+      g.fillStyle(0x9a7522, 1);
+      g.fillRect(x + Math.floor(w * 0.25), BG_H - 58 - h - 6, Math.floor(w * 0.5), 6);
+      // striped awning band partway down
+      if (r() < 0.7) {
+        g.fillStyle(r() < 0.5 ? 0xa8422a : 0xd4a83a, 1);
+        g.fillRect(x, BG_H - 58 - Math.floor(h * 0.5), w, 4);
+      }
+      // lit windows
+      for (let k = 0; k < 5; k++) {
+        if (r() < 0.45) {
+          g.fillStyle(0xffd166, 1);
+          g.fillRect(x + 4 + Math.floor(r() * (w - 8)), BG_H - 58 - h + 6 + Math.floor(r() * (h - 12)), 2, 2);
+        }
+      }
+      x += w + 4;
+    }
+    // hazy dust/heat drift in the air
+    for (let i = 0; i < 24; i++) {
+      g.fillStyle(0xe8d9a8, 0.4);
+      g.fillRect(Math.floor(r() * GAME_W), Math.floor(r() * 130) + 20, 2 + Math.floor(r() * 8), 1);
+    }
+    // sandy ground band with texture flecks
+    g.fillStyle(0x9a7548, 1); g.fillRect(0, BG_H - 56, GAME_W, 56);
+    g.fillStyle(0x8c6b3c, 1); g.fillRect(0, BG_H - 56, GAME_W, 3);
+    for (let i = 0; i < 28; i++) {
+      g.fillStyle(r() < 0.3 ? 0xceb87e : 0x6b5836, 1);
+      g.fillRect(Math.floor(r() * GAME_W), BG_H - 50 + Math.floor(r() * 44), 8 + Math.floor(r() * 18), 1);
     }
   }
 };

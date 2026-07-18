@@ -26,11 +26,23 @@ function getKey(scene, name) {
   return k;
 }
 
-const ACTIONS = ['up', 'down', 'left', 'right', 'confirm', 'cancel', 'menu', 'pageL', 'pageR'];
+const ACTIONS = ['up', 'down', 'left', 'right', 'confirm', 'cancel', 'menu', 'pageL', 'pageR', 'actionSkill', 'companion'];
 
 // repeat state per action (module-level; single local player)
 const repeatState = {};
 const REPEAT_DELAY = 320, REPEAT_RATE = 90;
+
+function axisValue(axis) { return typeof axis?.getValue === 'function' ? axis.getValue() : Number(axis?.value ?? axis ?? 0); }
+
+export function gamepadActionDown(gp, action, bindings = Settings.bindings.gamepad) {
+  if (!gp) return false;
+  for (const idx of bindings[action] || []) if (gp.buttons[idx]?.pressed) return true;
+  if (action === 'left' && gp.axes.length && axisValue(gp.axes[0]) < -0.5) return true;
+  if (action === 'right' && gp.axes.length && axisValue(gp.axes[0]) > 0.5) return true;
+  if (action === 'up' && gp.axes.length > 1 && axisValue(gp.axes[1]) < -0.5) return true;
+  if (action === 'down' && gp.axes.length > 1 && axisValue(gp.axes[1]) > 0.5) return true;
+  return false;
+}
 
 function actionDown(scene, gp, action) {
   const kb = Settings.bindings.keyboard[action] || [];
@@ -38,19 +50,7 @@ function actionDown(scene, gp, action) {
     const k = getKey(scene, name);
     if (k && k.isDown) return true;
   }
-  if (gp) {
-    const gb = Settings.bindings.gamepad[action] || [];
-    for (const idx of gb) {
-      const b = gp.buttons[idx];
-      if (b && b.pressed) return true;
-    }
-    // stick fallback for directions
-    if (action === 'left' && gp.axes.length && gp.axes[0].getValue() < -0.5) return true;
-    if (action === 'right' && gp.axes.length && gp.axes[0].getValue() > 0.5) return true;
-    if (action === 'up' && gp.axes.length > 1 && gp.axes[1].getValue() < -0.5) return true;
-    if (action === 'down' && gp.axes.length > 1 && gp.axes[1].getValue() > 0.5) return true;
-  }
-  return false;
+  return gamepadActionDown(gp, action);
 }
 
 // JustDown + auto-repeat while held (for menu navigation)
@@ -93,6 +93,8 @@ export function pollInput(scene, time) {
     menued: edge('menu', held.menu),
     pageLd: edge('pageL', held.pageL),
     pageRd: edge('pageR', held.pageR),
+    skilld: edge('actionSkill', held.actionSkill),
+    companiond: edge('companion', held.companion),
     confirmHeld: held.confirm
   };
 }
@@ -100,7 +102,7 @@ export function pollInput(scene, time) {
 // Swallow the current edge states (call after scene transitions so a
 // held confirm doesn't double-trigger in the next scene).
 export function swallowInput() {
-  for (const a of ['confirm', 'cancel', 'menu', 'pageL', 'pageR']) edgeState[a] = true;
+  for (const a of ['confirm', 'cancel', 'menu', 'pageL', 'pageR', 'actionSkill', 'companion']) edgeState[a] = true;
 }
 
 // True if a gamepad is currently connected (for prompt display)
